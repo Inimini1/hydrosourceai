@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name":   "SmartPool AI",
+    "slug":   "smartpool-ai",
+    "version":"1.0.0",
+    "scheme": "smartpool",
+    "orientation": "portrait",
+    "icon":         "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image":           "./assets/splash.png",
+      "resizeMode":      "contain",
+      "backgroundColor": "#0f1419"
+    },
+    "ios": {
+      "supportsTablet":    true,
+      "bundleIdentifier": "com.smartpoolai.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage":   "./assets/adaptive-icon.png",
+        "backgroundColor":   "#0f1419"
+      },
+      "package": "com.smartpoolai.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output":  "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      ["expo-font", { "fonts": [] }]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "69ce2932d46901fc0cc0e6244055b51e7325d806604eedf89093d50c2041a575"
+    },
+    "app-icon": {
+      "source": "code-with-beto/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/cwb-app-icon/skills/app-icon/SKILL.md",
+      "computedHash": "8b91c8b648c737789f68fa97e37f05ad0885fdbad55d921dcdd276de23802e69"
+    },
+    "app-store-preflight-skills": {
+      "source": "truongduy2611/app-store-preflight-skills",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "f24b7db0f5d02a1787e61914756f3471b1bfbc632e828965f4995cb87f8c95a2"
+    },
+    "apple-search-ads": {
+      "source": "eronred/aso-skills",
+      "sourceType": "github",
+      "skillPath": "skills/apple-search-ads/SKILL.md",
+      "computedHash": "b41222c26c81da90e7d4fde9970247416789f16a8d53fa0d0b9eb0661cf172be"
+    },
+    "aso-audit": {
+      "source": "eronred/aso-skills",
+      "sourceType": "github",
+      "skillPath": "skills/aso-audit/SKILL.md",
+      "computedHash": "477bacb532df2597dbc624de3598bef2414460d20d11473ab939479b15e9f576"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "computedHash": "f483c304fcde060211ffae00f49bb728536e7e7613c99db45b5b924d9fc17243"
+    },
+    "building-native-ui": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/expo/skills/building-native-ui/SKILL.md",
+      "computedHash": "a0316d2ce842d2dd8067a144e339cf502329dc7701f9f5122268fdb3d4c980f7"
+    },
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "computedHash": "e21044ae7496fc285f1df9ff3fb518a3a20bea6f5216c1f59f4987e12c769a0a"
+    },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/executing-plans/SKILL.md",
+      "computedHash": "b41c919caf1bb07fbacb0e29899ac513f9eb11cd4dd695975ad352c2c03cc4d7"
+    },
+    "finishing-a-development-branch": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/finishing-a-development-branch/SKILL.md",
+      "computedHash": "932d23af11a3eb2b758f5b1d9aec7b6d28ddd26658328414f87f34dff7179d19"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "receiving-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/receiving-code-review/SKILL.md",
+      "computedHash": "2760c85d4f4117b0006e7ba755f4bbd61f8f4c185f347999763c97f507274e30"
+    },
+    "requesting-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/requesting-code-review/SKILL.md",
+      "computedHash": "874f3786b05007a8b4a60452a4cd89b9917c645d34b6b1e40ea05037d12f0e67"
+    },
+    "shannon-ai-pentester": {
+      "source": "aradotso/trending-skills",
+      "sourceType": "github",
+      "skillPath": "skills/shannon-ai-pentester/SKILL.md",
+      "computedHash": "801034b1a8c0cf2d85e0c5633c2e76adf6dcb9ccbcd812cad21807591f58e0b4"
+    },
+    "skill-builder": {
+      "source": "yusufkaraaslan/Skill_Seekers",
+      "sourceType": "github",
+      "skillPath": "skills/skill-seekers/SKILL.md",
+      "computedHash": "6fdf6b06090565f3055a5a65a1d6b127dcc66c7eab9ce40d33a628d7ec1befd4"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "computedHash": "b38be2f3a092d758127f6d47e77c2493885aebf38aae359e4c786df2c343b837"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "computedHash": "7246fdd3a795fc3daff0af72044ca99bf836e4e6a46844742858786fdfb86488"
+    },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "126f1ebf6ccd414f42544f6e83d8cc5adb089e1108eaffb7c400701e37eecd9f"
+    },
+    "using-git-worktrees": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/using-git-worktrees/SKILL.md",
+      "computedHash": "bd10bc57c23040630b17c877a9bc7b4be40c35161a2e2f110d770d78e3b0a4ff"
+    },
+    "using-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/using-superpowers/SKILL.md",
+      "computedHash": "de10fd3ff46d797acc92b9df6b3ea456a5cd1d095b73c90bc921e83cce4c5bb9"
+    },
+    "valyu-best-practices": {
+      "source": "valyuai/skills",
+      "sourceType": "github",
+      "skillPath": "valyu-search/valyu-best-practices/SKILL.md",
+      "computedHash": "ab8343a839682adb5b2cff657d63f34594dbdfec7003c0c8fe1f19006b14cd0d"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/verification-before-completion/SKILL.md",
+      "computedHash": "9b446f0c7fe1cfb560b1d34439523b1a76d5f177290007b2c053a1c749a4a8ba"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-plans/SKILL.md",
+      "computedHash": "2b986445454a025ca2c3839f8a2024747e8cce0517948437232cd113d2719060"
+    },
+    "writing-skills": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-skills/SKILL.md",
+      "computedHash": "b0e3065034610df41b9119445b5fd052042752bb3e598ca66aea2403a7c7685e"
+    }
+  }
+}

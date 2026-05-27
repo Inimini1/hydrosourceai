@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  email              String               @unique
+  passwordHash       String               @default("")
+  role               String               @default("OWNER")
+  subscriptionStatus String               @default("FREE")
+  displayName        String?
+  avatarColor        String?              @default("#006FFF")
+  onboardingComplete Boolean              @default(false)
+  emailVerified      Boolean              @default(false)
+  experienceLevel    String?
+  primaryGoal        String?
+  testFrequency      String?
+  mainChallenge        String?
+  theme                String               @default("light")
+  userType             String?
+  numPools             String?
+  poolPurpose          String?
+  failedLoginAttempts  Int                  @default(0)
+  lockedUntil          DateTime?
+  betaExpiresAt        DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  pools              Pool[]
+  subscription       Subscription?
+  notifications      Notification[]
+  resetTokens        PasswordResetToken[]
+  verificationTokens EmailVerificationToken[]
+  oauthAccounts      OAuthAccount[]
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OAuthAccount {
+  id                String @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Pool {
+  id           String       @id @default(cuid())
+  userId       String
+  poolName     String
+  gallons      Int
+  chlorineType String       @default("CHLORINE")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  waterTests   WaterTest[]
+  serviceLogs  ServiceLog[]
+}
+
+model WaterTest {
+  id               String   @id @default(cuid())
+  poolId           String
+  chlorine         Float
+  pH               Float
+  alkalinity       Float
+  calciumHardness  Float?
+  cyanuricAcid     Float?
+  temperature      Float?
+  waterClarity     String?
+  odor             String?
+  symptoms         String?
+  imageUrl         String?
+  status           String
+  aiAnalysis       String
+  createdAt        DateTime @default(now())
+  pool             Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
+}
+
+model ServiceLog {
+  id             String   @id @default(cuid())
+  poolId         String
+  notes          String
+  chemicalsAdded String?
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  pool           Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  stripeCustomerId String?
+  stripePriceId    String?
+  stripeSubId      String?
+  planType         String    @default("FREE")
+  status           String    @default("active")
+  currentPeriodEnd DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Persistent rate limiting — survives restarts, works across multiple instances
+model RateLimit {
+  key     String   @id
+  count   Int      @default(1)
+  resetAt DateTime
+}
+
+model BetaInvite {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  company   String?
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
