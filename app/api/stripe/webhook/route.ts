@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe, getPlanTypeFromPriceId, getBillingCycleFromPriceId, PLAN_POOL_LIMITS } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { PostHog } from 'posthog-node'
 import type Stripe from 'stripe'
 import type { PlanType } from '@/lib/plans'
+
+function getPostHog() {
+  const key = process.env.NEXT_PUBLIC_POSTHOG_KEY
+  if (!key) return null
+  return new PostHog(key, { host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com' })
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -103,6 +110,22 @@ export async function POST(req: NextRequest) {
         },
       })
 
+      // PostHog events
+      const ph = getPostHog()
+      if (ph) {
+        if (stripeSub.status === 'trialing' && event.type === 'customer.subscription.created') {
+          ph.capture({ distinctId: userId, event: 'trial_started', properties: { plan: planType, billing_cycle: billingCycle } })
+        } else if (stripeSub.status === 'active' && event.type === 'customer.subscription.updated') {
+          const prev = event.data.previous_attributes as Record<string, unknown> | undefined
+          if (prev?.status === 'trialing') {
+            ph.capture({ distinctId: userId, event: 'trial_converted', properties: { plan: planType, billing_cycle: billingCycle } })
+          } else {
+            ph.capture({ distinctId: userId, event: 'upgrade_completed', properties: { plan: planType, billing_cycle: billingCycle } })
+          }
+        }
+        await ph.shutdown()
+      }
+
       // Send "trial started" notification
       if (stripeSub.status === 'trialing' && event.type === 'customer.subscription.created') {
         const trialEnd = trialEndsAt
@@ -140,6 +163,12 @@ export async function POST(req: NextRequest) {
           message: 'Your subscription has ended. You\'ve been moved to the Free plan. Upgrade anytime to restore access.',
         },
       })
+
+      const ph = getPostHog()
+      if (ph) {
+        ph.capture({ distinctId: userId, event: 'subscription_cancelled' })
+        await ph.shutdown()
+      }
       break
     }
 

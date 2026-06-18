@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import posthog from 'posthog-js'
 import {
   PLAN_DEFINITIONS, PLAN_ORDER, COMPARISON_FEATURES,
   type PlanType, type BillingCycle,
@@ -289,8 +290,19 @@ export default function PricingPage() {
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
   const [loading, setLoading] = useState<string | null>(null)
 
+  useEffect(() => {
+    posthog.capture('pricing_page_viewed', { billing_cycle: cycle })
+  }, [])
+
   async function handleSelectPlan(planType: PlanType, billingCycle: BillingCycle) {
     setLoading(`${planType}:${billingCycle}`)
+    const plan = PLAN_DEFINITIONS[planType]
+    posthog.capture('upgrade_initiated', {
+      plan: planType,
+      billing_cycle: billingCycle,
+      price: billingCycle === 'annual' ? plan.price.annual : plan.price.monthly,
+      has_trial: plan.features.trial,
+    })
     try {
       const res = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
@@ -299,11 +311,13 @@ export default function PricingPage() {
       })
       const data = await res.json()
       if (res.status === 401) {
-        // Not logged in — send to signup with plan pre-selected
         router.push(`/signup?plan=${planType}&cycle=${billingCycle}`)
         return
       }
       if (data.url) {
+        if (plan.features.trial) {
+          posthog.capture('trial_started', { plan: planType, billing_cycle: billingCycle })
+        }
         window.location.href = data.url
       }
     } catch {
@@ -347,12 +361,11 @@ export default function PricingPage() {
             14-day free trial · No credit card required
           </div>
           <h1 className="font-display font-black text-4xl md:text-5xl text-white leading-tight mb-4">
-            Intelligent Pool Chemistry Analysis<br />
-            <span style={{ color: '#00C9B1' }}>& Client Reporting</span>
+            Intelligent Pool Chemistry Analysis and<br />
+            <span style={{ color: '#00C9B1' }}>Client Reporting for Modern Pool Service Professionals</span>
           </h1>
           <p className="text-lg text-white/45 leading-relaxed max-w-2xl mx-auto">
-            Save time, improve treatment accuracy, and generate professional client reports
-            in minutes. Built for modern pool service professionals.
+            Save time, improve treatment accuracy, and generate professional client reports in minutes.
           </p>
         </div>
 

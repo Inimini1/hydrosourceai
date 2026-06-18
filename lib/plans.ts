@@ -88,7 +88,7 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
 
   FREE: {
     type: 'FREE',
-    name: 'Homeowner Free',
+    name: 'Pool Owner Free',
     tagline: 'Perfect for keeping your own pool in check',
     userType: 'homeowner',
     price: { monthly: 0, annual: 0, annualMonthly: 0 },
@@ -121,7 +121,7 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
 
   HOMEOWNER_PLUS: {
     type: 'HOMEOWNER_PLUS',
-    name: 'Homeowner Plus',
+    name: 'Pool Owner Plus',
     tagline: 'Unlimited chemistry tracking for the serious pool owner',
     userType: 'homeowner',
     price: { monthly: 9, annual: 90, annualMonthly: 7.5 },
@@ -159,15 +159,15 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
   POOL_PRO: {
     type: 'POOL_PRO',
     name: 'Pool Pro',
-    tagline: 'Built for pool service professionals managing client pools',
+    tagline: 'Built for solo operators and small pool service companies',
     userType: 'professional',
-    price: { monthly: 39, annual: 390, annualMonthly: 32.5 },
+    price: { monthly: 49, annual: 490, annualMonthly: 40.83 },
     stripePriceId: {
       monthly: process.env.STRIPE_POOL_PRO_MONTHLY_PRICE_ID ?? '',
       annual:  process.env.STRIPE_POOL_PRO_ANNUAL_PRICE_ID  ?? '',
     },
     features: {
-      poolLimit: 50,
+      poolLimit: 75,
       analysesPerMonth: null,
       historyDays: null,
       fullAIExplanations: true,
@@ -182,13 +182,13 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
       trialDays: 14,
     },
     highlights: [
-      'Up to 50 pool profiles',
-      'Unlimited analyses & history',
-      'Maintenance log with treatment checklists',
-      'Professional PDF reports',
+      'Up to 75 pool profiles',
+      'Unlimited analyses & treatment logs',
+      'Professional client reports',
       'Email delivery to clients',
-      'Full AI analysis & dosing guide',
+      'Full AI explanations & dosing guide',
       'Historical chemistry tracking',
+      'Maintenance log with treatment checklists',
       '14-day free trial — no card required',
     ],
     cta: 'Start Free Trial',
@@ -201,13 +201,13 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
     name: 'Pool Team',
     tagline: 'For growing pool service companies managing technician teams',
     userType: 'professional',
-    price: { monthly: 99, annual: 990, annualMonthly: 82.5 },
+    price: { monthly: 149, annual: 1490, annualMonthly: 124.17 },
     stripePriceId: {
       monthly: process.env.STRIPE_POOL_TEAM_MONTHLY_PRICE_ID ?? '',
       annual:  process.env.STRIPE_POOL_TEAM_ANNUAL_PRICE_ID  ?? '',
     },
     features: {
-      poolLimit: 250,
+      poolLimit: 300,
       analysesPerMonth: null,
       historyDays: null,
       fullAIExplanations: true,
@@ -222,12 +222,12 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
       trialDays: 14,
     },
     highlights: [
-      'Up to 250 pool profiles',
+      'Up to 300 pool profiles',
       'Multiple technician accounts',
-      'Team collaboration & shared records',
-      'Maintenance log with treatment checklists',
-      'Branded reports with company logo',
+      'Shared records & team collaboration',
       'Role-based access control',
+      'Branded reports with company logo',
+      'Maintenance log with treatment checklists',
       'Technician activity tracking',
       '14-day free trial — no card required',
     ],
