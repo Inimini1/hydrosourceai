@@ -345,6 +345,24 @@
   .animate-in-delay-5 { animation: slide-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.40s both; }
 }
 
+/* ── Skeleton shimmer ────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+/* Light shimmer — for shapes inside white cards */
+.skeleton {
+  background: linear-gradient(90deg, #f0f2f5 0%, #e4e8ed 50%, #f0f2f5 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+/* Dark shimmer — for shapes on the dark mesh background */
+.skeleton-dark {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
 /* ── Keyframes ─────────────────────────────────────────────────────── */
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(18px); }

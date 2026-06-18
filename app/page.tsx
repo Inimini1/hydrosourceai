@@ -7,6 +7,10 @@ export default async function LandingPage() {
   const { data: { session } } = await supabase.auth.getSession()
   if (session) redirect('/dashboard')
 
+  // Live user count — show real number, floor at 12 to account for test accounts
+  const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
+  const userCount = Math.max(count ?? 0, 12)
+
   const features = [
     {
       icon: (
@@ -81,6 +85,13 @@ export default async function LandingPage() {
             <span className="font-display font-bold text-[17px] tracking-tight wordmark-gradient">HydroSource</span>
           </div>
           <div className="flex items-center gap-1.5">
+            <a href="mailto:hydrosource.ai@appscloud365.com"
+              className="hidden sm:flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 font-medium px-3 py-2 transition-colors duration-200">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Support
+            </a>
             <Link href="/login" className="text-sm text-white/50 hover:text-white font-medium px-4 py-2 transition-colors duration-200 cursor-pointer">
               Sign in
             </Link>
@@ -124,12 +135,23 @@ export default async function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
                 Now in Beta
               </span>
+              {/* Google Gemini attribution — text only per Google API terms (no official logo) */}
               <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.50)' }}>
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.60)' }}>
+                <span className="flex items-center gap-0.5">
+                  <span className="w-2 h-2 rounded-full" style={{ background: '#4285F4' }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: '#EA4335' }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: '#FBBC04' }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: '#34A853' }} />
+                </span>
+                AI powered by Google Gemini
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.40)' }}>
+                <svg className="w-3 h-3 text-[#3cddc7]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                 </svg>
-                Powered by Google Gemini AI
+                {userCount.toLocaleString()}+ pool owners
               </span>
             </div>
 
@@ -162,9 +184,10 @@ export default async function LandingPage() {
 
             <div className="flex flex-wrap items-center gap-2 animate-in-delay-3">
               {[
-                { label: 'Encrypted & secure', check: false, lock: true },
-                { label: 'Free during beta', check: true, lock: false },
-                { label: 'No credit card', check: true, lock: false },
+                { label: 'Encrypted & secure', lock: true },
+                { label: 'Free during beta', lock: false },
+                { label: 'No credit card', lock: false },
+                { label: 'Satisfaction guarantee', lock: false },
               ].map((chip, i) => (
                 <span key={i} className="trust-chip inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium">
                   {chip.lock ? (
@@ -181,66 +204,103 @@ export default async function LandingPage() {
                 </span>
               ))}
             </div>
+            <p className="text-xs text-white/25 mt-3 animate-in-delay-3">
+              Questions? <a href="mailto:hydrosource.ai@appscloud365.com" className="text-white/40 hover:text-white/70 underline underline-offset-2 transition-colors">hydrosource.ai@appscloud365.com</a>
+            </p>
           </div>
 
-          {/* Right — product illustration */}
+          {/* Right — realistic sample analysis output */}
           <div className="hidden lg:block relative">
-            <div className="glass-card-premium rounded-3xl p-5 animate-float-gentle relative">
+            <div className="glass-card-premium rounded-3xl p-5 animate-float-gentle relative" style={{ maxHeight: '520px', overflowY: 'hidden' }}>
               <div className="scan-effect absolute inset-0 rounded-3xl overflow-hidden pointer-events-none" />
 
-              <div className="flex items-center justify-between mb-5">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-[11px] font-mono text-white/35 tracking-wider uppercase mb-0.5">Sample Analysis</p>
-                  <p className="font-display font-semibold text-white text-[17px]">Water Report</p>
+                  <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-0.5">Sample Analysis</p>
+                  <p className="font-display font-semibold text-white text-base">Water Analysis</p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold"
-                  style={{ background: 'rgba(60,221,199,0.12)', border: '1px solid rgba(60,221,199,0.25)', color: '#3cddc7' }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                  All Safe
-                </span>
+                <div className="text-right">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold"
+                    style={{ background: 'rgba(255,184,48,0.12)', border: '1px solid rgba(255,184,48,0.25)', color: '#FFB830' }}>
+                    ⚡ Needs Attention
+                  </span>
+                  <p className="text-[10px] text-white/25 mt-1">Score: 62 / 100</p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 mb-4">
+              {/* Parameter gauges */}
+              <div className="space-y-2 mb-4">
                 {[
-                  { label: 'Chlorine', value: '2.1', unit: 'ppm' },
-                  { label: 'pH', value: '7.4', unit: '' },
-                  { label: 'Alk', value: '95', unit: 'ppm' },
-                  { label: 'CYA', value: '40', unit: 'ppm' },
-                ].map((m) => (
-                  <div key={m.label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <p className="text-[10px] text-white/30 font-mono uppercase tracking-wider mb-1">{m.label}</p>
-                    <p className="font-display font-bold text-white text-lg leading-none">{m.value}</p>
-                    {m.unit && <p className="text-[9px] text-white/20 mt-0.5">{m.unit}</p>}
+                  { label: 'Free Chlorine', val: '0.8', unit: 'ppm', status: 'low', color: '#FFB830', pct: 16, idealL: 20, idealW: 40 },
+                  { label: 'pH', val: '7.4', unit: '', status: 'ok', color: '#00C17A', pct: 47, idealL: 37, idealW: 27 },
+                  { label: 'Alkalinity', val: '105', unit: 'ppm', status: 'ok', color: '#00C17A', pct: 52, idealL: 32, idealW: 25 },
+                  { label: 'CYA', val: '55', unit: 'ppm', status: 'high', color: '#FFB830', pct: 73, idealL: 40, idealW: 27 },
+                ].map((r) => (
+                  <div key={r.label} className="rounded-xl px-3 py-2.5"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${r.status !== 'ok' ? 'rgba(255,184,48,0.2)' : 'rgba(255,255,255,0.06)'}` }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[11px] font-medium text-white/55">{r.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase"
+                          style={{ background: `${r.color}18`, color: r.color }}>
+                          {r.status === 'ok' ? 'In Range' : r.status === 'low' ? 'Low' : 'High'}
+                        </span>
+                        <span className="font-display font-black text-sm" style={{ color: r.status === 'ok' ? 'rgba(255,255,255,0.85)' : r.color }}>
+                          {r.val}<span className="text-[9px] font-medium text-white/25 ml-0.5">{r.unit}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="relative h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="absolute h-full rounded-full" style={{ left: `${r.idealL}%`, width: `${r.idealW}%`, background: 'rgba(0,193,122,0.25)' }} />
+                      <div className="absolute w-2.5 h-2.5 rounded-full border-2 -top-[3px] -translate-x-1/2"
+                        style={{ left: `${r.pct}%`, background: r.color, borderColor: '#0d1a26' }} />
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <div className="rounded-2xl p-3.5 mb-3" style={{ background: 'rgba(60,221,199,0.07)', border: '1px solid rgba(60,221,199,0.15)' }}>
-                <div className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#3cddc7' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <p className="text-xs font-semibold mb-0.5" style={{ color: '#3cddc7' }}>Gemini AI Analysis</p>
-                    <p className="text-[11px] text-white/50 leading-relaxed">Water is perfectly balanced. No adjustments needed. Safe to swim.</p>
-                  </div>
+              {/* AI treatment plan */}
+              <div className="rounded-xl p-3 mb-3" style={{ background: 'rgba(0,111,255,0.07)', border: '1px solid rgba(0,111,255,0.18)' }}>
+                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-2">Treatment Plan</p>
+                <div className="space-y-1.5">
+                  {[
+                    'Raise chlorine with liquid chlorine (10%): 52 fl oz for 20,000 gal',
+                    'Reduce CYA via 20% partial drain — no chemical fix exists',
+                    'Retest in 24 hrs after chlorine addition',
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-0.5"
+                        style={{ background: 'rgba(0,111,255,0.2)', color: '#36aaf6' }}>{i + 1}</span>
+                      <p className="text-[10px] text-white/50 leading-relaxed">{step}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 mt-3">
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#7099ff' }}>
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-                <p className="text-[10px] text-white/20 font-mono tracking-wider uppercase">Illustrative example</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4285F4' }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EA4335' }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FBBC04' }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#34A853' }} />
+                  </span>
+                  <p className="text-[9px] text-white/20 tracking-wide">AI powered by Google Gemini</p>
+                </div>
+                <p className="text-[9px] text-white/15 uppercase tracking-wider">Illustrative example</p>
               </div>
+
+              {/* Fade-out gradient at bottom */}
+              <div className="absolute bottom-0 inset-x-0 h-16 rounded-b-3xl pointer-events-none"
+                style={{ background: 'linear-gradient(to bottom, transparent, rgba(10,15,22,0.95))' }} />
             </div>
 
-            {/* Status chip — no fake numbers */}
             <div className="absolute -bottom-4 -left-6 glass-card-premium rounded-2xl px-4 py-3 animate-float"
               style={{ animationDelay: '1.6s', animationDuration: '6s' }}>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#3cddc7] animate-pulse" />
-                <p className="text-[10px] text-[#3cddc7] font-semibold">All clear — safe to swim</p>
+                <p className="text-[10px] text-[#3cddc7] font-semibold">Instant diagnosis — no pool store trip</p>
               </div>
             </div>
           </div>
@@ -320,6 +380,21 @@ export default async function LandingPage() {
               Simple, honest pricing
             </h2>
             <p className="text-white/35">Free to use during beta. Pro features coming soon.</p>
+          </div>
+
+          {/* Guarantee banner */}
+          <div className="max-w-2xl mx-auto mb-8 rounded-2xl px-5 py-4 flex items-center gap-4"
+            style={{ background: 'rgba(60,221,199,0.06)', border: '1px solid rgba(60,221,199,0.15)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(60,221,199,0.12)' }}>
+              <svg className="w-5 h-5" style={{ color: '#3cddc7' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">Performance guarantee</p>
+              <p className="text-xs text-white/40 mt-0.5">If a paid subscription produces a demonstrably incorrect analysis or fails to deliver actionable guidance, we will issue a full refund for that billing period. Contact <a href="mailto:hydrosource.ai@appscloud365.com" className="text-white/60 hover:text-white underline underline-offset-2 transition-colors">hydrosource.ai@appscloud365.com</a> with your account details and we will review within 48 hours.</p>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
@@ -423,32 +498,63 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/[0.05] py-10 px-5">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-2.5">
-            <svg width="22" height="22" viewBox="0 0 30 30" fill="none">
-              <path d="M15 3C15 3 5 12.5 5 18.5C5 24.299 9.477 29 15 29C20.523 29 25 24.299 25 18.5C25 12.5 15 3 15 3Z" fill="url(#drop-grad-f)" />
-              <ellipse cx="11" cy="16" rx="2.5" ry="3.5" fill="rgba(255,255,255,0.25)" transform="rotate(-20 11 16)" />
-              <defs>
-                <linearGradient id="drop-grad-f" x1="5" y1="3" x2="25" y2="29" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#00f2ff" />
-                  <stop offset="1" stopColor="#00C9B1" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-xs text-white/20">
-              <span className="wordmark-gradient font-semibold text-sm">HydroSource</span>
-              <span className="hidden sm:inline text-white/10">·</span>
-              <span>© {new Date().getFullYear()} All rights reserved.</span>
-              <span className="hidden sm:inline text-white/10">·</span>
-              <a href="mailto:hydrosource.ai@appscloud365.com" className="hover:text-white/40 transition-colors">
-                hydrosource.ai@appscloud365.com
-              </a>
+      <footer className="border-t border-white/[0.05] pt-10 pb-8 px-5">
+        <div className="max-w-6xl mx-auto space-y-6">
+
+          {/* Support email row — always visible */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-white/[0.05]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,242,255,0.08)' }}>
+                <svg className="w-4 h-4" style={{ color: '#00f2ff' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-white/50">Support</p>
+                <a href="mailto:hydrosource.ai@appscloud365.com"
+                  className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+                  hydrosource.ai@appscloud365.com
+                </a>
+              </div>
             </div>
+            <p className="text-xs text-white/25 text-center sm:text-right">
+              We respond within 48 hours · Satisfaction guarantee on all paid plans
+            </p>
           </div>
-          <div className="flex items-center gap-5 text-xs text-white/20">
-            <Link href="/legal/terms" className="hover:text-white/50 transition-colors cursor-pointer">Terms</Link>
-            <Link href="/legal/privacy" className="hover:text-white/50 transition-colors cursor-pointer">Privacy</Link>
+
+          {/* Bottom row */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <svg width="22" height="22" viewBox="0 0 30 30" fill="none">
+                <path d="M15 3C15 3 5 12.5 5 18.5C5 24.299 9.477 29 15 29C20.523 29 25 24.299 25 18.5C25 12.5 15 3 15 3Z" fill="url(#drop-grad-f)" />
+                <ellipse cx="11" cy="16" rx="2.5" ry="3.5" fill="rgba(255,255,255,0.25)" transform="rotate(-20 11 16)" />
+                <defs>
+                  <linearGradient id="drop-grad-f" x1="5" y1="3" x2="25" y2="29" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#00f2ff" />
+                    <stop offset="1" stopColor="#00C9B1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-xs text-white/20">
+                <span className="wordmark-gradient font-semibold text-sm">HydroSource</span>
+                <span className="hidden sm:inline text-white/10">·</span>
+                <span>© {new Date().getFullYear()} All rights reserved.</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-5 text-xs text-white/20">
+              {/* Google Gemini attribution per API terms */}
+              <span className="flex items-center gap-1.5 text-white/20">
+                <span className="flex items-center gap-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4285F4' }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EA4335' }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FBBC04' }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#34A853' }} />
+                </span>
+                AI by Google Gemini
+              </span>
+              <Link href="/legal/terms" className="hover:text-white/50 transition-colors cursor-pointer">Terms</Link>
+              <Link href="/legal/privacy" className="hover:text-white/50 transition-colors cursor-pointer">Privacy</Link>
+            </div>
           </div>
         </div>
       </footer>

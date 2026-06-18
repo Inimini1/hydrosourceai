@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 import { sendWaterReportEmail } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
-  const auth = await getAuthUser(req)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { testId, recipientEmail } = await req.json().catch(() => ({}))
 
@@ -18,15 +18,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
   }
 
-  const test = await prisma.waterTest.findFirst({
-    where: { id: testId, pool: { userId: auth.userId } },
-    include: { pool: { select: { poolName: true, gallons: true, chlorineType: true } } },
-  })
-  if (!test) return NextResponse.json({ error: 'Test not found.' }, { status: 404 })
+  const { data: testRow, error: testError } = await supabase
+    .from('water_tests')
+    .select('id, chlorine, ph, alkalinity, calcium_hardness, cyanuric_acid, temperature, status, ai_analysis, created_at, pools(pool_name, gallons, chlorine_type)')
+    .eq('id', testId)
+    .single()
+
+  if (testError || !testRow) return NextResponse.json({ error: 'Test not found.' }, { status: 404 })
+
+  const poolData = Array.isArray(testRow.pools) ? testRow.pools[0] : testRow.pools
+  const test = {
+    chlorine: testRow.chlorine,
+    pH: testRow.ph,
+    alkalinity: testRow.alkalinity,
+    calciumHardness: testRow.calcium_hardness,
+    cyanuricAcid: testRow.cyanuric_acid,
+    temperature: testRow.temperature,
+    status: testRow.status,
+    aiAnalysis: testRow.ai_analysis,
+    createdAt: new Date(testRow.created_at),
+    pool: {
+      poolName: poolData?.pool_name ?? 'My Pool',
+      gallons: poolData?.gallons ?? 0,
+      chlorineType: poolData?.chlorine_type ?? 'CHLORINE',
+    },
+  }
 
   let analysis: Record<string, unknown>
   try {
-    analysis = JSON.parse(test.aiAnalysis)
+    analysis = typeof test.aiAnalysis === 'string' ? JSON.parse(test.aiAnalysis) : test.aiAnalysis as Record<string, unknown>
   } catch {
     return NextResponse.json({ error: 'Report data is corrupted.' }, { status: 500 })
   }
@@ -46,7 +66,7 @@ export async function POST(req: NextRequest) {
 interface TestData {
   chlorine: number; pH: number; alkalinity: number
   calciumHardness: number | null; cyanuricAcid: number | null; temperature: number | null
-  status: string; createdAt: Date
+  status: string; aiAnalysis: string | Record<string, unknown>; createdAt: Date
   pool: { poolName: string; gallons: number; chlorineType: string }
 }
 

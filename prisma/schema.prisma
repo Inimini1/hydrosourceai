@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -106,22 +106,27 @@ model ServiceLog {
   notes          String
   chemicalsAdded String?
   imageUrl       String?
+  treatmentPlan  String?  // JSON: PrescriptionStep[] stored for maintenance log checklists
   createdAt      DateTime @default(now())
   pool           Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
-  id               String    @id @default(cuid())
-  userId           String    @unique
-  stripeCustomerId String?
-  stripePriceId    String?
-  stripeSubId      String?
-  planType         String    @default("FREE")
-  status           String    @default("active")
-  currentPeriodEnd DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  stripeCustomerId  String?
+  stripePriceId     String?
+  stripeSubId       String?
+  planType          String    @default("FREE")
+  billingCycle      String?   // "monthly" | "annual"
+  status            String    @default("active")
+  currentPeriodEnd  DateTime?
+  trialEndsAt       DateTime? // Trial expiry for Pool Pro / Pool Team
+  cancelAtPeriodEnd Boolean   @default(false)
+  poolLimit         Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Notification {

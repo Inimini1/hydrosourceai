@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { haptics } from '@/lib/haptics'
 import { PoolDropIcon } from '@/components/TestReminderBanner'
+import TreatmentPrescription from '@/components/TreatmentPrescription'
 
 interface ChemicalDose { chemical: string; amount: string; how_to_apply: string }
 
@@ -20,8 +21,10 @@ interface Analysis {
   timeline: string
   preventative_alerts: string[]
   mistakes_to_avoid: string[]
+  conflicts_detected: string[]
   why_this_works: string
   safety_notes: string
+  next_test_days: number
 }
 
 interface TestResult {
@@ -228,6 +231,116 @@ function ParameterSlider({
   )
 }
 
+// ── Feedback card ────────────────────────────────────────────────────────────
+function FeedbackCard({ testId }: { testId: string }) {
+  const [rating, setRating] = useState<'helpful' | 'not_helpful' | null>(null)
+  const [note, setNote] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [feedbackError, setFeedbackError] = useState('')
+
+  async function submit(r: 'helpful' | 'not_helpful') {
+    setRating(r)
+    if (r === 'helpful') {
+      setSaving(true)
+      try {
+        await fetch(`/api/water-tests/${testId}/feedback`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: r }),
+        })
+      } catch { /* non-critical — feedback is best-effort */ }
+      setSaving(false)
+      setSubmitted(true)
+    }
+  }
+
+  async function submitWithNote() {
+    if (!rating) return
+    setSaving(true)
+    setFeedbackError('')
+    try {
+      const res = await fetch(`/api/water-tests/${testId}/feedback`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating, note }),
+      })
+      if (!res.ok) { setFeedbackError('Could not send feedback. Try again.'); return }
+      setSubmitted(true)
+    } catch {
+      setFeedbackError('Connection error. Feedback not saved.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+        style={{ background: 'rgba(0,193,122,0.06)', border: '1px solid rgba(0,193,122,0.15)' }}>
+        <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#00C17A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+        </svg>
+        <p className="text-sm text-white/50">Thanks — your feedback improves future recommendations.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-2xl px-4 py-4 space-y-3"
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <p className="text-[11px] font-bold text-white/30 uppercase tracking-widest">Was this analysis helpful?</p>
+      <div className="flex gap-2.5">
+        <button
+          onClick={() => submit('helpful')}
+          disabled={saving}
+          className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200"
+          style={rating === 'helpful'
+            ? { background: 'rgba(0,193,122,0.15)', border: '1.5px solid rgba(0,193,122,0.4)', color: '#00C17A' }
+            : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+          </svg>
+          Yes, it helped
+        </button>
+        <button
+          onClick={() => { setRating('not_helpful') }}
+          className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200"
+          style={rating === 'not_helpful'
+            ? { background: 'rgba(255,59,92,0.1)', border: '1.5px solid rgba(255,59,92,0.3)', color: '#FF3B5C' }
+            : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+          </svg>
+          Needs improvement
+        </button>
+      </div>
+      {rating === 'not_helpful' && (
+        <div className="space-y-2.5">
+          <textarea
+            value={note}
+            onChange={(e) => { setNote(e.target.value); setFeedbackError('') }}
+            placeholder="What was off? (optional — helps us improve)"
+            rows={2}
+            className="w-full px-3.5 py-3 rounded-xl text-sm text-white placeholder-white/20 outline-none resize-none"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+          />
+          {feedbackError && (
+            <p className="text-xs font-medium" style={{ color: '#FF3B5C' }}>{feedbackError}</p>
+          )}
+          <button
+            onClick={submitWithNote}
+            disabled={saving}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold text-white/70 transition-all hover:text-white"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            {saving ? 'Sending…' : 'Submit feedback'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 export default function AddTestPage() {
   const { id } = useParams<{ id: string }>()
@@ -260,6 +373,11 @@ export default function AddTestPage() {
   const [sendingReport, setSendingReport] = useState(false)
   const [reportSentOk, setReportSentOk] = useState(false)
   const [reportSendError, setReportSendError] = useState('')
+
+  // ── Maintenance log save ─────────────────────────────────────────────────
+  const [savingPlan, setSavingPlan] = useState(false)
+  const [planSaved, setPlanSaved] = useState(false)
+  const [planSaveError, setPlanSaveError] = useState('')
 
   function toggleSymptom(label: string) {
     haptics.light()
@@ -297,7 +415,12 @@ export default function AddTestPage() {
         if (r.alkalinity != null) setAlkalinity(String(r.alkalinity))
         if (r.calciumHardness != null) setCalciumHardness(String(r.calciumHardness))
         if (r.cyanuricAcid != null) setCyanuricAcid(String(r.cyanuricAcid))
-        setScanResult('✓ Readings extracted — review below then tap Analyze.')
+        const qualityNote = r.photo_quality === 'poor'
+          ? ' Photo quality was poor — double-check all values before analyzing.'
+          : r.low_confidence_params?.length > 0
+          ? ` Verify ${r.low_confidence_params.join(', ')} — color was ambiguous.`
+          : ''
+        setScanResult(`✓ Readings extracted — review below then tap Analyze.${qualityNote}`)
         setTab('manual')
       } else {
         setScanResult('Could not read strip clearly. Please enter values manually.')
@@ -362,6 +485,42 @@ export default function AddTestPage() {
     }
   }
 
+  async function handleSavePlan() {
+    if (!result || savingPlan || planSaved) return
+    setSavingPlan(true)
+    setPlanSaveError('')
+    try {
+      const a = result.aiAnalysis
+      const steps = a.chemical_dosing_guide ?? []
+      const noteParts: string[] = []
+      if (a.diagnosis) noteParts.push(a.diagnosis)
+      if (a.immediate_action_plan?.length) noteParts.push(`Action plan: ${a.immediate_action_plan.join(' · ')}`)
+      const notes = noteParts.join('. ') || 'AI water test treatment plan'
+
+      const res = await fetch('/api/service-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          poolId: id,
+          notes,
+          chemicalsAdded: steps.map((s: { chemical: string; amount: string }) => `${s.chemical}: ${s.amount}`).join(', ') || undefined,
+          treatmentPlan: steps,
+        }),
+      })
+      if (res.status === 403) {
+        setPlanSaveError('Maintenance log requires Pool Pro. Upgrade in Billing →')
+        return
+      }
+      if (!res.ok) { setPlanSaveError('Could not save. Please try again.'); return }
+      haptics.success()
+      setPlanSaved(true)
+    } catch {
+      setPlanSaveError('Connection error. Please try again.')
+    } finally {
+      setSavingPlan(false)
+    }
+  }
+
   async function handleSendReport() {
     if (!result || !reportEmail || sendingReport) return
     setSendingReport(true)
@@ -421,8 +580,8 @@ export default function AddTestPage() {
               </svg>
             </button>
             <div>
-              <h1 className="font-display text-xl font-bold text-white">Analysis Complete</h1>
-              <p className="text-xs text-white/35">HydroSource Diagnostic Report</p>
+              <h1 className="font-display text-xl font-bold text-white">Water Analysis</h1>
+              <p className="text-xs text-white/35 uppercase tracking-wider">HydroSource Diagnostic Report</p>
             </div>
           </div>
 
@@ -444,12 +603,7 @@ export default function AddTestPage() {
           <div className="rounded-3xl p-6 text-center animate-in-delay-1"
             style={{ background: `linear-gradient(135deg, ${scoreColor}18, ${scoreColor}06)`, border: `1px solid ${scoreColor}30` }}>
             <div className="flex items-center justify-center gap-2 mb-5">
-              <PoolDropIcon
-                urgency={a.status === 'safe' ? 'fresh' : a.status === 'caution' ? 'due-soon' : 'urgent'}
-                color={scoreColor}
-                size={28}
-              />
-              <p className="text-xs font-bold text-white/40 uppercase tracking-widest">Pool Health Score</p>
+              <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest">Pool Health Score</p>
             </div>
             <HealthRing score={score} color={scoreColor} />
             <div className="mt-5">
@@ -466,37 +620,48 @@ export default function AddTestPage() {
             </div>
           </div>
 
-          {/* Readings table */}
-          <div className="rounded-3xl border border-white/10 overflow-hidden animate-in-delay-2"
-            style={{ background: 'rgba(255,255,255,0.04)' }}>
-            <div className="px-5 py-4 border-b border-white/8">
-              <p className="text-sm font-bold text-white">💧 Your Readings</p>
-            </div>
-            <div className="grid grid-cols-3 px-5 py-2 border-b border-white/6">
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Parameter</span>
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest text-center">Ideal</span>
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest text-right">Result</span>
-            </div>
+          {/* Readings — parameter gauge cards */}
+          <div className="space-y-2 animate-in-delay-2">
+            <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest px-1">Water Chemistry</p>
             {readings.map(({ key, val }) => {
               const meta = RANGES[key]
               if (!meta) return null
               const st = readingStatus(key, val)
               const c = STATUS_COLORS[st]
+              const dMin = meta.critMin !== undefined ? meta.critMin : Math.max(0, meta.min * 0.4)
+              const dMax = meta.critMax !== undefined ? meta.critMax : meta.max * 1.8
+              const pct = Math.min(100, Math.max(0, ((val - dMin) / (dMax - dMin)) * 100))
+              const idealL = Math.max(0, ((meta.min - dMin) / (dMax - dMin)) * 100)
+              const idealW = Math.min(100 - idealL, ((meta.max - meta.min) / (dMax - dMin)) * 100)
+              const statusLabel =
+                st === 'safe' ? 'In Range'
+                : st === 'caution' ? (val < meta.min ? 'Low' : 'High')
+                : (val < meta.min ? 'Critical Low' : 'Critical High')
               return (
-                <div key={key} className="grid grid-cols-3 px-5 py-3.5 border-b border-white/5 last:border-0 items-center"
-                  style={st !== 'safe' ? { background: `${c.bg}` } : undefined}>
-                  <span className="text-sm font-medium text-white/70">{meta.label}</span>
-                  <span className="text-xs text-white/35 text-center">{meta.ideal}{meta.unit ? ` ${meta.unit}` : ''}</span>
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="text-sm font-bold" style={{ color: st === 'safe' ? 'rgba(255,255,255,0.85)' : c.text }}>
-                      {val}{meta.unit}
-                    </span>
-                    {st === 'safe'
-                      ? <svg className="w-4 h-4 text-safe flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                      : st === 'caution'
-                      ? <svg className="w-4 h-4 flex-shrink-0" style={{ color: c.text }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                      : <svg className="w-4 h-4 flex-shrink-0" style={{ color: c.text }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                    }
+                <div key={key} className="rounded-2xl px-4 py-3.5 transition-all"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${st === 'safe' ? 'rgba(255,255,255,0.08)' : c.border}` }}>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="text-sm font-semibold text-white/65">{meta.label}</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide"
+                        style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>
+                        {statusLabel}
+                      </span>
+                      <span className="font-display font-black text-xl leading-none" style={{ color: st === 'safe' ? 'rgba(255,255,255,0.9)' : c.text }}>
+                        {val}<span className="text-xs font-semibold text-white/30 ml-0.5">{meta.unit}</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="relative h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                    <div className="absolute h-full rounded-full"
+                      style={{ left: `${idealL}%`, width: `${idealW}%`, background: 'rgba(0,193,122,0.28)' }} />
+                    <div className="absolute w-3 h-3 rounded-full border-2 border-[#0B1E2D] -top-[3px] -translate-x-1/2 transition-all duration-300"
+                      style={{ left: `${pct}%`, background: c.text, boxShadow: `0 0 6px ${c.text}70` }} />
+                  </div>
+                  <div className="flex justify-between mt-1.5">
+                    <span className="text-[9px] text-white/20">{dMin}{meta.unit}</span>
+                    <span className="text-[9px] font-medium text-white/30">Ideal {meta.ideal}{meta.unit ? ` ${meta.unit}` : ''}</span>
+                    <span className="text-[9px] text-white/20">{dMax}{meta.unit}</span>
                   </div>
                 </div>
               )
@@ -507,7 +672,7 @@ export default function AddTestPage() {
           {a.key_causes.length > 0 && (
             <div className="rounded-3xl border border-white/10 p-5"
               style={{ background: 'rgba(255,255,255,0.04)', animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.3s both' }}>
-              <p className="text-sm font-bold text-white mb-4">🔍 Why This Is Happening</p>
+              <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest mb-4">Root Causes</p>
               <ul className="space-y-2.5">
                 {a.key_causes.map((cause, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-white/65 leading-relaxed">
@@ -520,55 +685,15 @@ export default function AddTestPage() {
             </div>
           )}
 
-          {/* Immediate action plan */}
-          {a.immediate_action_plan.length > 0 && (
-            <div className="space-y-3"
-              style={{ animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.4s both' }}>
-              <p className="text-sm font-bold text-white px-1">⚡ Immediate Action Plan</p>
-              {a.immediate_action_plan.map((step, i) => {
-                const parts = step.replace(/^Step\s*\d+\s*[—\-:]\s*/i, '').split(/[—\-:](.+)/)
-                const title = parts.length > 1 ? parts[0].trim() : `Step ${i + 1}`
-                const detail = parts.length > 1 ? parts.slice(1).join(':').trim() : step.replace(/^Step\s*\d+[:\.\s]*/i, '')
-                return (
-                  <div key={i} className="rounded-3xl p-5 flex gap-4"
-                    style={{ background: 'rgba(0,111,255,0.08)', border: '1px solid rgba(0,111,255,0.2)' }}>
-                    <div className="w-9 h-9 rounded-2xl flex items-center justify-center font-display font-black text-base flex-shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #006FFF, #00D4AA)', boxShadow: '0 0 14px rgba(0,111,255,0.4)' }}>
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white mb-1">{title}</p>
-                      <p className="text-sm text-white/60 leading-relaxed">{detail}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Chemical dosing guide */}
+          {/* Treatment Prescription — unified step-by-step sequenced action plan */}
           {a.chemical_dosing_guide.length > 0 && (
-            <div className="space-y-3"
-              style={{ animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.5s both' }}>
-              <p className="text-sm font-bold text-white px-1">⚗️ Chemical Dosing Guide</p>
-              {a.chemical_dosing_guide.map((dose, i) => (
-                <div key={i} className="rounded-3xl p-5"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <p className="text-base font-bold text-white">{dose.chemical}</p>
-                    <span className="text-sm font-black px-3 py-1 rounded-xl flex-shrink-0"
-                      style={{ background: 'rgba(0,193,122,0.15)', color: '#00C17A', border: '1px solid rgba(0,193,122,0.25)' }}>
-                      {dose.amount}
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <svg className="w-4 h-4 text-white/25 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-sm text-white/55 leading-relaxed">{dose.how_to_apply}</p>
-                  </div>
-                </div>
-              ))}
+            <div style={{ animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.4s both' }}>
+              <TreatmentPrescription
+                steps={a.chemical_dosing_guide}
+                conflicts={a.conflicts_detected ?? []}
+                warnings={a.mistakes_to_avoid ?? []}
+                poolStatus={a.status}
+              />
             </div>
           )}
 
@@ -584,10 +709,35 @@ export default function AddTestPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white mb-1">⏱ What to Expect (Next 24–48 hrs)</p>
+                  <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest mb-1">What to Expect (24–48 hrs)</p>
                   <p className="text-sm text-white/60 leading-relaxed">{a.timeline}</p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Next test reminder */}
+          {a.next_test_days > 0 && (
+            <div className="rounded-2xl px-4 py-3.5 flex items-center justify-between"
+              style={{ background: 'rgba(0,111,255,0.06)', border: '1px solid rgba(0,111,255,0.15)', animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.58s both' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(0,111,255,0.15)' }}>
+                  <svg className="w-4 h-4" style={{ color: '#36aaf6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white/35 uppercase tracking-widest">Next Test</p>
+                  <p className="text-sm font-semibold text-white/75 mt-0.5">
+                    Retest in <span style={{ color: '#36aaf6' }}>{a.next_test_days} day{a.next_test_days !== 1 ? 's' : ''}</span>
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-3 py-1.5 rounded-xl"
+                style={{ background: 'rgba(0,111,255,0.15)', color: '#36aaf6' }}>
+                +{a.next_test_days}d
+              </span>
             </div>
           )}
 
@@ -595,7 +745,7 @@ export default function AddTestPage() {
           {a.preventative_alerts.length > 0 && (
             <div className="rounded-3xl p-5"
               style={{ background: 'rgba(255,184,48,0.07)', border: '1px solid rgba(255,184,48,0.2)', animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.6s both' }}>
-              <p className="text-sm font-bold text-white mb-4">🔮 Preventative Alerts</p>
+              <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest mb-4">Preventative Alerts</p>
               <ul className="space-y-2.5">
                 {a.preventative_alerts.map((alert, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-white/65 leading-relaxed">
@@ -613,7 +763,7 @@ export default function AddTestPage() {
           {a.mistakes_to_avoid.length > 0 && (
             <div className="rounded-3xl p-5"
               style={{ background: 'rgba(255,59,92,0.07)', border: '1px solid rgba(255,59,92,0.2)', animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.65s both' }}>
-              <p className="text-sm font-bold text-white mb-4">🚫 Mistakes to Avoid</p>
+              <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest mb-4">Avoid These Mistakes</p>
               <ul className="space-y-2.5">
                 {a.mistakes_to_avoid.map((m, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-white/65 leading-relaxed">
@@ -631,10 +781,13 @@ export default function AddTestPage() {
           {a.why_this_works && (
             <div className="rounded-3xl p-5"
               style={{ background: 'rgba(0,111,255,0.07)', border: '1px solid rgba(0,111,255,0.18)', animation: 'slide-up 0.5s cubic-bezier(0.4,0,0.2,1) 0.7s both' }}>
-              <p className="text-sm font-bold text-white mb-2">🧪 Why This Works</p>
+              <p className="text-[11px] font-bold text-white/35 uppercase tracking-widest mb-2">The Science</p>
               <p className="text-sm text-white/60 leading-relaxed">{a.why_this_works}</p>
             </div>
           )}
+
+          {/* Feedback */}
+          <FeedbackCard testId={result.id} />
 
           {/* CTA buttons */}
           <div className="space-y-3 pt-2"
@@ -670,6 +823,55 @@ export default function AddTestPage() {
               </svg>
               Send Report as PDF
             </button>
+
+            {/* Save to Maintenance Log — Pool Pro feature */}
+            {a.chemical_dosing_guide.length > 0 && (
+              <div>
+                {planSaveError && (
+                  <div className="mb-2 px-4 py-2.5 rounded-xl text-xs text-center"
+                    style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444' }}>
+                    {planSaveError.includes('Pool Pro') ? (
+                      <><span>{planSaveError.split(' Upgrade')[0]} </span>
+                      <Link href="/billing" className="underline font-bold">Upgrade in Billing →</Link></>
+                    ) : planSaveError}
+                  </div>
+                )}
+                <button
+                  onClick={handleSavePlan}
+                  disabled={savingPlan || planSaved}
+                  className="w-full py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 disabled:opacity-60"
+                  style={planSaved
+                    ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#10B981' }
+                    : { background: 'rgba(0,111,255,0.08)', border: '1px solid rgba(0,111,255,0.22)', color: '#36aaf6' }
+                  }
+                >
+                  {savingPlan ? (
+                    <><div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />Saving…</>
+                  ) : planSaved ? (
+                    <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>Saved to Maintenance Log</>
+                  ) : (
+                    <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>Save Treatment Plan to Maintenance Log
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1"
+                      style={{ background: 'rgba(0,111,255,0.2)', color: '#36aaf6' }}>PRO</span>
+                    </>
+                  )}
+                </button>
+                {planSaved && (
+                  <Link
+                    href={`/pools/${id}/maintenance`}
+                    className="block w-full text-center mt-1.5 py-1.5 text-xs font-semibold transition-colors"
+                    style={{ color: 'rgba(0,111,255,0.6)' }}
+                  >
+                    View maintenance log →
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ── SEND REPORT BOTTOM SHEET ──────────────────────────────────── */}
@@ -862,10 +1064,13 @@ export default function AddTestPage() {
               <p className="text-xs font-semibold text-slate-500 mb-2">What brand are your test strips?</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { key: 'aquachek', label: 'AquaChek', sub: 'Most common US brand' },
-                  { key: 'lamottes', label: 'LaMotte', sub: 'Professional grade' },
-                  { key: 'hth',      label: 'HTH',      sub: 'Retail / budget' },
-                  { key: 'generic',  label: 'Other / Unknown', sub: 'Generic calibration' },
+                  { key: 'aquachek',   label: 'AquaChek',       sub: 'Most common US brand' },
+                  { key: 'jnw',        label: 'JNW Direct',     sub: 'Amazon #1 bestseller' },
+                  { key: 'lamottes',   label: 'LaMotte',        sub: 'Professional grade' },
+                  { key: 'hth',        label: 'HTH',            sub: 'Retail / budget' },
+                  { key: 'leslies',    label: "Leslie's",       sub: 'Pool store brand' },
+                  { key: 'poolmaster', label: 'Poolmaster',     sub: '5-way strips' },
+                  { key: 'generic',    label: 'Other / Unknown', sub: 'Generic calibration' },
                 ].map((b) => (
                   <button
                     key={b.key}

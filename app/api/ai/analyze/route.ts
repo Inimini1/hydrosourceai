@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         .select('chlorine, ph, alkalinity, status, created_at')
         .eq('pool_id', poolId)
         .order('created_at', { ascending: false })
-        .limit(5),
+        .limit(10),
     ])
 
     const experienceLevel = profileResult.data?.experience_level ?? null

@@ -2,7 +2,22 @@
   "permissions": {
     "allow": [
       "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\alaka\\\\AI PROPERTY MANAGEMENT APP\\\\SmartPool AI\" -Recurse -File | Sort-Object Directory, Name | Group-Object Directory | ForEach-Object { $_.Name; $_.Group | ForEach-Object { \"  \" + $_.Name } } | Out-String)",
-      "PowerShell(\\(Get-ChildItem -Path \"c:\\\\Users\\\\alaka\\\\AI PROPERTY MANAGEMENT APP\\\\SmartPool AI\" -Recurse -File\\).Count)"
+      "PowerShell(\\(Get-ChildItem -Path \"c:\\\\Users\\\\alaka\\\\AI PROPERTY MANAGEMENT APP\\\\SmartPool AI\" -Recurse -File\\).Count)",
+      "Bash(npx tsc *)",
+      "Bash(sleep 8 && cat /tmp/hydrosource-dev.log)",
+      "mcp__Claude_in_Chrome__javascript_tool",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"wrong@test.com\",\"password\":\"badpassword\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"\",\"password\":\"\"}')",
+      "Bash(curl -s -o /dev/null -w 'signup POST: %{http_code}' -X POST http://localhost:3000/api/auth/signup -H 'Content-Type: application/json' -d '{\"email\":\"test@test.com\",\"password\":\"short\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/oauth -H 'Content-Type: application/json' -d '{\"provider\":\"google\"}')",
+      "Bash(curl -s http://localhost:3000/pricing)",
+      "Bash(curl -s -o /dev/null -w \"billing \\(unauth\\): %{http_code} → %{redirect_url}\" http://localhost:3000/billing)",
+      "Bash(curl -s -o /dev/null -w '%{http_code} → %{redirect_url}' 'https://ltyqcewsjpzivjrwlmgv.supabase.co/auth/v1/authorize?provider=google&redirect_to=http://localhost:3000/api/auth/callback')",
+      "Bash(grep -oE \"\\(Homeowner|Pool Pro|Pool Team|Free|MOST POPULAR|\\\\\\\\\\\\$[0-9]+\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/signup -H 'Content-Type: application/json' -d '{\"email\":\"test@example.com\",\"password\":\"short\",\"name\":\"Test User\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/signup -H 'Content-Type: application/json' -d '{\"email\":\"verifytest@example.com\",\"password\":\"ValidPass123!\",\"name\":\"Verify Test\"}')",
+      "mcp__mcp-registry__search_mcp_registry",
+      "mcp__mcp-registry__list_connectors"
     ]
   }
 }

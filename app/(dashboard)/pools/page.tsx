@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import StatusBadge from '@/components/StatusBadge'
 import { PoolLensIcon } from '@/components/brand'
 import { EmptyStateView } from '@/components/EmptyStateView'
+import { PageError } from '@/components/PageError'
 
 const listVariants = {
   hidden: {},
@@ -29,23 +30,55 @@ interface Pool {
 export default function PoolsPage() {
   const [pools, setPools] = useState<Pool[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
+    setLoading(true)
+    setLoadError(false)
     fetch('/api/pools')
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(); return r.json() })
       .then((d) => setPools(d.pools ?? []))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false))
-  }, [])
+  }, [retryKey])
 
   if (loading) {
     return (
-      <div className="px-4 pt-12 space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-3xl h-20 animate-pulse border border-slate-100" />
-        ))}
+      <div className="pb-6">
+        <div className="px-4 pt-12 pb-5 flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-7 w-28 rounded-xl skeleton" />
+            <div className="h-3 w-36 rounded-full skeleton" />
+          </div>
+          <div className="h-10 w-28 rounded-2xl skeleton" />
+        </div>
+        <div className="px-4 space-y-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="card-light rounded-3xl p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl flex-shrink-0 skeleton" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 rounded-lg skeleton" />
+                <div className="h-3 w-24 rounded-full skeleton" />
+              </div>
+              <div className="h-7 w-16 rounded-full skeleton flex-shrink-0" />
+              <div className="w-4 h-4 rounded skeleton flex-shrink-0" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
+
+  if (loadError) return (
+    <PageError
+      variant="light"
+      onRetry={() => setRetryKey((k) => k + 1)}
+      title="Could not load pools"
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    />
+  )
 
   return (
     <div className="pb-6">

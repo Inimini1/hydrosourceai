@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import TestReminderBanner from '@/components/TestReminderBanner'
+import { PageError } from '@/components/PageError'
 
 interface WaterTest {
   id: string
@@ -416,20 +417,24 @@ export default function HistoryPage() {
   const [tests, setTests]       = useState<WaterTest[]>([])
   const [pool, setPool]         = useState<{ poolName: string; chlorineType: string } | null>(null)
   const [loading, setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
   const [activeDays, setActiveDays] = useState(30)
 
   useEffect(() => {
+    setLoading(true)
+    setLoadError(false)
     Promise.all([
-      fetch(`/api/tests?poolId=${id}&limit=120`).then((r) => r.json()),
-      fetch(`/api/pools/${id}`).then((r) => r.json()),
+      fetch(`/api/tests?poolId=${id}&limit=120`).then((r) => { if (!r.ok) throw new Error(); return r.json() }),
+      fetch(`/api/pools/${id}`).then((r) => { if (!r.ok) throw new Error(); return r.json() }),
     ]).then(([testData, poolData]) => {
       const sorted = ([...(testData.tests ?? [])]).sort(
         (a: WaterTest, b: WaterTest) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       )
       setTests(sorted)
       setPool({ poolName: poolData.pool?.poolName ?? 'Pool', chlorineType: poolData.pool?.chlorineType ?? 'CHLORINE' })
-    }).catch(() => {}).finally(() => setLoading(false))
-  }, [id])
+    }).catch(() => setLoadError(true)).finally(() => setLoading(false))
+  }, [id, retryKey])
 
   const cutoff  = new Date(Date.now() - activeDays * 86400000)
   const filtered = tests.filter((t) => new Date(t.createdAt) >= cutoff)
@@ -456,14 +461,62 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="px-4 pt-12 space-y-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white rounded-3xl animate-pulse border border-slate-100"
-            style={{ height: i === 1 ? 56 : 140 }} />
-        ))}
+      <div className="pb-8">
+        <div className="px-4 pt-12 pb-5 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl flex-shrink-0 skeleton" />
+          <div className="space-y-2">
+            <div className="h-6 w-40 rounded-xl skeleton" />
+            <div className="h-3 w-36 rounded-full skeleton" />
+          </div>
+        </div>
+        <div className="px-4 mb-5">
+          <div className="card-light p-1 flex gap-1">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className={`flex-1 h-9 rounded-2xl skeleton ${i === 1 ? 'opacity-100' : 'opacity-60'}`} />
+            ))}
+          </div>
+        </div>
+        <div className="px-4 space-y-4">
+          <div className="card-light p-5 rounded-3xl">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex-shrink-0 skeleton" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 rounded skeleton" />
+                <div className="h-3 w-48 rounded-full skeleton" />
+              </div>
+              <div className="w-4 h-4 rounded skeleton flex-shrink-0" />
+            </div>
+          </div>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="card-light p-4 rounded-3xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="space-y-1.5">
+                  <div className="h-3 w-24 rounded skeleton" />
+                  <div className="h-2.5 w-16 rounded-full skeleton" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-20 rounded-xl skeleton" />
+                  <div className="h-8 w-16 rounded-xl skeleton" />
+                </div>
+              </div>
+              <div className="h-[76px] rounded-xl skeleton" />
+              <div className="mt-3 h-9 rounded-xl skeleton" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
+
+  if (loadError) return (
+    <PageError
+      variant="light"
+      onRetry={() => setRetryKey((k) => k + 1)}
+      title="Could not load history"
+      backHref={`/pools/${id}`}
+      backLabel="Pool details"
+    />
+  )
 
   return (
     <div className="pb-8">

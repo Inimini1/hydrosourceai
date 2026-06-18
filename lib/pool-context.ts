@@ -14,6 +14,7 @@ import {
   ADJUSTMENT_SEQUENCE,
   SEASONAL_FACTORS,
   CHLORINE_DEMAND_FACTORS,
+  LSI_REFERENCE,
 } from './pool-chemistry-db'
 import {
   VISUAL_DIAGNOSTIC_PATTERNS,
@@ -24,24 +25,35 @@ import {
   PRO_TIPS,
 } from './pool-diagnostics-db'
 
+/**
+ * Look up the factor for a given value using the PHTA step table.
+ * Returns the factor for the highest entry whose key is ≤ value.
+ */
+function lsiTableBelow<T extends Record<string, number>>(
+  table: T[],
+  keyField: keyof T,
+  factorField: keyof T,
+  value: number,
+): number {
+  const sorted = [...table].sort((a, b) => (a[keyField] as number) - (b[keyField] as number))
+  let result = sorted[0][factorField] as number
+  for (const entry of sorted) {
+    if ((entry[keyField] as number) <= value) result = entry[factorField] as number
+    else break
+  }
+  return result
+}
+
+/**
+ * Calculate Langelier Saturation Index using PHTA lookup tables.
+ * Formula: LSI = pH + TF + CF + AF − 12.1
+ * All three correction factors (TF, CF, AF) use the PHTA/Taylor C-2005 step tables.
+ */
 function getLSI(pH: number, tempF: number, calciumHardness: number, alkalinity: number): number {
-  const getTF = (t: number) => {
-    if (t <= 36) return 0.0; if (t <= 43) return 0.1; if (t <= 50) return 0.2
-    if (t <= 57) return 0.3; if (t <= 63) return 0.4; if (t <= 70) return 0.5
-    if (t <= 79) return 0.6; if (t <= 88) return 0.7; if (t <= 98) return 0.8
-    return 0.9
-  }
-  // Calcium hardness factor — PHTA/Taylor lookup table values.
-  // Raw log10(CH) overcounts by ~0.4; this table matches Taylor Technologies C-2005.
-  const getCF = (ch: number) => {
-    if (ch <= 5)   return 0.3; if (ch <= 25)  return 1.0; if (ch <= 50)  return 1.3
-    if (ch <= 75)  return 1.5; if (ch <= 100) return 1.6; if (ch <= 150) return 1.8
-    if (ch <= 200) return 1.9; if (ch <= 300) return 2.1; if (ch <= 400) return 2.2
-    if (ch <= 600) return 2.4; if (ch <= 800) return 2.5; return 2.6
-  }
-  // Alkalinity factor — log10(TA) coincides well with the PHTA table in the normal range.
-  const AF = Math.log10(Math.max(1, alkalinity))
-  return parseFloat((pH + getTF(tempF) + getCF(calciumHardness) + AF - 12.1).toFixed(2))
+  const tf = lsiTableBelow(LSI_REFERENCE.temperature_factor,     'temp_f', 'factor', tempF)
+  const cf = lsiTableBelow(LSI_REFERENCE.calcium_hardness_factor,'ch_ppm', 'factor', calciumHardness)
+  const af = lsiTableBelow(LSI_REFERENCE.alkalinity_factor,      'ta_ppm', 'factor', alkalinity)
+  return parseFloat((pH + tf + cf + af - 12.1).toFixed(2))
 }
 
 export function buildPoolContext(input: AnalyzeInput): string {
@@ -136,7 +148,8 @@ export function buildPoolContext(input: AnalyzeInput): string {
   if (input.chlorine < 1) {
     const deficit = 2 - input.chlorine
     lines.push(`FREE CHLORINE: Need to raise by ~${deficit.toFixed(1)} ppm to reach 2 ppm`)
-    lines.push(`  → ${DOSING_FORMULAS.chlorine.raise_with_liquid_10pct(gallons, deficit)}`)
+    lines.push(`  → ${DOSING_FORMULAS.chlorine.raise_with_liquid_12_5pct(gallons, deficit)} (pool store standard)`)
+    lines.push(`  → OR ${DOSING_FORMULAS.chlorine.raise_with_liquid_10pct(gallons, deficit)} (10% concentration)`)
     lines.push(`  → OR ${DOSING_FORMULAS.chlorine.raise_with_calhypo_73pct(gallons, deficit)}`)
     if (input.chlorine < 0.5) {
       lines.push(`  SHOCK DOSE (to 10 ppm): ${DOSING_FORMULAS.chlorine.shock_dose_to_10ppm(gallons, input.chlorine)}`)

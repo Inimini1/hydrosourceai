@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
@@ -32,6 +33,15 @@ export async function GET(req: NextRequest) {
 
 // Resend verification email
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  const rl = await checkRateLimit(`verify-email:${ip}`, 5, 15 * 60 * 1000)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please wait before trying again.' }, {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) },
+    })
+  }
+
   const { email } = await req.json().catch(() => ({}))
   if (!email) return NextResponse.json({ error: 'Email required.' }, { status: 400 })
 

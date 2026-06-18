@@ -20,7 +20,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-white font-bold text-lg mb-3">1. Who We Are</h2>
-            <p>HydroSource is an AI-powered pool management application. We help pool owners and professionals analyze water chemistry and track pool maintenance. Contact us at al.cloud365@gmail.com.</p>
+            <p>HydroSource is an AI-powered pool management application. We help pool owners and professionals analyze water chemistry and track pool maintenance. Contact us at hydrosource.ai@appscloud365.com.</p>
           </section>
 
           <section>

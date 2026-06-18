@@ -35,6 +35,54 @@ export interface RecentTest {
   status: string
 }
 
+export function detectPatterns(tests: RecentTest[]): string {
+  if (tests.length < 2) return ''
+
+  const findings: string[] = []
+
+  const phValues  = tests.map((t) => t.pH)
+  const clValues  = tests.map((t) => t.chlorine)
+  const taValues  = tests.map((t) => t.alkalinity)
+
+  // Drift: consistent direction across all consecutive pairs
+  function drift(vals: number[]): 'rising' | 'falling' | 'stable' {
+    let up = 0, down = 0
+    for (let i = 0; i < vals.length - 1; i++) {
+      if (vals[i + 1] > vals[i] + 0.05) up++
+      else if (vals[i + 1] < vals[i] - 0.05) down++
+    }
+    if (up >= vals.length - 1) return 'rising'
+    if (down >= vals.length - 1) return 'falling'
+    return 'stable'
+  }
+
+  const phDrift = drift(phValues)
+  const clDrift = drift(clValues)
+  const taDrift = drift(taValues)
+
+  if (phDrift === 'rising')  findings.push(`pH has risen every test (${phValues[phValues.length-1]} → most recent ${phValues[0]}) — consistent upward drift, likely SWG off-gassing or high TA. Address TA to stabilize.`)
+  if (phDrift === 'falling') findings.push(`pH has dropped every test — acid is being over-dosed or CO₂ buildup. Reduce acid dose or check aeration.`)
+  if (clDrift === 'falling') findings.push(`Free chlorine has declined every test — possible high CYA lock-out, high bather load, or insufficient stabilizer. Verify CYA before adding more chlorine.`)
+  if (clDrift === 'rising')  findings.push(`Free chlorine has risen each test — pool may be over-dosed. Check dosing schedule.`)
+  if (taDrift === 'falling') findings.push(`Total alkalinity declining each test — acid additions are reducing buffering capacity. Recheck acid dose amount.`)
+
+  // Recurring status
+  const statuses = tests.map((t) => t.status)
+  const critCount = statuses.filter((s) => s === 'critical').length
+  const cautionCount = statuses.filter((s) => s === 'caution').length
+  if (critCount >= 2) findings.push(`RECURRING CRITICAL: ${critCount} of the last ${tests.length} tests were critical — the pool has a persistent underlying issue, not a one-off event.`)
+  else if (cautionCount >= 3) findings.push(`Pool has been in caution for ${cautionCount} consecutive tests — maintenance plan is not resolving the issue. Re-evaluate the treatment approach.`)
+
+  // Chlorine consistently low despite presumably dosing
+  const avgCl = clValues.reduce((a, b) => a + b, 0) / clValues.length
+  if (avgCl < 1.5 && tests.length >= 3) findings.push(`Average free chlorine over last ${tests.length} tests is only ${avgCl.toFixed(1)} ppm — chronically under-sanitized pool. Consider CYA drain if CYA > 60.`)
+
+  if (findings.length === 0) return ''
+
+  return '\nPATTERN ANALYSIS (detected from test history — address root cause, not just current reading):\n'
+    + findings.map((f) => `  • ${f}`).join('\n')
+}
+
 export interface AnalyzeInput {
   chlorine: number
   pH: number
@@ -157,13 +205,13 @@ CHEMICAL DOSING (calculate precisely for the given pool size):
 - RAISE pH: Soda ash (sodium carbonate): 6 oz per 10,000 gal raises pH by ~0.2
 - RAISE alkalinity: Baking soda (sodium bicarbonate): 1.5 lbs per 10,000 gal raises TA by ~10 ppm
 - LOWER alkalinity: Muriatic acid: 26 fl oz per 10,000 gal — aerate after
-- RAISE chlorine (regular): Liquid chlorine (10%): 26 fl oz per 10,000 gal raises 1 ppm
+- RAISE chlorine (regular): Liquid chlorine (10%): 12 fl oz per 10,000 gal raises 1 ppm; use 10 fl oz for 12.5% pool store liquid chlorine
 - SHOCK/RAISE chlorine fast: Cal-Hypo (73%): 1 lb per 10,000 gal raises ~7 ppm; use at dusk
   OR Leslie's Power Powder Plus 73: same dosing
 - LOWER chlorine: Dilution or sodium thiosulfate 2 oz per 10,000 gal per 1 ppm reduction
-- RAISE cyanuric acid: Stabilizer (cyanuric acid granules): 4 oz per 10,000 gal raises ~10 ppm
+- RAISE cyanuric acid: Stabilizer (cyanuric acid granules): 13 oz per 10,000 gal raises ~10 ppm (place in skimmer sock; takes 5–7 days to register)
 - LOWER cyanuric acid: Partial drain and refill (no chemical fix)
-- RAISE calcium hardness: Calcium chloride: 12 oz per 10,000 gal raises ~10 ppm
+- RAISE calcium hardness: Calcium chloride (77%): 20 oz per 10,000 gal raises ~10 ppm (dissolve in bucket first — highly exothermic)
 
 SAFETY RULES (always include relevant ones in mistakes_to_avoid):
 - NEVER mix chemicals directly — add each to water separately
@@ -262,12 +310,17 @@ export async function analyzeWater(input: AnalyzeInput): Promise<WaterAnalysis> 
   const isSaltPool = input.poolType === 'SALT'
   const poolTypeLabel = isSaltPool ? 'Salt Water (SWG — Salt Chlorine Generator)' : 'Chlorine (traditional)'
 
+  const patternSummary = input.recentTests && input.recentTests.length >= 2
+    ? detectPatterns(input.recentTests)
+    : ''
+
   const trendSection = input.recentTests && input.recentTests.length > 0
     ? `\nHISTORICAL TREND (last ${input.recentTests.length} tests, newest first):\n` +
       input.recentTests.map((t) =>
         `  ${t.date}: Cl=${t.chlorine} ppm, pH=${t.pH}, TA=${t.alkalinity} ppm [${t.status}]`
       ).join('\n') +
-      '\n  → Analyze these trends: Is pH drifting? Is chlorine consistently low? Any pattern driving recurring issues?\n'
+      patternSummary +
+      '\n  → Use the pattern analysis above to inform your diagnosis. If a drift or recurring issue is detected, address the root cause in your immediate_action_plan, not just the current reading.\n'
     : ''
 
   const poolData = `
@@ -383,6 +436,31 @@ pH pad colors: 6.2=orange-red, 6.8=orange, 7.2=orange-yellow, 7.4=yellow-orange 
 Free Chlorine: 0=white, 1=very pale pink, 2=light pink (IDEAL), 3=pink, 5=medium pink, 10=dark magenta
 Total Alkalinity: 0=orange, 40=peach, 80=light tan, 120=tan (IDEAL), 180=gray-tan, 240=gray-green`,
 
+  jnw: `
+BRAND: JNW Direct Pool & Spa Test Strips (Amazon bestseller, 7-way)
+PAD ORDER (top to bottom): Total Hardness, Total Chlorine, Free Chlorine, Bromine, pH, Total Alkalinity, CYA
+pH pad colors: 6.2=bright red, 6.8=red-orange, 7.0=orange-red, 7.2=orange, 7.4=orange-yellow (IDEAL), 7.6=yellow-orange, 7.8=pale yellow, 8.0=yellow-green, 8.4=light green
+Free Chlorine: 0=white, 0.5=very pale pink, 1=pale pink, 2=light pink (IDEAL), 3=medium pink, 5=hot pink, 10=dark magenta-purple
+Total Alkalinity: 0=orange-red, 40=orange, 80=light orange-tan, 120=tan (IDEAL), 180=olive-tan, 240=olive-gray
+Total Hardness: 0=orange, 100=peach, 200=light pink-purple, 250=light purple (IDEAL), 500=medium purple, 800=dark purple
+CYA: 0=white, 30=pale cream, 50=light peach (IDEAL), 100=peach, 150=orange-peach, 300=dark orange`,
+
+  poolmaster: `
+BRAND: Poolmaster 5-Way or Poolmaster Essential
+PAD ORDER: Free Chlorine, Bromine, pH, Total Alkalinity, Total Hardness
+pH pad colors: 6.8=red-orange, 7.0=orange, 7.2=orange-amber, 7.4=amber-yellow (IDEAL), 7.6=pale yellow, 7.8=greenish-yellow, 8.0=yellow-green
+Free Chlorine: 0=white, 1=pale blush, 2=light pink (IDEAL), 3=medium pink, 5=dark pink, 10=purple-magenta
+Total Alkalinity: 0=rust-orange, 40=orange, 80=tan-orange, 120=tan (IDEAL), 180=brown-tan, 240=brown-green
+Total Hardness: 0=pink-red, 100=light red, 250=pink-purple (IDEAL), 500=dark purple`,
+
+  leslies: `
+BRAND: Leslie's 4-Way or Leslie's AccuBlue (pool retail chain brand)
+PAD ORDER: Free Chlorine, pH, Total Alkalinity, Total Hardness
+pH pad colors: 6.8=red, 7.2=orange-red, 7.4=orange (IDEAL), 7.6=orange-yellow, 7.8=yellow, 8.0=pale green-yellow, 8.4=green
+Free Chlorine: 0=cream-white, 1=pale pink, 2=pink (IDEAL), 3=medium pink, 5=deep pink, 10=magenta
+Total Alkalinity: 0=orange, 80=tan-orange, 120=tan (IDEAL), 180=green-gray, 240=dark green-gray
+Total Hardness: 0=salmon-orange, 200=pink, 400=pink-purple (IDEAL), 800=dark purple`,
+
   generic: `
 BRAND: Generic/Store Brand or Unknown
 Using universal pool chemistry color norms — interpretation may be less precise.
@@ -392,10 +470,15 @@ Total Alkalinity: orange = low, tan/beige = ideal 80–120 ppm, green = high
 Calcium Hardness: pink = low, dark pink/purple = ideal 200–400 ppm`,
 }
 
+export interface StripScanResult extends Partial<AnalyzeInput> {
+  photo_quality?: 'good' | 'fair' | 'poor'
+  low_confidence_params?: string[]
+}
+
 export async function analyzeTestStripImage(
   imageBase64: string,
   brand?: string | null,
-): Promise<Partial<AnalyzeInput>> {
+): Promise<StripScanResult> {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
   const imagePart = {
@@ -427,6 +510,8 @@ SCIENTIFIC VALIDATION:
 - Cross-check your readings for internal consistency: if pH is 8.4+ and chlorine reads high, confirm — high pH makes chlorine ineffective so high FC with high pH is physically plausible but unusual
 - If chlorine reads 0 and the strip shows typical pad positions, verify the pad is not just faded/overexposed
 - CYA pads are notoriously difficult to read accurately — if uncertain, return the midpoint of the two closest values
+- If the image is blurry, very dark, heavily shadowed, or the strip pads are folded/obscured, set photo_quality to "poor" and return null for any pad you cannot read with confidence
+- If lighting is good and pads are clearly visible, set photo_quality to "good"
 
 Return ONLY valid JSON, no markdown, no other text:
 {
@@ -434,7 +519,9 @@ Return ONLY valid JSON, no markdown, no other text:
   "chlorine": number or null,
   "alkalinity": number or null,
   "calciumHardness": number or null,
-  "cyanuricAcid": number or null
+  "cyanuricAcid": number or null,
+  "photo_quality": "good" | "fair" | "poor",
+  "low_confidence_params": ["list any parameter names where you were uncertain between two adjacent values"]
 }`
 
   const result = await model.generateContent([prompt, imagePart])
@@ -451,11 +538,22 @@ Return ONLY valid JSON, no markdown, no other text:
     return Math.min(max, Math.max(min, v))
   }
 
+  const qualityValues = ['good', 'fair', 'poor']
+  const photoQuality = qualityValues.includes(parsed.photo_quality as string)
+    ? (parsed.photo_quality as 'good' | 'fair' | 'poor')
+    : 'fair'
+
+  const lowConfidence = Array.isArray(parsed.low_confidence_params)
+    ? (parsed.low_confidence_params as string[]).filter((p) => typeof p === 'string')
+    : []
+
   return {
     pH: clamp(parsed.pH, 6.0, 9.0),
     chlorine: clamp(parsed.chlorine, 0, 20),
     alkalinity: clamp(parsed.alkalinity, 0, 300),
     calciumHardness: clamp(parsed.calciumHardness, 0, 800),
     cyanuricAcid: clamp(parsed.cyanuricAcid, 0, 300),
+    photo_quality: photoQuality,
+    low_confidence_params: lowConfidence,
   }
 }

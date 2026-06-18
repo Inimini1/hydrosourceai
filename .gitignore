@@ -7,3 +7,9 @@ node_modules/
 *.db
 *.db-journal
 prisma/*.db
+
+# Generated / local tooling
+.claude/
+graphify-out/
+tsconfig.tsbuildinfo
+**/__pycache__/

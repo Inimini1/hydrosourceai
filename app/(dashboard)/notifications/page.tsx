@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { EmptyStateView } from '@/components/EmptyStateView'
+import { PageError } from '@/components/PageError'
 
 const listVariants = {
   hidden: {},
@@ -73,13 +74,18 @@ const defaultConfig = {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
+    setLoading(true)
+    setLoadError(false)
     fetch('/api/notifications')
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(); return r.json() })
       .then((d) => setNotifications(d.notifications ?? []))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false))
-  }, [])
+  }, [retryKey])
 
   async function markRead(id: string) {
     await fetch(`/api/notifications?id=${id}`, { method: 'PATCH' })
@@ -95,13 +101,43 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="px-4 pt-12 space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-3xl h-20 animate-pulse border border-slate-100" />
-        ))}
+      <div className="pb-6">
+        <div className="px-4 pt-12 pb-5 flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-7 w-20 rounded-xl skeleton" />
+            <div className="h-3 w-28 rounded-full skeleton" />
+          </div>
+          <div className="h-8 w-24 rounded-xl skeleton" />
+        </div>
+        <div className="px-4 space-y-2.5">
+          {[1, 0.85, 0.7, 0.55, 0.4].map((opacity, i) => (
+            <div key={i} className="card-light rounded-3xl p-4 flex items-start gap-3.5" style={{ opacity }}>
+              <div className="w-10 h-10 rounded-2xl flex-shrink-0 skeleton" />
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-32 rounded skeleton" />
+                  <div className="w-2 h-2 rounded-full skeleton flex-shrink-0" />
+                </div>
+                <div className="h-3 w-full rounded-full skeleton" />
+                <div className="h-3 w-3/4 rounded-full skeleton" />
+                <div className="h-2.5 w-20 rounded-full skeleton" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
+
+  if (loadError) return (
+    <PageError
+      variant="light"
+      onRetry={() => setRetryKey((k) => k + 1)}
+      title="Could not load alerts"
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    />
+  )
 
   return (
     <div className="pb-6">

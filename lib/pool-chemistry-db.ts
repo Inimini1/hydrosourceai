@@ -232,7 +232,7 @@ export const CHEMICAL_PRODUCTS: ChemicalProduct[] = [
     generic_name: 'Liquid Chlorine',
     active_ingredient: 'Sodium Hypochlorite',
     concentration: '10–12.5%',
-    dosing_formula: '26 fl oz per 10,000 gal raises FC by ~1 ppm',
+    dosing_formula: '12 fl oz (10%) or 10 fl oz (12.5%) per 10,000 gal raises FC by ~1 ppm',
     brands: ['In The Swim Liquid Chlorine', 'Clorox Pool & Spa Shock', 'HTH Super Liquid Shock'],
     cautions: ['Short shelf life — degrades 10% per month in heat', 'No CYA addition (preferred for stabilized pools)'],
     cya_impact: 'none',
@@ -322,7 +322,7 @@ export const CHEMICAL_PRODUCTS: ChemicalProduct[] = [
     generic_name: 'Calcium Chloride',
     active_ingredient: 'Calcium Chloride',
     concentration: '77–78%',
-    dosing_formula: '12 oz per 10,000 gal raises CH by ~10 ppm',
+    dosing_formula: '20 oz per 10,000 gal raises CH by ~10 ppm',
     brands: ['In The Swim Calcium Hardness Increaser', 'HTH Calcium Plus', 'Clorox Pool Calcium Hardness Increaser'],
     cautions: ['Highly exothermic — generates heat when dissolved', 'Always add to water, not water to calcium chloride', 'Dissolve in bucket of pool water before adding', 'Wait 24 hours and retest'],
     cya_impact: 'none',
@@ -332,7 +332,7 @@ export const CHEMICAL_PRODUCTS: ChemicalProduct[] = [
     generic_name: 'Cyanuric Acid Granules',
     active_ingredient: 'Cyanuric Acid',
     concentration: '99%',
-    dosing_formula: '4 oz per 10,000 gal raises CYA by ~10 ppm; dissolves very slowly (4–7 days)',
+    dosing_formula: '13 oz per 10,000 gal raises CYA by ~10 ppm; dissolves very slowly (4–7 days)',
     brands: ['In The Swim Cyanuric Acid', 'HTH Stabilizer & Conditioner', 'BioGuard Stabilizer 100'],
     cautions: ['Place in skimmer sock or floating mesh bag — dissolves slowly', 'Do NOT pre-dissolve in bucket', 'Bypass sand filter when adding — backwash after 7 days', 'Do not retest for 5–7 days', 'Cannot be removed except by dilution (drain/refill)'],
     cya_impact: 'adds',
@@ -419,8 +419,14 @@ export const LSI_REFERENCE = {
 
 export const DOSING_FORMULAS = {
   chlorine: {
+    // 10% sodium hypochlorite: 12.1 fl oz per 10,000 gal raises FC by 1 ppm
+    // (Derived from first-principles chemistry: NaOCl MW=74.44, Cl2 MW=70.91, density≈1.11 g/mL)
     raise_with_liquid_10pct: (gallons: number, ppmNeeded: number) =>
-      `${((gallons / 10000) * 52 * ppmNeeded).toFixed(0)} fl oz of 10% liquid chlorine`,
+      `${((gallons / 10000) * 12.1 * ppmNeeded).toFixed(0)} fl oz of 10% liquid chlorine`,
+    // 12.5% sodium hypochlorite: 9.5 fl oz per 10,000 gal raises FC by 1 ppm
+    // (Standard pool store liquid chlorine; density≈1.135 g/mL)
+    raise_with_liquid_12_5pct: (gallons: number, ppmNeeded: number) =>
+      `${((gallons / 10000) * 9.5 * ppmNeeded).toFixed(0)} fl oz of 12.5% liquid chlorine`,
     raise_with_calhypo_73pct: (gallons: number, ppmNeeded: number) =>
       `${((gallons / 10000) * (ppmNeeded / 7)).toFixed(2)} lbs of 73% Cal-Hypo shock`,
     shock_dose_to_10ppm: (gallons: number, currentFC: number) =>
@@ -444,11 +450,11 @@ export const DOSING_FORMULAS = {
   },
   calcium: {
     raise_with_calcium_chloride: (gallons: number, ppmNeeded: number) =>
-      `${((gallons / 10000) * 12 * (ppmNeeded / 10)).toFixed(1)} oz calcium chloride`,
+      `${((gallons / 10000) * 20 * (ppmNeeded / 10)).toFixed(1)} oz calcium chloride`,
   },
   cyanuric: {
     raise_with_stabilizer: (gallons: number, ppmNeeded: number) =>
-      `${((gallons / 10000) * 4 * (ppmNeeded / 10)).toFixed(1)} oz cyanuric acid stabilizer granules (takes 5–7 days to register)`,
+      `${((gallons / 10000) * 13 * (ppmNeeded / 10)).toFixed(1)} oz cyanuric acid stabilizer granules (takes 5–7 days to register)`,
     lower: () => 'Cannot be lowered chemically — requires partial drain and refill with fresh water. Drain 25–50% and refill.',
   },
 }

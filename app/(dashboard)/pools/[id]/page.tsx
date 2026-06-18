@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import TestReminderBanner, { getReminderState, PoolDropIcon } from '@/components/TestReminderBanner'
+import { PageError } from '@/components/PageError'
 
 interface Pool {
   id: string
@@ -18,6 +19,11 @@ interface Pool {
     id: string; status: string; chlorine: number; pH: number; alkalinity: number
     createdAt: string; aiAnalysis: string
   }>
+}
+
+interface UsageData {
+  planType: string
+  features?: { maintenanceLog?: boolean }
 }
 
 function parseNextTestDays(aiAnalysis: string): number | null {
@@ -34,15 +40,26 @@ export default function PoolDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [pool, setPool] = useState<Pool | null>(null)
+  const [usage, setUsage] = useState<UsageData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/pools/${id}`)
-      .then((r) => r.json())
-      .then((d) => setPool(d.pool))
+    setLoading(true)
+    setLoadError(false)
+    Promise.all([
+      fetch(`/api/pools/${id}`).then((r) => { if (!r.ok) throw new Error(); return r.json() }),
+      fetch('/api/usage').then((r) => r.ok ? r.json() : null),
+    ])
+      .then(([poolData, usageData]) => {
+        setPool(poolData.pool ?? null)
+        setUsage(usageData)
+      })
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, retryKey])
 
   async function handleDelete() {
     if (!confirm('Delete this pool? This cannot be undone.')) return
@@ -64,24 +81,72 @@ export default function PoolDetailPage() {
 
   if (loading) {
     return (
-      <div className="px-4 pt-12 space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-3xl h-24 animate-pulse border border-slate-100" />
-        ))}
+      <div className="pb-6">
+        <div className="px-4 pt-12 pb-5 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl flex-shrink-0 skeleton" />
+          <div className="flex-1 space-y-2">
+            <div className="h-6 w-40 rounded-xl skeleton" />
+            <div className="h-3 w-28 rounded-full skeleton" />
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="h-7 w-16 rounded-full skeleton" />
+            <div className="w-9 h-9 rounded-2xl skeleton" />
+          </div>
+        </div>
+        <div className="px-4 space-y-4">
+          <div className="h-14 rounded-2xl skeleton" />
+          <div className="grid grid-cols-3 gap-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="card-light rounded-3xl p-4 text-center space-y-2">
+                <div className="h-3 w-14 rounded-full skeleton mx-auto" />
+                <div className="h-8 w-12 rounded-lg skeleton mx-auto" />
+                <div className="h-2.5 w-10 rounded-full skeleton mx-auto" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[0, 1].map((i) => (
+              <div key={i} className="card-light rounded-3xl p-5 flex flex-col items-center gap-2.5">
+                <div className="w-12 h-12 rounded-2xl skeleton" />
+                <div className="space-y-1.5 text-center">
+                  <div className="h-4 w-20 rounded skeleton mx-auto" />
+                  <div className="h-3 w-24 rounded-full skeleton mx-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="card-light rounded-3xl p-4 grid grid-cols-3 divide-x divide-slate-100">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="text-center px-3 space-y-1.5">
+                <div className="h-6 w-10 rounded-lg skeleton mx-auto" />
+                <div className="h-2.5 w-14 rounded-full skeleton mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
 
-  if (!pool) {
-    return (
-      <div className="text-center py-20 px-4">
-        <p className="text-slate-400">Pool not found.</p>
-        <Link href="/pools" className="text-sm mt-2 inline-block font-semibold" style={{ color: '#00C9B1' }}>
-          Back to pools
-        </Link>
-      </div>
-    )
-  }
+  if (loadError) return (
+    <PageError
+      variant="light"
+      onRetry={() => setRetryKey((k) => k + 1)}
+      title="Could not load pool"
+      backHref="/pools"
+      backLabel="My Pools"
+    />
+  )
+
+  if (!pool) return (
+    <PageError
+      variant="light"
+      title="Pool not found"
+      message="This pool may have been deleted or the link is incorrect."
+      backHref="/pools"
+      backLabel="My Pools"
+    />
+  )
 
   const lastTest = pool.waterTests[0]
   const nextTestDays = lastTest ? parseNextTestDays(lastTest.aiAnalysis) : null
@@ -163,11 +228,11 @@ export default function PoolDetailPage() {
         </div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className={`grid gap-3 ${usage?.features?.maintenanceLog ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <Link href={`/pools/${id}/test`}
-            className="card-light rounded-3xl p-5 flex flex-col items-center gap-2.5 hover:shadow-md transition-all duration-200 text-center"
+            className="card-light rounded-3xl p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200 text-center"
             style={{ borderTop: '3px solid #00C9B1' }}>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)', boxShadow: '0 4px 14px rgba(0,201,177,0.3)' }}>
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -181,9 +246,9 @@ export default function PoolDetailPage() {
           </Link>
 
           <Link href={`/pools/${id}/service`}
-            className="card-light rounded-3xl p-5 flex flex-col items-center gap-2.5 hover:shadow-md transition-all duration-200 text-center"
+            className="card-light rounded-3xl p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200 text-center"
             style={{ borderTop: '3px solid #10B981' }}>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
               style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}>
               <svg className="w-5 h-5" style={{ color: '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -195,6 +260,29 @@ export default function PoolDetailPage() {
               <p className="text-slate-400 text-xs mt-0.5">Record maintenance</p>
             </div>
           </Link>
+
+          {/* Maintenance Log — Pool Pro only */}
+          {usage?.features?.maintenanceLog && (
+            <Link href={`/pools/${id}/maintenance`}
+              className="card-light rounded-3xl p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200 text-center"
+              style={{ borderTop: '3px solid #006FFF' }}>
+              <div className="relative w-11 h-11 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(0,111,255,0.12)', border: '1px solid rgba(0,111,255,0.2)' }}>
+                <svg className="w-5 h-5" style={{ color: '#36aaf6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <span
+                  className="absolute -top-1 -right-1 text-[8px] font-black px-1 py-px rounded-full leading-none"
+                  style={{ background: '#006FFF', color: 'white' }}
+                >PRO</span>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">Maint. Log</p>
+                <p className="text-slate-400 text-xs mt-0.5">Treatment plans</p>
+              </div>
+            </Link>
+          )}
         </div>
 
         {/* Stats row */}

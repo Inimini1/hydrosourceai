@@ -1,17 +1,12 @@
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { verifyToken } from '@/lib/auth'
+import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { HydroSourceLogo } from '@/components/brand'
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-  const token = cookies().get('HydroSource_token')?.value
-  if (token) {
-    try {
-      await verifyToken(token)
-      redirect('/dashboard')
-    } catch {}
-  }
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) redirect('/dashboard')
 
   return (
     <div className="min-h-screen bg-ink text-white overflow-hidden">

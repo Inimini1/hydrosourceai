@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PUBLIC_PAGES   = new Set(['/', '/login', '/signup', '/forgot-password', '/reset-password', '/verify-email', '/beta-access'])
+const PUBLIC_PAGES   = new Set(['/', '/login', '/signup', '/forgot-password', '/reset-password', '/verify-email', '/beta-access', '/pricing'])
 const PUBLIC_API     = new Set(['/api/health', '/api/beta/apply', '/api/stripe/webhook'])
 const PUBLIC_API_PFX = ['/api/auth/']
 
