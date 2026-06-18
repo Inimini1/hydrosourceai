@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import posthog from 'posthog-js'
 import {
   PLAN_DEFINITIONS, PLAN_ORDER, COMPARISON_FEATURES,
@@ -287,11 +287,13 @@ function FAQSection() {
 
 export default function PricingPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const welcomePro = searchParams.get('welcome') === 'pro'
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
   const [loading, setLoading] = useState<string | null>(null)
 
   useEffect(() => {
-    posthog.capture('pricing_page_viewed', { billing_cycle: cycle })
+    posthog.capture('pricing_page_viewed', { billing_cycle: cycle, from_onboarding: welcomePro })
   }, [])
 
   async function handleSelectPlan(planType: PlanType, billingCycle: BillingCycle) {
@@ -353,6 +355,14 @@ export default function PricingPage() {
 
         {/* Hero */}
         <div className="text-center py-14 max-w-3xl mx-auto">
+          {welcomePro && (
+            <div
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold mb-5"
+              style={{ background: 'rgba(0,111,255,0.15)', color: '#60A5FA', border: '1px solid rgba(0,111,255,0.35)' }}
+            >
+              👋 Welcome! You qualify for a free 14-day Pool Pro trial — no credit card needed.
+            </div>
+          )}
           <div
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6"
             style={{ background: 'rgba(0,201,177,0.12)', color: '#00C9B1', border: '1px solid rgba(0,201,177,0.25)' }}

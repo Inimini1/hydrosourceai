@@ -99,7 +99,8 @@ export default function OnboardingPage() {
         body: JSON.stringify(finalAnswers),
       })
     } catch {}
-    router.push('/dashboard')
+    const isProfessional = ['professional', 'property_manager'].includes(finalAnswers.userType ?? '')
+    router.push(isProfessional ? '/pricing?welcome=pro' : '/dashboard')
   }
 
   async function skip() {

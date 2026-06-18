@@ -25,5 +25,5 @@ export async function verifyToken(_token: string): Promise<JWTPayload> {
 
 // Legacy stubs — Supabase manages sessions via its own cookies
 export async function createToken(_payload: JWTPayload): Promise<string> { return '' }
-export function setAuthCookie(): void {}
-export function clearAuthCookie(): void {}
+export function setAuthCookie(..._args: unknown[]): void {}
+export function clearAuthCookie(..._args: unknown[]): void {}
