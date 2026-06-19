@@ -23,8 +23,7 @@ export async function PATCH(
 
   if (!test) return NextResponse.json({ error: 'Test not found' }, { status: 404 })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('water_tests') as any)
+  const { error } = await (supabase.from('water_tests') as unknown as any)
     .update({
       feedback_rating: rating,
       feedback_note: note?.trim() || null,

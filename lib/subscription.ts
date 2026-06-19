@@ -1,20 +1,6 @@
-/**
- * lib/subscription.ts
- *
- * Server-side subscription helpers.
- * Encapsulates all plan-gating logic so that API routes never
- * need to hardcode plan names or pool limits.
- *
- * All functions accept a userId and query Prisma directly.
- * They are safe to call from any API route handler.
- */
-
-import { prisma } from './prisma'
+import { createAdminClient } from './supabase/admin'
+import { createClient } from './supabase/server'
 import { getPlanDefinition, getPoolLimit, getAnalysisLimit, type PlanType } from './plans'
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TYPES
-// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ResolvedSubscription {
   planType: PlanType
@@ -23,71 +9,71 @@ export interface ResolvedSubscription {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   cancelAtPeriodEnd: boolean
-  poolLimit: number         // -1 = unlimited
-  analysisLimit: number     // -1 = unlimited
+  poolLimit: number
+  analysisLimit: number
   isActive: boolean
   isTrial: boolean
   isBeta: boolean
   features: ReturnType<typeof getPlanDefinition>['features']
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RESOLVE SUBSCRIPTION
-// ─────────────────────────────────────────────────────────────────────────────
+type SubRow = {
+  plan_type: string | null
+  status: string | null
+  billing_cycle: string | null
+  current_period_end: string | null
+  trial_ends_at: string | null
+  cancel_at_period_end: boolean | null
+  pool_limit: number | null
+}
 
-/**
- * Load the user's current effective subscription, resolving beta access
- * and trial periods into a single clean object.
- */
+type SubQuery = {
+  select: (cols: string) => {
+    eq: (col: string, val: string) => {
+      maybeSingle: () => Promise<{ data: SubRow | null; error: unknown }>
+    }
+  }
+}
+
 export async function resolveSubscription(userId: string): Promise<ResolvedSubscription> {
-  const [user, subscription] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: userId },
-      select: { betaExpiresAt: true, subscriptionStatus: true },
-    }),
-    prisma.subscription.findUnique({
-      where: { userId },
-      select: {
-        planType: true,
-        status: true,
-        billingCycle: true,
-        currentPeriodEnd: true,
-        trialEndsAt: true,
-        cancelAtPeriodEnd: true,
-        poolLimit: true,
-      },
-    }),
+  const admin = createAdminClient()
+  const now = new Date()
+
+  const [profileResult, subResult] = await Promise.all([
+    admin.from('profiles').select('beta_expires_at').eq('id', userId).single(),
+    (admin.from('subscriptions') as unknown as SubQuery).select(
+      'plan_type, status, billing_cycle, current_period_end, trial_ends_at, cancel_at_period_end, pool_limit'
+    ).eq('user_id', userId).maybeSingle(),
   ])
 
-  const now = new Date()
-  const isBeta = user?.betaExpiresAt != null && user.betaExpiresAt > now
-  const isTrial = subscription?.trialEndsAt != null && subscription.trialEndsAt > now
+  const profile = profileResult.data
+  const sub = subResult.data
 
-  // Beta users get full Pool Pro access
-  const rawPlan = isBeta ? 'POOL_PRO' : (subscription?.planType ?? 'FREE')
-  const planType = rawPlan as PlanType
-  const plan = getPlanDefinition(planType)
+  const isBeta = profile?.beta_expires_at != null && new Date(profile.beta_expires_at) > now
+  const isTrial = sub?.trial_ends_at != null && new Date(sub.trial_ends_at) > now
+
+  const rawPlan = isBeta ? 'POOL_PRO' : ((sub?.plan_type ?? 'FREE') as PlanType)
+  const plan = getPlanDefinition(rawPlan)
 
   const isActive =
     isBeta ||
     isTrial ||
-    subscription?.status === 'active' ||
-    subscription?.status === 'trialing'
+    sub?.status === 'active' ||
+    sub?.status === 'trialing'
 
-  // Pool limit: prefer DB row value (set by webhook), fall back to plan definition
-  const dbPoolLimit = subscription?.poolLimit ?? 1
-  const planPoolLimit = getPoolLimit(planType)
+  const dbPoolLimit = sub?.pool_limit ?? 1
+  const planPoolLimit = getPoolLimit(rawPlan)
   const poolLimit = isBeta ? 50 : (planPoolLimit === -1 ? -1 : Math.max(dbPoolLimit, planPoolLimit))
 
   return {
-    planType,
-    status: subscription?.status ?? 'inactive',
-    billingCycle: subscription?.billingCycle ?? null,
-    currentPeriodEnd: subscription?.currentPeriodEnd ?? null,
-    trialEndsAt: subscription?.trialEndsAt ?? null,
-    cancelAtPeriodEnd: subscription?.cancelAtPeriodEnd ?? false,
+    planType: rawPlan,
+    status: sub?.status ?? 'inactive',
+    billingCycle: sub?.billing_cycle ?? null,
+    currentPeriodEnd: sub?.current_period_end ? new Date(sub.current_period_end) : null,
+    trialEndsAt: sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null,
+    cancelAtPeriodEnd: sub?.cancel_at_period_end ?? false,
     poolLimit,
-    analysisLimit: getAnalysisLimit(planType),
+    analysisLimit: getAnalysisLimit(rawPlan),
     isActive,
     isTrial,
     isBeta,
@@ -95,18 +81,12 @@ export async function resolveSubscription(userId: string): Promise<ResolvedSubsc
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FEATURE GATE FUNCTIONS
-// All return { allowed: boolean, reason?: string }
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface GateResult {
   allowed: boolean
   reason?: string
   upgradeRequired?: PlanType
 }
 
-/** Check if the user can add another pool */
 export async function canAddPool(userId: string): Promise<GateResult> {
   const sub = await resolveSubscription(userId)
   if (!sub.isActive && sub.planType !== 'FREE') {
@@ -116,11 +96,13 @@ export async function canAddPool(userId: string): Promise<GateResult> {
   const limit = sub.poolLimit
   if (limit === -1) return { allowed: true }
 
-  const poolCount = await prisma.pool.count({ where: { userId } })
+  const supabase = createClient()
+  const { count } = await supabase.from('pools').select('id', { count: 'exact', head: true }).eq('user_id', userId)
+  const poolCount = count ?? 0
+
   if (poolCount >= limit) {
     const nextPlan: PlanType = sub.planType === 'FREE' || sub.planType === 'HOMEOWNER_PLUS'
-      ? 'POOL_PRO'
-      : 'POOL_TEAM'
+      ? 'POOL_PRO' : 'POOL_TEAM'
     return {
       allowed: false,
       reason: `You've reached the ${limit}-pool limit on your ${sub.planType} plan.`,
@@ -131,7 +113,6 @@ export async function canAddPool(userId: string): Promise<GateResult> {
   return { allowed: true }
 }
 
-/** Check if the user can run another water analysis this month */
 export async function canRunAnalysis(userId: string): Promise<GateResult> {
   const sub = await resolveSubscription(userId)
   if (sub.analysisLimit === -1) return { allowed: true }
@@ -139,14 +120,18 @@ export async function canRunAnalysis(userId: string): Promise<GateResult> {
   const startOfMonth = new Date()
   startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0)
 
-  const count = await prisma.waterTest.count({
-    where: { pool: { userId }, createdAt: { gte: startOfMonth } },
-  })
+  const supabase = createClient()
+  const { count } = await supabase
+    .from('water_tests')
+    .select('id', { count: 'exact', head: true })
+    .eq('pools.user_id', userId)
+    .gte('created_at', startOfMonth.toISOString())
 
-  if (count >= sub.analysisLimit) {
+  const tested = count ?? 0
+  if (tested >= sub.analysisLimit) {
     return {
       allowed: false,
-      reason: `You've used ${count} of ${sub.analysisLimit} analyses this month.`,
+      reason: `You've used ${tested} of ${sub.analysisLimit} analyses this month.`,
       upgradeRequired: 'HOMEOWNER_PLUS',
     }
   }
@@ -154,7 +139,6 @@ export async function canRunAnalysis(userId: string): Promise<GateResult> {
   return { allowed: true }
 }
 
-/** Check if the user has access to the maintenance log feature */
 export async function canAccessMaintenanceLog(userId: string): Promise<GateResult> {
   const sub = await resolveSubscription(userId)
   if (sub.features.maintenanceLog) return { allowed: true }
@@ -165,7 +149,6 @@ export async function canAccessMaintenanceLog(userId: string): Promise<GateResul
   }
 }
 
-/** Check if the user can send PDF email reports */
 export async function canSendEmailReports(userId: string): Promise<GateResult> {
   const sub = await resolveSubscription(userId)
   if (sub.features.emailReports) return { allowed: true }

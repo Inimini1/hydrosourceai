@@ -79,7 +79,7 @@ export function getBillingCycleFromPriceId(priceId: string): BillingCycle {
 export const PLAN_POOL_LIMITS: Record<PlanType, number> = {
   FREE:            1,
   HOMEOWNER_PLUS:  1,
-  POOL_PRO:       50,
-  POOL_TEAM:     250,
-  ENTERPRISE:  99999, // effectively unlimited
+  POOL_PRO:       75,
+  POOL_TEAM:     300,
+  ENTERPRISE:  99999,
 }

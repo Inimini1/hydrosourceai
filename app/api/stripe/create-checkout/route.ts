@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe, getPriceId } from '@/lib/stripe'
 import { getPlanDefinition } from '@/lib/plans'
 import type { PlanType, BillingCycle } from '@/lib/plans'
 import type Stripe from 'stripe'
 
 export async function POST(req: NextRequest) {
-  const auth = await getAuthUser(req)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { planType, billingCycle } = (await req.json()) as {
     planType?: PlanType
@@ -19,9 +20,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'planType and billingCycle are required.' }, { status: 400 })
   }
 
-  const plan = getPlanDefinition(planType)
-
-  // Only paid plans go through Stripe
   if (planType === 'FREE' || planType === 'ENTERPRISE') {
     return NextResponse.json({ error: 'This plan does not require Stripe checkout.' }, { status: 400 })
   }
@@ -31,67 +29,59 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Stripe price ID not configured for ${planType} ${billingCycle}.` }, { status: 500 })
   }
 
-  const user = await prisma.user.findUnique({ where: { id: auth.userId } })
-  if (!user) return NextResponse.json({ error: 'User not found.' }, { status: 404 })
-
+  const plan = getPlanDefinition(planType)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
+  const admin = createAdminClient()
 
-  // Ensure Stripe customer record exists
-  let customerId = (
-    await prisma.subscription.findUnique({ where: { userId: auth.userId } })
-  )?.stripeCustomerId ?? null
+  const { data: sub } = await admin
+    .from('subscriptions')
+    .select('stripe_customer_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  let customerId = sub?.stripe_customer_id ?? null
 
   if (!customerId) {
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', user.id)
+      .maybeSingle()
+
     const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.displayName ?? undefined,
-      metadata: { userId: auth.userId },
+      email: user.email!,
+      name: profile?.display_name ?? undefined,
+      metadata: { userId: user.id },
     })
     customerId = customer.id
-    await prisma.subscription.upsert({
-      where: { userId: auth.userId },
-      create: { userId: auth.userId, stripeCustomerId: customerId },
-      update: { stripeCustomerId: customerId },
-    })
+
+    await admin.from('subscriptions').upsert({
+      user_id: user.id,
+      stripe_customer_id: customerId,
+      plan_type: 'FREE',
+    }, { onConflict: 'user_id' })
   }
 
-  // Build subscription_data with plan metadata
   const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData = {
-    metadata: {
-      userId: auth.userId,
-      planType,
-      billingCycle,
-      pool_limit: String(plan.features.poolLimit ?? 99999),
-    },
+    metadata: { userId: user.id, planType, billingCycle, pool_limit: String(plan.features.poolLimit ?? 99999) },
   }
-
-  // Add trial period for Pro plans (no credit card required)
   if (plan.features.trial && plan.features.trialDays > 0) {
     subscriptionData.trial_period_days = plan.features.trialDays
   }
 
-  const sessionParams: Stripe.Checkout.SessionCreateParams = {
+  const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${appUrl}/billing?success=1&plan=${planType}`,
     cancel_url:  `${appUrl}/pricing?cancelled=1`,
-    metadata: {
-      userId: auth.userId,
-      planType,
-      billingCycle,
-      user_type: ['POOL_PRO', 'POOL_TEAM', 'ENTERPRISE'].includes(planType) ? 'professional' : 'homeowner',
-      plan_name: plan.name,
-    },
+    metadata: { userId: user.id, planType, billingCycle, plan_name: plan.name },
     subscription_data: subscriptionData,
-    // No card required during trial
     ...(plan.features.trial && plan.features.trialDays > 0
       ? { payment_method_collection: 'if_required' as const }
       : {}),
-  }
-
-  const session = await stripe.checkout.sessions.create(sessionParams)
+  })
 
   return NextResponse.json({ url: session.url })
 }

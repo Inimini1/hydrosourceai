@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuthUser(req)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = req.nextUrl
   const poolId = searchParams.get('poolId')
@@ -13,27 +13,37 @@ export async function GET(req: NextRequest) {
 
   if (!poolId) return NextResponse.json({ error: 'poolId is required.' }, { status: 400 })
 
-  const pool = await prisma.pool.findFirst({ where: { id: poolId, userId: auth.userId } })
-  if (!pool) return NextResponse.json({ error: 'Pool not found.' }, { status: 404 })
+  // RLS ensures pool belongs to this user
+  const { data: pool, error: poolError } = await supabase
+    .from('pools')
+    .select('id')
+    .eq('id', poolId)
+    .eq('user_id', user.id)
+    .single()
 
-  const tests = await prisma.waterTest.findMany({
-    where: { poolId },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-  })
+  if (poolError || !pool) return NextResponse.json({ error: 'Pool not found.' }, { status: 404 })
 
-  const parsed = tests.map((t) => ({
+  const { data: tests, error } = await supabase
+    .from('water_tests')
+    .select('id, status, chlorine, ph, alkalinity, calcium_hardness, cyanuric_acid, temperature, water_clarity, ai_analysis, created_at')
+    .eq('pool_id', poolId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const parsed = (tests ?? []).map((t) => ({
     id: t.id,
     status: t.status,
     chlorine: t.chlorine,
-    pH: t.pH,
+    pH: t.ph,
     alkalinity: t.alkalinity,
-    calciumHardness: t.calciumHardness ?? null,
-    cyanuricAcid: t.cyanuricAcid ?? null,
+    calciumHardness: t.calcium_hardness ?? null,
+    cyanuricAcid: t.cyanuric_acid ?? null,
     temperature: t.temperature ?? null,
-    waterClarity: t.waterClarity ?? null,
-    createdAt: t.createdAt.toISOString(),
-    aiAnalysis: (() => { try { return JSON.parse(t.aiAnalysis) } catch { return null } })(),
+    waterClarity: t.water_clarity ?? null,
+    createdAt: t.created_at,
+    aiAnalysis: (() => { try { return JSON.parse(t.ai_analysis) } catch { return null } })(),
   }))
 
   return NextResponse.json({ tests: parsed })

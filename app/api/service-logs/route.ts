@@ -1,29 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 import { canAccessMaintenanceLog } from '@/lib/subscription'
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuthUser(req)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const poolId = req.nextUrl.searchParams.get('poolId')
   if (!poolId) return NextResponse.json({ error: 'poolId is required.' }, { status: 400 })
 
-  const pool = await prisma.pool.findFirst({ where: { id: poolId, userId: auth.userId } })
-  if (!pool) return NextResponse.json({ error: 'Pool not found.' }, { status: 404 })
+  // RLS: only pools owned by this user are accessible
+  const { data: pool, error: poolError } = await supabase
+    .from('pools').select('id').eq('id', poolId).eq('user_id', user.id).single()
+  if (poolError || !pool) return NextResponse.json({ error: 'Pool not found.' }, { status: 404 })
 
-  const logs = await prisma.serviceLog.findMany({
-    where: { poolId },
-    orderBy: { createdAt: 'desc' },
-  })
+  const { data: logsRaw, error } = await supabase
+    .from('service_logs')
+    .select('id, pool_id, notes, chemicals_added, image_url, created_at')
+    .eq('pool_id', poolId)
+    .order('created_at', { ascending: false })
 
-  return NextResponse.json({ logs })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // treatment_plan column added in migration 006 — cast to access it
+  type LogRow = typeof logsRaw extends (infer T)[] | null ? T & { treatment_plan?: string | null } : never
+  const logs = logsRaw as LogRow[] | null
+
+  return NextResponse.json({ logs: (logs ?? []).map((l) => ({
+    id: l.id,
+    poolId: l.pool_id,
+    notes: l.notes,
+    chemicalsAdded: l.chemicals_added,
+    imageUrl: l.image_url,
+    treatmentPlan: l.treatment_plan ?? null,
+    createdAt: l.created_at,
+  })) })
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await getAuthUser(req)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const { poolId, notes, chemicalsAdded, imageUrl, treatmentPlan } = await req.json()
@@ -32,16 +50,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Pool ID and notes are required.' }, { status: 400 })
     }
 
-    // If a treatmentPlan is being saved, gate behind maintenance log feature
     if (treatmentPlan != null) {
-      const gate = await canAccessMaintenanceLog(auth.userId)
+      const gate = await canAccessMaintenanceLog(user.id)
       if (!gate.allowed) {
         return NextResponse.json({ error: gate.reason, upgradeRequired: gate.upgradeRequired }, { status: 403 })
       }
     }
 
-    const pool = await prisma.pool.findFirst({ where: { id: poolId, userId: auth.userId } })
-    if (!pool) return NextResponse.json({ error: 'Pool not found.' }, { status: 404 })
+    const { data: pool, error: poolError } = await supabase
+      .from('pools').select('id').eq('id', poolId).eq('user_id', user.id).single()
+    if (poolError || !pool) return NextResponse.json({ error: 'Pool not found.' }, { status: 404 })
 
     // Image URL safety validation
     let safeImageUrl: string | null = null
@@ -61,11 +79,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Validate and serialize treatmentPlan
     let safeTreatmentPlan: string | null = null
     if (treatmentPlan != null) {
       try {
-        // Ensure it's valid JSON and has the expected shape
         const parsed = typeof treatmentPlan === 'string' ? JSON.parse(treatmentPlan) : treatmentPlan
         if (!Array.isArray(parsed)) throw new Error('treatmentPlan must be an array')
         safeTreatmentPlan = JSON.stringify(parsed)
@@ -74,15 +90,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const log = await prisma.serviceLog.create({
-      data: {
-        poolId,
-        notes: notes.trim(),
-        chemicalsAdded: chemicalsAdded?.trim() || null,
-        imageUrl: safeImageUrl,
-        treatmentPlan: safeTreatmentPlan,
-      },
-    })
+    // treatment_plan col added in migration 006 — cast bypasses stale generated types
+    const { data: log, error } = await (supabase.from('service_logs') as unknown as {
+      insert: (d: Record<string, unknown>) => { select: () => { single: () => Promise<{ data: Record<string, unknown> | null; error: { message: string } | null }> } }
+    }).insert({
+      pool_id: poolId,
+      notes: notes.trim(),
+      chemicals_added: chemicalsAdded?.trim() || null,
+      image_url: safeImageUrl,
+      treatment_plan: safeTreatmentPlan,
+    }).select().single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     return NextResponse.json({ log }, { status: 201 })
   } catch {

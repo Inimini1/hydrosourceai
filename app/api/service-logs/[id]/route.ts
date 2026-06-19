@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuthUser(req)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const log = await prisma.serviceLog.findFirst({
-    where: { id: params.id, pool: { userId: auth.userId } },
-  })
-  if (!log) return NextResponse.json({ error: 'Log not found.' }, { status: 404 })
+  // RLS on service_logs checks pool ownership — delete will fail silently if not owner
+  const { error } = await supabase
+    .from('service_logs')
+    .delete()
+    .eq('id', params.id)
 
-  await prisma.serviceLog.delete({ where: { id: params.id } })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ message: 'Deleted.' })
 }
