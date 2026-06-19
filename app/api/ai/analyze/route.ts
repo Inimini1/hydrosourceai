@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { analyzeWater } from '@/lib/ai'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { canRunAnalysis } from '@/lib/subscription'
 
 const MAX_IMAGE_BYTES = 5_000_000
 
@@ -16,6 +17,11 @@ export async function POST(req: NextRequest) {
       { error: 'Too many analyses. Please wait before running another test.' },
       { status: 429 }
     )
+  }
+
+  const gate = await canRunAnalysis(user.id)
+  if (!gate.allowed) {
+    return NextResponse.json({ error: gate.reason, upgradeRequired: gate.upgradeRequired }, { status: 403 })
   }
 
   try {

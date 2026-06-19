@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendWaterReportEmail } from '@/lib/email'
+import { canSendEmailReports } from '@/lib/subscription'
 
 export const runtime = 'nodejs'
 
@@ -8,6 +9,11 @@ export async function POST(req: NextRequest) {
   const supabase = createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const gate = await canSendEmailReports(user.id)
+  if (!gate.allowed) {
+    return NextResponse.json({ error: gate.reason, upgradeRequired: gate.upgradeRequired }, { status: 403 })
+  }
 
   const { testId, recipientEmail } = await req.json().catch(() => ({}))
 
