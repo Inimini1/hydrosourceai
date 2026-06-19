@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     temperature: t.temperature ?? null,
     waterClarity: t.water_clarity ?? null,
     createdAt: t.created_at,
-    aiAnalysis: (() => { try { return JSON.parse(t.ai_analysis) } catch { return null } })(),
+    aiAnalysis: t.ai_analysis ?? '{}',
   }))
 
   return NextResponse.json({ tests: parsed })

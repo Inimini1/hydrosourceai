@@ -1,30 +1,17 @@
 'use client'
 
 import { useState, FormEvent, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 function ResetForm() {
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const token = searchParams.get('token') ?? ''
-
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
-
-  if (!token) {
-    return (
-      <div className="text-center">
-        <p className="text-critical font-semibold mb-4">Invalid reset link.</p>
-        <Link href="/forgot-password" className="text-pool-400 font-semibold hover:text-pool-300 transition-colors">
-          Request a new one →
-        </Link>
-      </div>
-    )
-  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -34,14 +21,14 @@ function ResetForm() {
 
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return }
+      const supabase = createClient()
+      const { error: updateError } = await supabase.auth.updateUser({ password })
+      if (updateError) {
+        setError('Failed to update password. Your reset link may have expired — please request a new one.')
+        return
+      }
       setDone(true)
+      await supabase.auth.signOut()
       setTimeout(() => router.push('/login'), 2500)
     } catch {
       setError('Something went wrong. Please try again.')

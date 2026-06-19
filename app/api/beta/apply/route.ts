@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
-import { prisma } from '@/lib/prisma'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { sendBetaWelcomeEmail, sendBetaNotificationToOwner } from '@/lib/email'
 
@@ -29,26 +29,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 })
     }
 
-    // Check for existing active invite
-    const existing = await prisma.betaInvite.findUnique({ where: { email } })
-    if (existing && existing.expiresAt > new Date()) {
-      return NextResponse.json({ error: 'A beta invite for this email is already active. Check your inbox (and spam folder).' }, { status: 409 })
+    const admin = createAdminClient()
+
+    const { data: existing } = await admin
+      .from('beta_invites')
+      .select('expires_at, used_at')
+      .eq('email', email)
+      .maybeSingle()
+
+    if (existing && !existing.used_at && new Date(existing.expires_at) > new Date()) {
+      return NextResponse.json(
+        { error: 'A beta invite for this email is already active. Check your inbox (and spam folder).' },
+        { status: 409 }
+      )
     }
 
     const token     = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + BETA_DURATION_DAYS * 24 * 60 * 60 * 1000)
 
-    // Upsert — allow re-apply if prior invite expired
-    await prisma.betaInvite.upsert({
-      where:  { email },
-      update: { name, company: company ?? null, token, expiresAt, usedAt: null },
-      create: { email, name, company: company ?? null, token, expiresAt },
-    })
+    const { error: upsertError } = await admin.from('beta_invites').upsert(
+      {
+        email,
+        name,
+        company: company ?? null,
+        token,
+        expires_at: expiresAt.toISOString(),
+        used_at: null,
+      },
+      { onConflict: 'email' }
+    )
+
+    if (upsertError) {
+      console.error('[beta/apply] upsert error:', upsertError.message)
+      return NextResponse.json({ error: 'Server error. Please try again.' }, { status: 500 })
+    }
 
     const baseUrl   = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
     const signupUrl = `${baseUrl}/signup?beta=${token}`
 
-    // Send emails in parallel — both non-blocking on failure
     await Promise.allSettled([
       sendBetaWelcomeEmail(email, name, signupUrl, expiresAt),
       sendBetaNotificationToOwner(name, company, email, expiresAt),

@@ -21,8 +21,9 @@ export async function POST(req: NextRequest) {
 
     const supabase = createClient()
     // Supabase handles the reset email — always returns 200 to prevent enumeration
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
     await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+      redirectTo: `${appUrl}/api/auth/callback?next=/reset-password`,
     })
 
     return NextResponse.json({ message: 'If an account exists for this email, a reset link has been sent.' })
