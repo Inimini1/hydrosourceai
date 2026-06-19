@@ -17,7 +17,13 @@
       "Bash(curl -s -X POST http://localhost:3000/api/auth/signup -H 'Content-Type: application/json' -d '{\"email\":\"test@example.com\",\"password\":\"short\",\"name\":\"Test User\"}')",
       "Bash(curl -s -X POST http://localhost:3000/api/auth/signup -H 'Content-Type: application/json' -d '{\"email\":\"verifytest@example.com\",\"password\":\"ValidPass123!\",\"name\":\"Verify Test\"}')",
       "mcp__mcp-registry__search_mcp_registry",
-      "mcp__mcp-registry__list_connectors"
+      "mcp__mcp-registry__list_connectors",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__find",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/icon.svg)",
+      "Bash(curl -s http://localhost:3000/icon.svg)",
+      "Bash(git add *)"
     ]
   }
 }
