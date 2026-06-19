@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { canAddPool } from '@/lib/subscription'
 
 export async function GET(req: NextRequest) {
   const supabase = createClient()
@@ -69,6 +70,14 @@ export async function POST(req: NextRequest) {
     }
     if (!gallons || gallons < 1000 || gallons > 200000) {
       return NextResponse.json({ error: 'Pool size must be between 1,000 and 200,000 gallons.' }, { status: 400 })
+    }
+
+    const gate = await canAddPool(user.id)
+    if (!gate.allowed) {
+      return NextResponse.json(
+        { error: gate.reason ?? 'Pool limit reached.', upgradeRequired: gate.upgradeRequired },
+        { status: 403 }
+      )
     }
 
     const { data: pool, error } = await supabase

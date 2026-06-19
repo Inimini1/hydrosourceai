@@ -23,9 +23,15 @@ export async function PATCH(
 
   if (!test) return NextResponse.json({ error: 'Test not found' }, { status: 404 })
 
-  const { error } = await (supabase.from('water_tests') as unknown as any)
+  // feedback_rating is int: 1 = helpful, 0 = not_helpful
+  type UpdateQuery = {
+    update: (d: { feedback_rating: number; feedback_note: string | null; feedback_at: string }) => {
+      eq: (col: string, val: string) => Promise<{ error: unknown }>
+    }
+  }
+  const { error } = await (supabase.from('water_tests') as unknown as UpdateQuery)
     .update({
-      feedback_rating: rating,
+      feedback_rating: rating === 'helpful' ? 1 : 0,
       feedback_note: note?.trim() || null,
       feedback_at: new Date().toISOString(),
     })
