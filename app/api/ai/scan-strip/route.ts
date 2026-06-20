@@ -17,16 +17,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { imageBase64, brand } = body as { imageBase64?: string; brand?: string }
+    const { imageBase64, imageMimeType, brand } = body as { imageBase64?: string; imageMimeType?: string; brand?: string }
     if (!imageBase64) return NextResponse.json({ error: 'No image provided.' }, { status: 400 })
 
     if (imageBase64.length > MAX_IMAGE_BYTES) {
       return NextResponse.json({ error: 'Image too large. Please use a smaller photo (max 4MB).' }, { status: 413 })
     }
 
-    const readings = await analyzeTestStripImage(imageBase64, brand)
+    const readings = await analyzeTestStripImage(imageBase64, brand, imageMimeType)
     return NextResponse.json({ readings })
-  } catch {
+  } catch (err) {
+    console.error('[scan-strip] analyzeTestStripImage failed:', err)
     return NextResponse.json({ error: 'Could not read test strip. Try entering values manually.' }, { status: 500 })
   }
 }

@@ -358,6 +358,7 @@ export default function AddTestPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageBase64, setImageBase64] = useState<string | null>(null)
+  const [imageMimeType, setImageMimeType] = useState<string>('image/jpeg')
   const [scanning, setScanning] = useState(false)
   const [scanResult, setScanResult] = useState<string | null>(null)
   const [stripBrand, setStripBrand] = useState<string>('aquachek')
@@ -392,7 +393,9 @@ export default function AddTestPage() {
     reader.onload = (e) => {
       const url = e.target?.result as string
       setImagePreview(url)
-      setImageBase64(url.split(',')[1])
+      const [meta, data] = url.split(',')
+      setImageBase64(data)
+      setImageMimeType(meta.match(/data:([^;]+)/)?.[1] ?? 'image/jpeg')
     }
     reader.readAsDataURL(file)
   }
@@ -405,7 +408,7 @@ export default function AddTestPage() {
       const res = await fetch('/api/ai/scan-strip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, brand: stripBrand }),
+        body: JSON.stringify({ imageBase64, imageMimeType, brand: stripBrand }),
       })
       const data = await res.json()
       if (res.ok && data.readings) {

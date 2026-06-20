@@ -475,14 +475,22 @@ export interface StripScanResult extends Partial<AnalyzeInput> {
   low_confidence_params?: string[]
 }
 
+const SUPPORTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'] as const
+type SupportedMime = typeof SUPPORTED_MIME_TYPES[number]
+
 export async function analyzeTestStripImage(
   imageBase64: string,
   brand?: string | null,
+  rawMimeType?: string | null,
 ): Promise<StripScanResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+
+  const mimeType: SupportedMime = SUPPORTED_MIME_TYPES.includes(rawMimeType as SupportedMime)
+    ? (rawMimeType as SupportedMime)
+    : 'image/jpeg'
 
   const imagePart = {
-    inlineData: { data: imageBase64, mimeType: 'image/jpeg' as const },
+    inlineData: { data: imageBase64, mimeType },
   }
 
   const brandKey = (brand ?? 'generic').toLowerCase().replace(/[^a-z]/g, '')
