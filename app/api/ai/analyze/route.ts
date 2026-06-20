@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const {
       poolId, chlorine, pH, alkalinity,
       calciumHardness, cyanuricAcid, totalChlorine, phosphates,
-      saltLevel, temperature, waterClarity, odor, symptoms, imageBase64,
+      saltLevel, temperature, waterClarity, odor, symptoms, imageBase64, imageMimeType,
     } = body
 
     if (!poolId || chlorine == null || pH == null || alkalinity == null) {
@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
       gallons: pool.gallons,
       poolType: pool.chlorine_type,
       imageBase64: imageBase64 ?? null,
+      imageMimeType: imageMimeType ?? null,
       experienceLevel,
       recentTests,
     })

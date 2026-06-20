@@ -99,6 +99,7 @@ export interface AnalyzeInput {
   gallons: number
   poolType?: string | null
   imageBase64?: string | null
+  imageMimeType?: string | null
   experienceLevel?: string | null
   recentTests?: RecentTest[] | null
 }
@@ -353,10 +354,13 @@ Synthesize all the reference data above into the best possible diagnosis and act
   let result
 
   if (input.imageBase64) {
+    const resolvedMime: SupportedMime = SUPPORTED_MIME_TYPES.includes(input.imageMimeType as SupportedMime)
+      ? (input.imageMimeType as SupportedMime)
+      : 'image/jpeg'
     const imagePart = {
       inlineData: {
         data: input.imageBase64,
-        mimeType: 'image/jpeg' as const,
+        mimeType: resolvedMime,
       },
     }
     result = await model.generateContent([

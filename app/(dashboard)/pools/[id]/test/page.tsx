@@ -461,7 +461,7 @@ export default function AddTestPage() {
       if (cyanuricAcid) body.cyanuricAcid = parseFloat(cyanuricAcid)
       if (temperature) body.temperature = parseFloat(temperature)
       if (symptomsStr) body.symptoms = symptomsStr
-      if (imageBase64) body.imageBase64 = imageBase64
+      if (imageBase64) { body.imageBase64 = imageBase64; body.imageMimeType = imageMimeType }
 
       const res = await fetch('/api/ai/analyze', {
         method: 'POST',
