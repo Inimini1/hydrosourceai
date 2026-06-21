@@ -418,13 +418,21 @@ export default function AddTestPage() {
         if (r.alkalinity != null) setAlkalinity(String(r.alkalinity))
         if (r.calciumHardness != null) setCalciumHardness(String(r.calciumHardness))
         if (r.cyanuricAcid != null) setCyanuricAcid(String(r.cyanuricAcid))
-        const qualityNote = r.photo_quality === 'poor'
-          ? ' Photo quality was poor — double-check all values before analyzing.'
-          : r.low_confidence_params?.length > 0
-          ? ` Verify ${r.low_confidence_params.join(', ')} — color was ambiguous.`
-          : ''
-        setScanResult(`✓ Readings extracted — review below then tap Analyze.${qualityNote}`)
-        setTab('manual')
+
+        const anyExtracted = r.pH != null || r.chlorine != null || r.alkalinity != null ||
+          r.calciumHardness != null || r.cyanuricAcid != null
+
+        if (!anyExtracted) {
+          setScanResult('Could not read the strip clearly. Ensure good lighting and try again, or enter values manually.')
+        } else {
+          const qualityNote = r.photo_quality === 'poor'
+            ? ' Photo quality was poor — double-check all values before analyzing.'
+            : r.low_confidence_params?.length > 0
+            ? ` Verify ${r.low_confidence_params.join(', ')} — color was ambiguous.`
+            : ''
+          setScanResult(`✓ Readings extracted — review below then tap Analyze.${qualityNote}`)
+          setTab('manual')
+        }
       } else {
         setScanResult('Could not read strip clearly. Please enter values manually.')
       }
@@ -802,7 +810,7 @@ export default function AddTestPage() {
                   setChlorine(''); setPH(''); setAlkalinity('')
                   setCalciumHardness(''); setCyanuricAcid(''); setTemperature('')
                   setSelectedSymptoms([]); setAdditionalNotes('')
-                  setImageFile(null); setImagePreview(null); setImageBase64(null); setScanResult(null)
+                  setImageFile(null); setImagePreview(null); setImageBase64(null); setImageMimeType('image/jpeg'); setScanResult(null)
                   closeSendModal()
                 }}
                 className="flex-1 py-3.5 rounded-2xl font-semibold text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
@@ -1102,7 +1110,7 @@ export default function AddTestPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={imagePreview} alt="Test strip" className="max-h-48 mx-auto rounded-2xl object-contain" />
                   <p className="text-slate-400 text-sm">{imageFile?.name}</p>
-                  <button onClick={(e) => { e.stopPropagation(); setImageFile(null); setImagePreview(null); setImageBase64(null); setScanResult(null) }}
+                  <button onClick={(e) => { e.stopPropagation(); setImageFile(null); setImagePreview(null); setImageBase64(null); setImageMimeType('image/jpeg'); setScanResult(null) }}
                     className="text-xs font-semibold text-red-400">
                     Remove photo
                   </button>
@@ -1118,7 +1126,7 @@ export default function AddTestPage() {
                     </svg>
                   </div>
                   <p className="font-semibold text-slate-600 mb-1.5">Tap to upload your test strip photo</p>
-                  <p className="text-xs text-slate-400">JPG, PNG — hold strip under good lighting for best results</p>
+                  <p className="text-xs text-slate-400">JPG, PNG, HEIC — hold strip under good lighting for best results</p>
                 </div>
               )}
             </div>
