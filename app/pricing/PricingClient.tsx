@@ -340,8 +340,8 @@ export default function PricingClient() {
             14-day free trial · No credit card required
           </div>
           <h1 className="font-display font-black text-4xl md:text-5xl text-white leading-tight mb-4">
-            Intelligent Pool Chemistry Analysis and<br />
-            <span style={{ color: '#00C9B1' }}>Client Reporting for Modern Pool Service Professionals</span>
+            Intelligent Pool Chemistry Analysis<br />
+            <span style={{ color: '#00C9B1' }}>&amp; Client Reporting for Pool Professionals</span>
           </h1>
           <p className="text-lg text-white/45 leading-relaxed max-w-2xl mx-auto">
             Save time, improve treatment accuracy, and generate professional client reports in minutes.
