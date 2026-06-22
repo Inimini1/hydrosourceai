@@ -88,13 +88,25 @@ export default function NotificationsPage() {
   }, [retryKey])
 
   async function markRead(id: string) {
-    await fetch(`/api/notifications?id=${id}`, { method: 'PATCH' })
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
+    const prev = notifications
+    setNotifications((ns) => ns.map((n) => (n.id === id ? { ...n, read: true } : n)))
+    try {
+      const res = await fetch(`/api/notifications?id=${id}`, { method: 'PATCH' })
+      if (!res.ok) throw new Error()
+    } catch {
+      setNotifications(prev)
+    }
   }
 
   async function markAllRead() {
-    await fetch('/api/notifications?all=true', { method: 'PATCH' })
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    const prev = notifications
+    setNotifications((ns) => ns.map((n) => ({ ...n, read: true })))
+    try {
+      const res = await fetch('/api/notifications?all=true', { method: 'PATCH' })
+      if (!res.ok) throw new Error()
+    } catch {
+      setNotifications(prev)
+    }
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length

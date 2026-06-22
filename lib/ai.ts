@@ -106,6 +106,15 @@ export interface AnalyzeInput {
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ])
+}
+
 const SYSTEM_PROMPT = `You are HydroSource, an AI pool water chemistry assistant. Your role is to analyze pool water test data and provide general scientific recommendations to help pool owners and service professionals maintain balanced, safe water. You are not a licensed pool inspector, a regulatory authority, or a legal advisor.
 
 LEGAL FRAMING RULES — FOLLOW WITHOUT EXCEPTION:
@@ -363,14 +372,22 @@ Synthesize all the reference data above into the best possible diagnosis and act
         mimeType: resolvedMime,
       },
     }
-    result = await model.generateContent([
-      SYSTEM_PROMPT,
-      '\n\nThe user has uploaded a photo of their test strip. Read the color values from the test strip image to determine chemical levels, then combine with any manually entered data below to produce your analysis.',
-      poolData,
-      imagePart,
-    ])
+    result = await withTimeout(
+      model.generateContent([
+        SYSTEM_PROMPT,
+        '\n\nThe user has uploaded a photo of their test strip. Read the color values from the test strip image to determine chemical levels, then combine with any manually entered data below to produce your analysis.',
+        poolData,
+        imagePart,
+      ]),
+      25_000,
+      'Water analysis'
+    )
   } else {
-    result = await model.generateContent([SYSTEM_PROMPT, poolData])
+    result = await withTimeout(
+      model.generateContent([SYSTEM_PROMPT, poolData]),
+      25_000,
+      'Water analysis'
+    )
   }
 
   const text = result.response.text()
@@ -536,7 +553,11 @@ Return ONLY valid JSON, no markdown, no other text:
   "low_confidence_params": ["list any parameter names where you were uncertain between two adjacent values"]
 }`
 
-  const result = await model.generateContent([prompt, imagePart])
+  const result = await withTimeout(
+    model.generateContent([prompt, imagePart]),
+    25_000,
+    'Strip scan'
+  )
 
   const text = result.response.text()
   const jsonMatch = text.match(/\{[\s\S]*\}/)

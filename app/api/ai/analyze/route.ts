@@ -122,14 +122,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save test results.' }, { status: 500 })
     }
 
-    // Create notification for critical results
+    // Fire-and-forget — notification insert must not delay the response
     if (analysis.status === 'critical') {
-      await supabase.from('notifications').insert({
+      supabase.from('notifications').insert({
         user_id: user.id,
         type: 'UNSAFE_WATER',
         title: 'Unsafe water detected',
         message: `${pool.pool_name}: ${analysis.diagnosis}`,
-      })
+      }).then()
     }
 
     return NextResponse.json(
