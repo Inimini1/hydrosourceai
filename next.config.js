@@ -1,17 +1,11 @@
 // @ts-check
 const { withSentryConfig } = require('@sentry/nextjs')
 
-const isDev = process.env.NODE_ENV !== 'production'
-
 const cspDirectives = [
   "default-src 'self'",
-  isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com"
-    : "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
   "style-src 'self' 'unsafe-inline'",
-  isDev
-    ? "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com"
-    : "img-src 'self' https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
+  "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
   "font-src 'self'",
   "connect-src 'self' https://api.stripe.com https://generativelanguage.googleapis.com https://*.sentry.io https://us.i.posthog.com https://us.posthog.com https://*.supabase.co wss://*.supabase.co",
   "worker-src 'self' blob:",
