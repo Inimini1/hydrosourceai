@@ -4,6 +4,7 @@ import { useState, FormEvent, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 const OAUTH_ERRORS: Record<string, string> = {
   auth_cancelled: 'Sign-in was cancelled.',
@@ -25,6 +26,7 @@ function GoogleIcon() {
 }
 
 function LoginContent() {
+  usePageTitle('Sign In')
   const router = useRouter()
   const searchParams = useSearchParams()
   const oauthError = searchParams.get('error')
@@ -63,11 +65,20 @@ function LoginContent() {
         body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Login failed'); return }
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError('That email and password combination is incorrect. Please check and try again.')
+        } else if (res.status === 429) {
+          setError('Too many sign-in attempts. Please wait a few minutes before trying again.')
+        } else {
+          setError(data.error ?? 'Sign-in failed. Please try again.')
+        }
+        return
+      }
       router.refresh()
       router.push('/dashboard')
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError('Could not reach the server. Check your internet connection and try again.')
     } finally {
       setLoading(false)
     }

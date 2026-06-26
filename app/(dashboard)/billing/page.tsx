@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { PLAN_DEFINITIONS, PLAN_ORDER, type PlanType, type BillingCycle } from '@/lib/plans'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 interface SubscriptionData {
   planType: PlanType
@@ -51,6 +52,7 @@ function PlanBadge({ type }: { type: PlanType }) {
 }
 
 export default function BillingPage() {
+  usePageTitle('Billing')
   const [sub, setSub] = useState<SubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)

@@ -3,6 +3,8 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { usePageTitle } from '@/lib/usePageTitle'
+import { useToast } from '@/components/Toaster'
 
 const GALLON_PRESETS = [
   { label: '5,000', value: 5000 },
@@ -13,7 +15,9 @@ const GALLON_PRESETS = [
 ]
 
 export default function NewPoolPage() {
+  usePageTitle('Add Pool')
   const router = useRouter()
+  const { success, error: toastError } = useToast()
   const [poolName, setPoolName] = useState('')
   const [gallons, setGallons] = useState('')
   const [chlorineType, setChlorineType] = useState('CHLORINE')
@@ -24,8 +28,12 @@ export default function NewPoolPage() {
     e.preventDefault()
     setError('')
     const g = parseInt(gallons)
+    if (!poolName.trim()) {
+      setError('Please give your pool a name so you can identify it later.')
+      return
+    }
     if (!g || g < 1000 || g > 200000) {
-      setError('Please enter a valid pool size between 1,000 and 200,000 gallons.')
+      setError('Pool size must be between 1,000 and 200,000 gallons. Enter the approximate water volume.')
       return
     }
     setLoading(true)
@@ -37,12 +45,17 @@ export default function NewPoolPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Failed to create pool')
+        if (res.status === 403) {
+          setError(data.error ?? 'You have reached your pool limit. Upgrade your plan to add more pools.')
+        } else {
+          setError(data.error ?? 'Could not create pool. Check your details and try again.')
+        }
         return
       }
+      success(`${poolName} added successfully!`)
       router.push(`/pools/${data.pool.id}`)
     } catch {
-      setError('Something went wrong. Please try again.')
+      toastError('No internet connection. Check your network and try again.')
     } finally {
       setLoading(false)
     }

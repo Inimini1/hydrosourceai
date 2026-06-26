@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 function OAuthButton({ provider, label, icon }: { provider: string; label: string; icon: React.ReactNode }) {
   const [loading, setLoading] = useState(false)
@@ -41,6 +42,7 @@ const PW_RULES = [
 ]
 
 export default function SignupPage() {
+  usePageTitle('Create Account')
   const router = useRouter()
   const searchParams = useSearchParams()
   const betaToken = searchParams.get('beta') ?? null
@@ -73,7 +75,14 @@ export default function SignupPage() {
         body: JSON.stringify({ email, password, role, ...(betaToken ? { betaToken } : {}) }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Signup failed'); return }
+      if (!res.ok) {
+        if (res.status === 409) {
+          setError('An account with that email already exists. Try signing in instead.')
+        } else {
+          setError(data.error ?? 'Could not create your account. Please try again.')
+        }
+        return
+      }
       if (data.needsEmailConfirmation) {
         router.push('/login?message=check-email')
       } else {
@@ -81,7 +90,7 @@ export default function SignupPage() {
         router.push('/dashboard')
       }
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError('Could not reach the server. Check your internet connection and try again.')
     } finally {
       setLoading(false)
     }

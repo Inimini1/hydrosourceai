@@ -2,8 +2,10 @@
 
 import { useState, FormEvent } from 'react'
 import Link from 'next/link'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 export default function ForgotPasswordPage() {
+  usePageTitle('Reset Password')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)

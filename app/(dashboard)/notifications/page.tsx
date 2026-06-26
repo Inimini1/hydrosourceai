@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 const listVariants = {
   hidden: {},
@@ -72,6 +73,7 @@ const defaultConfig = {
 }
 
 export default function NotificationsPage() {
+  usePageTitle('Alerts')
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)

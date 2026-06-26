@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { useAuth } from '@/components/AuthProvider'
 import { useTheme } from '@/components/ThemeProvider'
 import Link from 'next/link'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 interface Usage {
   testsThisMonth: number
@@ -25,6 +26,7 @@ const AVATAR_COLORS = [
 ]
 
 export default function AccountPage() {
+  usePageTitle('Account')
   const { user, refresh } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [usage, setUsage] = useState<Usage | null>(null)

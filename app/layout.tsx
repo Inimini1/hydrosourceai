@@ -3,6 +3,7 @@ import { Hanken_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import ConsentBanner from '@/components/ConsentBanner'
 import { PostHogProvider } from '@/components/PostHogProvider'
+import { ToastProvider } from '@/components/Toaster'
 
 const hankenGrotesk = Hanken_Grotesk({
   subsets: ['latin'],
@@ -38,8 +39,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`dark ${hankenGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased bg-[#0f1419]">
         <PostHogProvider>
-          {children}
-          <ConsentBanner />
+          <ToastProvider>
+            {children}
+            <ConsentBanner />
+          </ToastProvider>
         </PostHogProvider>
       </body>
     </html>

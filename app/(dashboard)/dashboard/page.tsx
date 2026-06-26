@@ -7,6 +7,7 @@ import { useAuth } from '@/components/AuthProvider'
 
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 const staggerContainer = {
   hidden: {},
@@ -304,6 +305,7 @@ function OtherPoolPill({ pool }: { pool: Pool }) {
 
 // ── Main component ──────────────────────────────────────────────────────────
 export default function DashboardPage() {
+  usePageTitle('Dashboard')
   const { user } = useAuth()
   const [pools, setPools] = useState<Pool[]>([])
   const [loading, setLoading] = useState(true)

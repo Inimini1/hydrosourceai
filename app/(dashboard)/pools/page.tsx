@@ -7,6 +7,7 @@ import StatusBadge from '@/components/StatusBadge'
 import { PoolLensIcon } from '@/components/brand'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
+import { usePageTitle } from '@/lib/usePageTitle'
 
 const listVariants = {
   hidden: {},
@@ -28,6 +29,7 @@ interface Pool {
 }
 
 export default function PoolsPage() {
+  usePageTitle('Pools')
   const [pools, setPools] = useState<Pool[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
