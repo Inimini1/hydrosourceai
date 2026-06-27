@@ -48,11 +48,15 @@
   html {
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   body {
     @apply antialiased;
     font-feature-settings: 'cv11', 'ss01';
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   * {

@@ -9,8 +9,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <AuthProvider>
       <ThemeProvider>
-        <main className="flex-1 pb-28 min-h-screen overflow-x-hidden mesh-bg">
-          <div className="max-w-2xl mx-auto">
+        <main className="flex-1 pb-36 min-h-screen overflow-x-hidden mesh-bg">
+          <div className="max-w-2xl mx-auto overflow-x-hidden">
             <EmailVerificationBanner />
             <PageTransition>
               {children}

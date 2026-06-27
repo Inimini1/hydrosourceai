@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, useRef, useCallback, FormEvent } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -137,8 +137,21 @@ function ParameterSlider({
   sliderMin: number; sliderMax: number; step: number;
   value: string; onChange: (v: string) => void; required?: boolean;
 }) {
-  const hasValue = value !== ''
-  const numVal = hasValue ? parseFloat(value) : (idealMin + idealMax) / 2
+  // Local state drives display during drag — avoids re-rendering all 6 sliders on every tick.
+  // Parent state is committed only on pointer/touch release via onPointerUp.
+  const [local, setLocal] = useState(value)
+  const latestRef = useRef(value)
+
+  // Sync when parent changes (e.g. strip scan fills in readings)
+  useEffect(() => {
+    setLocal(value)
+    latestRef.current = value
+  }, [value])
+
+  const commit = useCallback(() => onChange(latestRef.current), [onChange])
+
+  const hasValue = local !== ''
+  const numVal = hasValue ? parseFloat(local) : (idealMin + idealMax) / 2
   const clampedVal = Math.min(Math.max(numVal, sliderMin), sliderMax)
   const pct = ((clampedVal - sliderMin) / (sliderMax - sliderMin)) * 100
 
@@ -179,7 +192,7 @@ function ParameterSlider({
             </span>
           )}
           <span className="font-display font-black text-xl leading-none" style={{ color: hasValue ? color : '#CBD5E1' }}>
-            {hasValue ? (step < 1 ? parseFloat(value).toFixed(1) : Math.round(parseFloat(value))) : '—'}
+            {hasValue ? (step < 1 ? parseFloat(local).toFixed(1) : Math.round(parseFloat(local))) : '—'}
           </span>
           {unit && <span className="text-xs text-slate-400 -ml-0.5">{unit}</span>}
         </div>
@@ -198,21 +211,25 @@ function ParameterSlider({
           }} />
         {/* Filled portion */}
         {hasValue && (
-          <div className="absolute h-2 rounded-full transition-all duration-150"
+          <div className="absolute h-2 rounded-full"
             style={{ width: `${pct}%`, background: color }} />
         )}
         {/* Native range (invisible, handles interaction) */}
         <input
           type="range"
           min={sliderMin} max={sliderMax} step={step}
-          value={hasValue ? value : String((idealMin + idealMax) / 2)}
-          onChange={(e) => onChange(e.target.value)}
+          value={hasValue ? local : String((idealMin + idealMax) / 2)}
+          onChange={(e) => {
+            setLocal(e.target.value)
+            latestRef.current = e.target.value
+          }}
+          onPointerUp={commit}
           className="absolute w-full h-10 opacity-0 cursor-pointer z-10"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'pan-y' }}
         />
         {/* Visual thumb */}
         <div
-          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-md pointer-events-none transition-all duration-150"
+          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-md pointer-events-none"
           style={{
             left: `calc(${hasValue ? pct : 50}% - 10px)`,
             background: hasValue ? color : '#CBD5E1',
