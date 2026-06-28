@@ -111,7 +111,7 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-5 animate-in">
-      <h1 className="font-display text-2xl font-bold text-white">Plan &amp; Billing</h1>
+      <h1 className="font-display text-2xl font-bold text-slate-900">Plan &amp; Billing</h1>
 
       {/* Current plan card */}
       <div
@@ -139,8 +139,8 @@ export default function BillingPage() {
             </div>
             {(sub?.isTrial || sub?.isBeta) && (
               <div className="text-right">
-                <p className="font-display font-black text-3xl text-white">{sub.isTrial ? trialDays : daysLeft(null)}</p>
-                <p className="text-white/35 text-xs">{sub.isTrial ? 'days left in trial' : 'days remaining'}</p>
+                <p className="font-display font-black text-3xl text-slate-900">{sub.isTrial ? trialDays : daysLeft(null)}</p>
+                <p className="text-slate-400 text-xs">{sub.isTrial ? 'days left in trial' : 'days remaining'}</p>
               </div>
             )}
           </div>
@@ -161,18 +161,18 @@ export default function BillingPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <svg className="w-4 h-4 flex-shrink-0 text-white/15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 flex-shrink-0 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 )}
-                <span style={{ color: item.included ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)' }}>{item.label}</span>
+                <span style={{ color: item.included ? '#334155' : '#94a3b8' }}>{item.label}</span>
               </div>
             ))}
           </div>
 
           {/* Renewal / trial expiry */}
           {(isPaid || sub?.isTrial) && (
-            <div className="mt-4 pt-4 border-t border-white/8 flex items-center justify-between text-xs text-white/35">
+            <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
               {sub?.isTrial ? (
                 <span>Trial ends {formatDate(sub.trialEndsAt)}</span>
               ) : sub?.cancelAtPeriodEnd ? (
@@ -192,7 +192,7 @@ export default function BillingPage() {
           onClick={handlePortal}
           disabled={portalLoading}
           className="w-full py-3.5 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-          style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
+          style={{ background: '#f8fafc', color: '#475569', border: '1px solid rgba(0,0,0,0.08)' }}
         >
           {portalLoading
             ? <><div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" /> Opening portal…</>
@@ -207,8 +207,8 @@ export default function BillingPage() {
           className="rounded-3xl p-5"
           style={{ background: 'rgba(0,111,255,0.08)', border: '1px solid rgba(0,111,255,0.2)' }}
         >
-          <p className="text-sm font-semibold text-white mb-1">Keep your Pro access</p>
-          <p className="text-white/40 text-sm mb-4">
+          <p className="text-sm font-semibold text-slate-800 mb-1">Keep your Pro access</p>
+          <p className="text-slate-500 text-sm mb-4">
             Your trial ends {formatDate(sub.trialEndsAt)}. Add a payment method to continue without interruption.
           </p>
           <button
@@ -225,12 +225,12 @@ export default function BillingPage() {
       {planType !== 'POOL_TEAM' && planType !== 'ENTERPRISE' && (
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <p className="text-sm font-bold text-white/60 uppercase tracking-widest">Upgrade your plan</p>
-            <div className="flex-1 h-px bg-white/8" />
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Upgrade your plan</p>
+            <div className="flex-1 h-px bg-slate-200" />
             {/* billing cycle toggle */}
             <div
               className="inline-flex p-0.5 rounded-xl gap-0.5"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: '#f1f5f9', border: '1px solid rgba(0,0,0,0.07)' }}
             >
               {(['monthly', 'annual'] as BillingCycle[]).map((c) => (
                 <button
@@ -239,7 +239,7 @@ export default function BillingPage() {
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                   style={cycle === c
                     ? { background: '#00C9B1', color: 'white' }
-                    : { color: 'rgba(255,255,255,0.35)' }
+                    : { color: '#64748b' }
                   }
                 >
                   {c === 'monthly' ? 'Monthly' : 'Annual −17%'}
@@ -274,7 +274,7 @@ export default function BillingPage() {
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-sm font-bold text-white">{def.name}</span>
+                          <span className="text-sm font-bold text-slate-800">{def.name}</span>
                           {def.badge && (
                             <span
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -284,17 +284,17 @@ export default function BillingPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-white/40">{def.tagline}</p>
+                        <p className="text-xs text-slate-500">{def.tagline}</p>
                       </div>
                       <div className="text-right">
-                        <span className="font-display font-black text-2xl text-white">${price}</span>
-                        <span className="text-white/35 text-xs">/mo</span>
+                        <span className="font-display font-black text-2xl text-slate-900">${price}</span>
+                        <span className="text-slate-400 text-xs">/mo</span>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-1.5 mb-4">
                       {def.highlights.slice(0, 4).map((h, i) => (
-                        <div key={i} className="flex items-center gap-1.5 text-xs text-white/50">
+                        <div key={i} className="flex items-center gap-1.5 text-xs text-slate-500">
                           <svg className="w-3 h-3 flex-shrink-0" style={{ color: def.accentColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                           </svg>
@@ -325,15 +325,15 @@ export default function BillingPage() {
       <Link
         href="/pricing"
         className="block w-full text-center py-3 rounded-2xl text-sm font-semibold transition-colors"
-        style={{ color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.03)' }}
+        style={{ color: '#64748b', background: '#f8fafc' }}
       >
         View full pricing comparison →
       </Link>
 
-      <p className="text-xs text-white/15 text-center">
-        <Link href="/legal/terms" className="hover:text-white/30 transition-colors">Terms of Service</Link>
+      <p className="text-xs text-slate-300 text-center">
+        <Link href="/legal/terms" className="hover:text-slate-500 transition-colors">Terms of Service</Link>
         {' · '}
-        <Link href="/legal/privacy" className="hover:text-white/30 transition-colors">Privacy Policy</Link>
+        <Link href="/legal/privacy" className="hover:text-slate-500 transition-colors">Privacy Policy</Link>
       </p>
     </div>
   )

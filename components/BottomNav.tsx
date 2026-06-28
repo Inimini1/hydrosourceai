@@ -94,13 +94,13 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-[#3a494b]/40"
-      style={{ background: 'rgba(10,15,20,0.85)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }}
+      className="fixed bottom-0 inset-x-0 z-40 border-t border-slate-200/70"
+      style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       {/* Beta ribbon */}
       <div className="flex justify-center pt-1.5">
         <span className="text-[9px] font-mono font-bold tracking-widest px-2.5 py-0.5 rounded-full"
-          style={{ background: 'rgba(0,242,255,0.08)', color: '#00f2ff', border: '1px solid rgba(0,242,255,0.20)' }}>
+          style={{ background: 'rgba(0,201,177,0.08)', color: '#00A99A', border: '1px solid rgba(0,201,177,0.20)' }}>
           BETA
         </span>
       </div>
@@ -117,22 +117,21 @@ export default function BottomNav() {
               href={tab.href}
               onClick={() => { if (!active) haptics.tab() }}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-full"
-              style={{ color: active ? '#00f2ff' : '#849495' }}
+              style={{ color: active ? '#00A99A' : '#94a3b8' }}
             >
               <div className="relative">
-                {/* Animated active background pill — glides between tabs via layoutId */}
                 {active && (
                   <motion.div
                     layoutId="tab-active-bg"
                     className="absolute -inset-2 rounded-xl"
-                    style={{ background: 'rgba(0,242,255,0.10)', boxShadow: '0 0 12px rgba(0,242,255,0.15)' }}
+                    style={{ background: 'rgba(0,201,177,0.10)' }}
                     transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                   />
                 )}
 
                 <motion.div
                   className="relative z-10"
-                  animate={{ scale: active ? 1 : 1, color: active ? '#00C9B1' : '#94A3B8' }}
+                  animate={{ color: active ? '#00A99A' : '#94A3B8' }}
                   whileTap={{ scale: 0.82 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
@@ -142,7 +141,7 @@ export default function BottomNav() {
                 {tab.badge && unread > 0 && (
                   <span
                     className="absolute -top-1 -right-1.5 w-4 h-4 text-white text-[9px] font-bold rounded-full flex items-center justify-center"
-                    style={{ background: '#EF4444' }}
+                    style={{ background: '#dc2626' }}
                   >
                     {unread > 9 ? '9+' : unread}
                   </span>
@@ -151,7 +150,7 @@ export default function BottomNav() {
 
               <motion.span
                 className="text-[10px] font-mono font-medium tracking-wider uppercase"
-                animate={{ color: active ? '#00f2ff' : '#849495' }}
+                animate={{ color: active ? '#00A99A' : '#94a3b8' }}
                 transition={{ duration: 0.15 }}
               >
                 {tab.label}

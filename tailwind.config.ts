@@ -84,9 +84,9 @@ const config: Config = {
           600: '#00A99A',
           700: '#00877B',
         },
-        safe:     '#3cddc7',
-        caution:  '#b1c5ff',
-        critical: '#ffb4ab',
+        safe:     '#0d9488',
+        caution:  '#d97706',
+        critical: '#dc2626',
         ink:     '#0a0f14',
         page:    '#0f1419',
         slate: {

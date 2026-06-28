@@ -32,16 +32,16 @@ export default function DashboardError({
           boxShadow: 'inset -6px -6px 16px rgba(0,0,0,0.40), 0 0 24px rgba(255,180,171,0.18)',
         }}
       >
-        <svg className="w-6 h-6" style={{ color: '#ffb4ab' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-6 h-6" style={{ color: '#dc2626' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01" />
         </svg>
       </div>
 
-      <p className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: '#ffb4ab' }}>Page Error</p>
-      <h2 className="font-display font-bold text-lg mb-2" style={{ color: '#dee3ea' }}>
+      <p className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: '#dc2626' }}>Page Error</p>
+      <h2 className="font-display font-bold text-lg mb-2 text-slate-900">
         Something went wrong
       </h2>
-      <p className="text-sm max-w-[260px] leading-relaxed mb-7" style={{ color: '#849495' }}>
+      <p className="text-sm max-w-[260px] leading-relaxed mb-7 text-slate-500">
         Your data is safe. Try refreshing — if this keeps happening, our support team is here to help.
       </p>
 
@@ -51,7 +51,7 @@ export default function DashboardError({
         </button>
         <Link href="/dashboard"
           className="px-5 py-2 rounded-xl text-sm font-semibold"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: '#b9cacb' }}>
+          style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.08)', color: '#475569' }}>
           Dashboard
         </Link>
       </div>
@@ -59,13 +59,13 @@ export default function DashboardError({
       <a
         href={`mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`}
         className="text-xs font-medium transition-opacity hover:opacity-70"
-        style={{ color: 'rgba(255,255,255,0.28)' }}
+        style={{ color: '#94a3b8' }}
       >
         Still broken? Email {SUPPORT_EMAIL}
       </a>
 
       {error.digest && (
-        <p className="text-[10px] mt-2 font-mono" style={{ color: 'rgba(255,255,255,0.15)' }}>
+        <p className="text-[10px] mt-2 font-mono text-slate-300">
           ref: {error.digest}
         </p>
       )}

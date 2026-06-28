@@ -60,8 +60,8 @@ function EmptyMaintenance({ poolId }: { poolId: string }) {
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
         </svg>
       </div>
-      <p className="font-display font-bold text-white text-lg mb-2">No maintenance logs yet</p>
-      <p className="text-white/40 text-sm leading-relaxed max-w-xs mx-auto mb-6">
+      <p className="font-display font-bold text-slate-900 text-lg mb-2">No maintenance logs yet</p>
+      <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
         Run a water test to get AI treatment recommendations, then save them as a maintenance log entry.
       </p>
       <Link
@@ -95,8 +95,8 @@ function UpgradeGate() {
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       </div>
-      <p className="font-display font-bold text-white text-lg mb-2">Maintenance Log</p>
-      <p className="text-white/40 text-sm leading-relaxed max-w-xs mx-auto mb-2">
+      <p className="font-display font-bold text-slate-900 text-lg mb-2">Maintenance Log</p>
+      <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto mb-2">
         Save AI treatment plans as interactive checklists your team can check off on-site.
       </p>
       <p className="text-xs font-semibold mb-6" style={{ color: '#36aaf6' }}>
@@ -128,14 +128,14 @@ function SimpleLogCard({ log, onDelete }: { log: ServiceLog; onDelete: () => voi
   return (
     <div
       className="rounded-3xl p-5"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+      style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.07)' }}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             {dateLabel} · {d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
           </p>
-          <p className="text-sm font-semibold text-white/70 mt-0.5">Service Visit</p>
+          <p className="text-sm font-semibold text-slate-700 mt-0.5">Service Visit</p>
         </div>
         <div
           className="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -148,12 +148,12 @@ function SimpleLogCard({ log, onDelete }: { log: ServiceLog; onDelete: () => voi
         </div>
       </div>
 
-      <p className="text-sm text-white/50 leading-relaxed">{log.notes}</p>
+      <p className="text-sm text-slate-600 leading-relaxed">{log.notes}</p>
 
       {log.chemicalsAdded && (
-        <div className="mt-3 pt-3 border-t border-white/6">
-          <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest mb-1">Chemicals Added</p>
-          <p className="text-xs text-white/45">{log.chemicalsAdded}</p>
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Chemicals Added</p>
+          <p className="text-xs text-slate-500">{log.chemicalsAdded}</p>
         </div>
       )}
 
@@ -168,8 +168,7 @@ function SimpleLogCard({ log, onDelete }: { log: ServiceLog; onDelete: () => voi
           </button>
           <button
             onClick={() => setShowConfirm(false)}
-            className="flex-1 py-2 rounded-xl text-xs text-white/35 hover:text-white/55 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            className="flex-1 py-2 rounded-xl text-xs text-slate-500 hover:text-slate-700 transition-colors bg-slate-50"
           >
             Cancel
           </button>
@@ -177,7 +176,7 @@ function SimpleLogCard({ log, onDelete }: { log: ServiceLog; onDelete: () => voi
       ) : (
         <button
           onClick={() => setShowConfirm(true)}
-          className="w-full pt-3 text-xs text-white/15 hover:text-white/30 transition-colors"
+          className="w-full pt-3 text-xs text-slate-300 hover:text-slate-500 transition-colors"
         >
           Delete
         </button>
@@ -233,15 +232,15 @@ export default function MaintenancePage() {
     return (
       <div className="pb-8">
         <div className="px-4 pt-12 pb-5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
+          <div className="w-9 h-9 rounded-2xl flex-shrink-0 skeleton-dark" />
           <div className="space-y-2">
-            <div className="h-6 w-40 rounded-xl" style={{ background: 'rgba(255,255,255,0.08)' }} />
-            <div className="h-3 w-28 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+            <div className="h-6 w-40 rounded-xl skeleton-dark" />
+            <div className="h-3 w-28 rounded-full skeleton-dark" />
           </div>
         </div>
         <div className="px-4 space-y-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-28 rounded-3xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }} />
+            <div key={i} className="h-28 rounded-3xl skeleton-dark" />
           ))}
         </div>
       </div>
@@ -259,22 +258,22 @@ export default function MaintenancePage() {
   )
 
   return (
-    <div className="pb-8 -mx-4 -mt-4 px-4 pt-4 min-h-screen" style={{ background: 'linear-gradient(180deg, #0B1E2D 0%, #0B1528 100%)' }}>
+    <div className="pb-8 -mx-4 -mt-4 px-4 pt-4 min-h-screen" style={{ background: '#f8fafc' }}>
 
       {/* Header */}
       <div className="px-0 pt-8 pb-5 flex items-center gap-3">
         <Link
           href={`/pools/${id}`}
           className="w-9 h-9 rounded-2xl flex items-center justify-center transition-all"
-          style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+          style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.08)' }}
         >
-          <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
         <div className="flex-1 min-w-0">
-          <h1 className="font-display font-bold text-white text-xl">Maintenance Log</h1>
-          <p className="text-xs text-white/30 mt-0.5 truncate">
+          <h1 className="font-display font-bold text-slate-900 text-xl">Maintenance Log</h1>
+          <p className="text-xs text-slate-400 mt-0.5 truncate">
             {pool?.poolName} · {totalLogs} entr{totalLogs !== 1 ? 'ies' : 'y'}
           </p>
         </div>
@@ -300,8 +299,8 @@ export default function MaintenancePage() {
 
           {/* Stats bar */}
           <div
-            className="rounded-2xl p-4 grid grid-cols-3 divide-x divide-white/8"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="rounded-2xl p-4 grid grid-cols-3 divide-x divide-slate-100"
+            style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.07)' }}
           >
             {[
               { label: 'Total visits', value: totalLogs },
@@ -313,8 +312,8 @@ export default function MaintenancePage() {
               }).length },
             ].map((s) => (
               <div key={s.label} className="text-center px-3 first:pl-0 last:pr-0">
-                <p className="font-display font-black text-2xl text-white">{s.value}</p>
-                <p className="text-[10px] font-medium text-white/30 mt-0.5 uppercase tracking-wide leading-tight">{s.label}</p>
+                <p className="font-display font-black text-2xl text-slate-900">{s.value}</p>
+                <p className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-wide leading-tight">{s.label}</p>
               </div>
             ))}
           </div>
@@ -323,11 +322,11 @@ export default function MaintenancePage() {
           {logsWithPlan.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">AI Treatment Plans</p>
-                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI Treatment Plans</p>
+                <div className="flex-1 h-px bg-slate-200" />
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(0,111,255,0.15)', color: '#36aaf6' }}
+                  style={{ background: 'rgba(13,148,136,0.10)', color: '#0d9488' }}
                 >
                   Pool Pro
                 </span>
@@ -356,8 +355,8 @@ export default function MaintenancePage() {
           {logsWithoutPlan.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Service Visits</p>
-                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Service Visits</p>
+                <div className="flex-1 h-px bg-slate-200" />
               </div>
               <div className="space-y-3">
                 {logsWithoutPlan.map((log) => (
@@ -373,8 +372,8 @@ export default function MaintenancePage() {
             style={{ background: 'rgba(0,201,177,0.06)', border: '1px solid rgba(0,201,177,0.15)' }}
           >
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white/70">Run a new test</p>
-              <p className="text-xs text-white/35 mt-0.5">Get AI treatment recommendations to add to this log</p>
+              <p className="text-sm font-semibold text-slate-700">Run a new test</p>
+              <p className="text-xs text-slate-400 mt-0.5">Get AI treatment recommendations to add to this log</p>
             </div>
             <Link
               href={`/pools/${id}/test`}

@@ -24,10 +24,9 @@ function OAuthButton({ provider, label, icon }: { provider: string; label: strin
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border border-white/15 text-white/80 text-sm font-semibold hover:bg-white/8 hover:border-white/25 transition-all duration-200 disabled:opacity-50 cursor-pointer"
-      style={{ background: 'rgba(255,255,255,0.05)' }}
+      className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 disabled:opacity-50 cursor-pointer bg-white"
     >
-      {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" /> : icon}
+      {loading ? <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" /> : icon}
       {!loading && label}
     </button>
   )
@@ -105,13 +104,13 @@ export default function SignupPage() {
             BETA ACCESS — ALL PRO FEATURES FREE
           </div>
         )}
-        <h1 className="font-display text-3xl font-bold text-white mb-2">Create your account</h1>
-        <p className="text-white/40 text-sm">{betaToken ? '7-day full access — no payment needed' : 'Start managing your pool with AI — free forever'}</p>
+        <h1 className="font-display text-3xl font-bold text-slate-900 mb-2">Create your account</h1>
+        <p className="text-slate-500 text-sm">{betaToken ? '7-day full access — no payment needed' : 'Start managing your pool with AI — free forever'}</p>
       </div>
 
       <div className="card-glass p-7 rounded-3xl space-y-4">
         {error && (
-          <div className="p-3.5 rounded-2xl bg-critical/15 border border-critical/30 text-critical text-sm font-medium flex items-start gap-2">
+          <div className="p-3.5 rounded-2xl bg-critical/8 border border-critical/20 text-critical text-sm font-medium flex items-start gap-2">
             <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -121,11 +120,11 @@ export default function SignupPage() {
         )}
 
         {/* OAuth consent notice */}
-        <p className="text-[10px] text-white/30 text-center leading-relaxed">
+        <p className="text-[10px] text-slate-400 text-center leading-relaxed">
           By continuing with any sign-up method, you agree to our{' '}
-          <Link href="/legal/terms" target="_blank" className="text-pool-400/80 hover:text-pool-300 underline underline-offset-1">Terms of Service</Link>
+          <Link href="/legal/terms" target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-1">Terms of Service</Link>
           {' '}and{' '}
-          <Link href="/legal/privacy" target="_blank" className="text-pool-400/80 hover:text-pool-300 underline underline-offset-1">Privacy Policy</Link>
+          <Link href="/legal/privacy" target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-1">Privacy Policy</Link>
           , including the AI recommendations disclaimer.
         </p>
 
@@ -140,20 +139,18 @@ export default function SignupPage() {
             </svg>
           } />
           <button type="button" disabled
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border text-sm font-semibold cursor-not-allowed"
-            style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.25)' }}>
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border text-sm font-semibold cursor-not-allowed bg-white border-slate-100 text-slate-300">
             <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path fill="#F25022" opacity="0.4" d="M1 1h10v10H1z"/>
-              <path fill="#00A4EF" opacity="0.4" d="M13 1h10v10H13z"/>
-              <path fill="#7FBA00" opacity="0.4" d="M1 13h10v10H1z"/>
-              <path fill="#FFB900" opacity="0.4" d="M13 13h10v10H13z"/>
+              <path fill="#F25022" opacity="0.5" d="M1 1h10v10H1z"/>
+              <path fill="#00A4EF" opacity="0.5" d="M13 1h10v10H13z"/>
+              <path fill="#7FBA00" opacity="0.5" d="M1 13h10v10H1z"/>
+              <path fill="#FFB900" opacity="0.5" d="M13 13h10v10H13z"/>
             </svg>
             Microsoft — Coming Soon
           </button>
           <button type="button" disabled
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border text-sm font-semibold cursor-not-allowed"
-            style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.25)' }}>
-            <svg className="w-4 h-4 opacity-40" viewBox="0 0 24 24" fill="currentColor">
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border text-sm font-semibold cursor-not-allowed bg-white border-slate-100 text-slate-300">
+            <svg className="w-4 h-4 opacity-40 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
             </svg>
             Apple — Coming Soon
@@ -161,21 +158,21 @@ export default function SignupPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/25 text-xs font-medium">or with email</span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-slate-100" />
+          <span className="text-slate-400 text-xs font-medium">or with email</span>
+          <div className="flex-1 h-px bg-slate-100" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-white/60 mb-2">I am a…</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">I am a…</label>
             <div className="grid grid-cols-2 gap-2">
               {(['OWNER', 'PROFESSIONAL'] as const).map((r) => (
                 <button key={r} type="button" onClick={() => setRole(r)}
                   className={`py-3 rounded-2xl text-sm font-semibold border transition-all duration-200 ${
                     role === r
-                      ? 'bg-pool-600 text-white border-pool-500 shadow-glow-blue'
-                      : 'bg-white/5 text-white/50 border-white/12 hover:border-white/25 hover:bg-white/10'
+                      ? 'bg-teal-500 text-white border-teal-500 shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}>
                   {r === 'OWNER' ? 'Pool Owner' : 'Pool Pro'}
                 </button>
@@ -184,14 +181,14 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-white/60 mb-2">Email</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">Email</label>
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com" className="input-dark" />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-semibold text-white/60">Password</label>
+              <label className="text-sm font-semibold text-slate-600">Password</label>
               {password.length > 0 && (
                 <span className="text-xs font-bold" style={{ color: pwColor }}>
                   {pwStrength <= 2 ? 'Weak' : pwStrength <= 3 ? 'Fair' : pwStrength === 4 ? 'Good' : 'Strong'}
@@ -208,27 +205,27 @@ export default function SignupPage() {
               <div className="flex gap-1 mt-2">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-1 flex-1 rounded-full transition-all duration-300"
-                    style={{ background: i <= pwStrength ? pwColor : 'rgba(255,255,255,0.1)' }} />
+                    style={{ background: i <= pwStrength ? pwColor : '#e2e8f0' }} />
                 ))}
               </div>
             )}
 
             {/* Requirements checklist */}
             {showPwRules && (
-              <div className="mt-3 space-y-1.5 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <div className="mt-3 space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 {PW_RULES.map((rule) => {
                   const met = rule.test(password)
                   return (
                     <div key={rule.label} className="flex items-center gap-2">
                       <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200"
-                        style={{ background: met ? 'rgba(0,193,122,0.2)' : 'rgba(255,255,255,0.06)' }}>
+                        style={{ background: met ? 'rgba(13,148,136,0.15)' : '#e2e8f0' }}>
                         {met
                           ? <svg className="w-2.5 h-2.5 text-safe" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                          : <div className="w-1 h-1 rounded-full bg-white/20" />
+                          : <div className="w-1 h-1 rounded-full bg-slate-300" />
                         }
                       </div>
                       <span className="text-xs transition-colors duration-200"
-                        style={{ color: met ? '#00C17A' : 'rgba(255,255,255,0.35)' }}>
+                        style={{ color: met ? '#0d9488' : '#94a3b8' }}>
                         {rule.label}
                       </span>
                     </div>
@@ -250,8 +247,8 @@ export default function SignupPage() {
                   <div
                     className="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200"
                     style={checked
-                      ? { background: '#006FFF', borderColor: '#006FFF' }
-                      : { background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.2)' }}>
+                      ? { background: '#00C9B1', borderColor: '#00C9B1' }
+                      : { background: '#ffffff', borderColor: '#cbd5e1' }}>
                     {checked && (
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -259,9 +256,9 @@ export default function SignupPage() {
                     )}
                   </div>
                 </div>
-                <span className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                <span className="text-xs text-slate-500 leading-relaxed">
                   {label}{' '}
-                  <Link href={link} target="_blank" className="text-pool-400 hover:text-pool-300 underline underline-offset-2 font-semibold">
+                  <Link href={link} target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-2 font-semibold">
                     {linkLabel}
                   </Link>
                 </span>
@@ -271,7 +268,7 @@ export default function SignupPage() {
 
           <div className="pt-1">
             <button type="submit" disabled={loading || pwStrength < 5 || !agreedTerms || !agreedPrivacy}
-              className="btn-primary w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              className="btn-teal w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? (
                 <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Creating account…</>
               ) : 'Create free account →'}
@@ -280,9 +277,9 @@ export default function SignupPage() {
         </form>
       </div>
 
-      <p className="text-center text-sm text-white/30 mt-6">
+      <p className="text-center text-sm text-slate-400 mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-pool-400 font-semibold hover:text-pool-300 transition-colors">
+        <Link href="/login" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
           Sign in
         </Link>
       </p>
