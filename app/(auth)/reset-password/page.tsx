@@ -45,8 +45,8 @@ function ResetForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="font-display text-xl font-bold text-white mb-2">Password updated!</h2>
-        <p className="text-white/40 text-sm">Redirecting you to sign in…</p>
+        <h2 className="font-display text-xl font-bold text-slate-900 mb-2">Password updated!</h2>
+        <p className="text-slate-500 text-sm">Redirecting you to sign in…</p>
       </div>
     )
   }
@@ -60,7 +60,7 @@ function ResetForm() {
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-white/60 mb-2">New password</label>
+          <label className="block text-sm font-semibold text-slate-600 mb-2">New password</label>
           <input
             type="password"
             required
@@ -71,7 +71,7 @@ function ResetForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-white/60 mb-2">Confirm new password</label>
+          <label className="block text-sm font-semibold text-slate-600 mb-2">Confirm new password</label>
           <input
             type="password"
             required
@@ -84,7 +84,7 @@ function ResetForm() {
         <button
           type="submit"
           disabled={loading}
-          className="btn-primary w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-teal w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Updating…</>
@@ -99,14 +99,14 @@ export default function ResetPasswordPage() {
   return (
     <div className="w-full max-w-sm animate-in">
       <div className="text-center mb-8">
-        <h1 className="font-display text-3xl font-bold text-white mb-2">Set new password</h1>
-        <p className="text-white/40 text-sm">Choose a strong password for your account</p>
+        <h1 className="font-display text-3xl font-bold text-slate-900 mb-2">Set new password</h1>
+        <p className="text-slate-500 text-sm">Choose a strong password for your account</p>
       </div>
-      <Suspense fallback={<div className="text-white/40 text-center text-sm">Loading…</div>}>
+      <Suspense fallback={<div className="text-slate-400 text-center text-sm">Loading…</div>}>
         <ResetForm />
       </Suspense>
-      <p className="text-center text-sm text-white/30 mt-6">
-        <Link href="/login" className="text-pool-400 font-semibold hover:text-pool-300 transition-colors">
+      <p className="text-center text-sm text-slate-400 mt-6">
+        <Link href="/login" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
           ← Back to sign in
         </Link>
       </p>
