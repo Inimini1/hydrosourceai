@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
@@ -50,26 +50,30 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create auth user — Supabase sends verification email automatically
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signUp({
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
+    const redirectTo = `${appUrl}/api/auth/callback`
+
+    // Use admin generateLink to create the user AND get the verification link in one call.
+    // This prevents Supabase from auto-sending its generic noreply@mail.app.supabase.io email.
+    const { data, error } = await admin.auth.admin.generateLink({
+      type: 'signup',
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`,
+        redirectTo,
         data: { role },
       },
     })
 
     if (error) {
-      if (error.message.includes('already registered') || error.message.includes('already exists')) {
+      if (error.message.includes('already registered') || error.message.includes('already exists') || error.message.includes('User already registered')) {
         return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 409 })
       }
       // Never leak raw Supabase error messages — map to a safe generic response
       return NextResponse.json({ error: 'Signup failed. Please check your details and try again.' }, { status: 400 })
     }
 
-    if (!data.user) {
+    if (!data.user || !data.properties?.action_link) {
       return NextResponse.json({ error: 'Signup failed.' }, { status: 500 })
     }
 
@@ -84,10 +88,12 @@ export async function POST(req: NextRequest) {
       try { await admin.from('beta_invites').update({ used_at: new Date().toISOString() }).eq('token', betaToken) } catch { /* non-critical */ }
     }
 
+    // Send branded verification email via Resend instead of Supabase's generic one
+    await sendVerificationEmail(email, data.properties.action_link)
+
     return NextResponse.json({
       user: { id: data.user.id, email: data.user.email },
-      // session is null when Supabase requires email confirmation
-      needsEmailConfirmation: data.session === null,
+      needsEmailConfirmation: true,
     }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Server error. Please try again.' }, { status: 500 })
