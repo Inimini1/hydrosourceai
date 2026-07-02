@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 
-const SUPPORT_EMAIL = 'support@hydrosourceai.com'
+const SUPPORT_EMAIL = 'hydrosource@appscloud365.com'
 
 export default function GlobalError({
   error,
@@ -22,29 +22,29 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body style={{ margin: 0, background: '#0B1120', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
+      <body style={{ margin: 0, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
         <div style={{ textAlign: 'center', padding: '24px', maxWidth: '340px' }}>
 
           {/* Drop icon */}
           <div style={{
             width: 72, height: 72, margin: '0 auto 20px',
             borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%',
-            background: 'radial-gradient(circle at 30% 30%, rgba(255,180,171,0.5) 0%, rgba(147,0,10,0.65) 80%)',
-            boxShadow: 'inset -6px -6px 16px rgba(0,0,0,0.4), 0 0 28px rgba(255,180,171,0.2)',
+            background: 'radial-gradient(circle at 30% 30%, rgba(239,68,68,0.20) 0%, rgba(185,28,28,0.30) 80%)',
+            boxShadow: '0 4px 24px rgba(239,68,68,0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <svg width="28" height="28" fill="none" stroke="#ffb4ab" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M12 9v2m0 4h.01" />
             </svg>
           </div>
 
-          <p style={{ color: '#ffb4ab', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+          <p style={{ color: '#EF4444', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
             Critical Error
           </p>
-          <h1 style={{ color: '#dee3ea', fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
+          <h1 style={{ color: '#0f172a', fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
             HydroSource ran into a problem
           </h1>
-          <p style={{ color: '#849495', fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
+          <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
             Something unexpected went wrong at the app level. Your pool data is stored safely — this is just a display issue.
           </p>
 
@@ -63,7 +63,7 @@ export default function GlobalError({
               onClick={() => { window.location.href = '/' }}
               style={{
                 padding: '10px 22px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)',
+                background: 'rgba(0,0,0,0.04)', color: '#475569', border: '1px solid rgba(0,0,0,0.10)',
               }}
             >
               Home
@@ -72,13 +72,13 @@ export default function GlobalError({
 
           <a
             href={`mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`}
-            style={{ color: 'rgba(255,255,255,0.28)', fontSize: 12, textDecoration: 'none' }}
+            style={{ color: '#94a3b8', fontSize: 12, textDecoration: 'none' }}
           >
             Need help? Contact {SUPPORT_EMAIL}
           </a>
 
           {error.digest && (
-            <p style={{ color: 'rgba(255,255,255,0.12)', fontSize: 10, marginTop: 10, fontFamily: 'monospace' }}>
+            <p style={{ color: '#cbd5e1', fontSize: 10, marginTop: 10, fontFamily: 'monospace' }}>
               ref: {error.digest}
             </p>
           )}

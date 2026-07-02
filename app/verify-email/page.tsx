@@ -36,26 +36,27 @@ function VerifyContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #0B1120 0%, #0a1f44 50%, #003380 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-sky-50 to-white">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center gap-2">
-            <HydroSourceLogo size={40} variant="dark" />
-            <span className="font-bold text-2xl text-white">HydroSource</span>
+            <HydroSourceLogo size={40} variant="light" />
+            <span className="font-bold text-2xl text-slate-900">HydroSource</span>
           </Link>
         </div>
 
-        <div className="rounded-3xl p-8 text-center" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
+        <div className="rounded-3xl p-8 text-center bg-white" style={{ border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 4px 24px rgba(0,0,0,0.07)' }}>
           {success && (
             <>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(0,201,177,0.15)' }}>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                style={{ background: 'rgba(0,201,177,0.10)' }}>
                 <svg className="w-8 h-8" fill="none" stroke="#00C9B1" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h1 className="text-xl font-bold text-white mb-2">Email verified!</h1>
-              <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <h1 className="text-xl font-bold text-slate-900 mb-2">Email verified!</h1>
+              <p className="text-sm text-slate-500 mb-6">
                 Your account is now fully active. Enjoy crystal-clear pool water.
               </p>
               <Link
@@ -70,15 +71,16 @@ function VerifyContent() {
 
           {error && (
             <>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(239,68,68,0.15)' }}>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                style={{ background: 'rgba(239,68,68,0.08)' }}>
                 <svg className="w-8 h-8" fill="none" stroke="#EF4444" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h1 className="text-xl font-bold text-white mb-2">
+              <h1 className="text-xl font-bold text-slate-900 mb-2">
                 {error === 'already_used' ? 'Already verified' : 'Link problem'}
               </h1>
-              <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <p className="text-sm text-slate-500 mb-6">
                 {errorMessages[error] ?? 'Something went wrong with this verification link.'}
               </p>
 
@@ -90,8 +92,7 @@ function VerifyContent() {
                     value={resendEmail}
                     onChange={(e) => setResendEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3.5 rounded-2xl text-sm font-medium text-white focus:outline-none transition-all duration-200"
-                    style={{ background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', caretColor: '#00C9B1' }}
+                    className="input-light"
                   />
                   <button
                     type="submit"
@@ -105,7 +106,7 @@ function VerifyContent() {
               )}
 
               {resendSent && (
-                <p className="text-sm" style={{ color: '#00C9B1' }}>
+                <p className="text-sm font-semibold" style={{ color: '#00A99A' }}>
                   Check your inbox — a new link has been sent.
                 </p>
               )}
@@ -124,24 +125,25 @@ function VerifyContent() {
 
           {!success && !error && (
             <>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(0,111,255,0.15)' }}>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                style={{ background: 'rgba(0,111,255,0.08)' }}>
                 <svg className="w-8 h-8" fill="none" stroke="#006FFF" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h1 className="text-xl font-bold text-white mb-2">Check your email</h1>
-              <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <h1 className="text-xl font-bold text-slate-900 mb-2">Check your email</h1>
+              <p className="text-sm text-slate-500 mb-6">
                 We sent a verification link to your email address. Click it to activate your account.
               </p>
-              <Link href="/onboarding" className="text-sm font-semibold" style={{ color: '#00C9B1' }}>
+              <Link href="/onboarding" className="text-sm font-semibold" style={{ color: '#00A99A' }}>
                 Continue to setup →
               </Link>
             </>
           )}
         </div>
 
-        <p className="text-center mt-6 text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          <Link href="/login" className="hover:text-white transition-colors">← Back to login</Link>
+        <p className="text-center mt-6 text-sm text-slate-400">
+          <Link href="/login" className="hover:text-slate-600 transition-colors">← Back to login</Link>
         </p>
       </div>
     </div>

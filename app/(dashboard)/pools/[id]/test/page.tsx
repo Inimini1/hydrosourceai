@@ -69,7 +69,7 @@ function HealthRing({ score, color }: { score: number; color: string }) {
   return (
     <div className="relative w-40 h-40 mx-auto">
       <svg className="w-full h-full -rotate-90" viewBox="0 0 130 130">
-        <circle cx="65" cy="65" r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="11" />
+        <circle cx="65" cy="65" r={r} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="11" />
         <circle
           cx="65" cy="65" r={r}
           fill="none"
@@ -85,8 +85,8 @@ function HealthRing({ score, color }: { score: number; color: string }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center select-none">
-        <span className="font-display font-black text-4xl text-white leading-none">{displayed}</span>
-        <span className="text-[11px] font-bold text-white/35 mt-0.5 tracking-wide">/ 100</span>
+        <span className="font-display font-black text-4xl text-slate-900 leading-none">{displayed}</span>
+        <span className="text-[11px] font-bold text-slate-400 mt-0.5 tracking-wide">/ 100</span>
       </div>
     </div>
   )
@@ -246,15 +246,15 @@ function FeedbackCard({ testId }: { testId: string }) {
         <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#00C17A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
         </svg>
-        <p className="text-sm text-white/50">Thanks — your feedback improves future recommendations.</p>
+        <p className="text-sm text-slate-500">Thanks — your feedback improves future recommendations.</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl px-4 py-4 space-y-3"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <p className="text-[11px] font-bold text-white/30 uppercase tracking-widest">Was this analysis helpful?</p>
+    <div className="rounded-2xl px-4 py-4 space-y-3 bg-white"
+      style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Was this analysis helpful?</p>
       <div className="flex gap-2.5">
         <button
           onClick={() => submit('helpful')}
@@ -262,7 +262,7 @@ function FeedbackCard({ testId }: { testId: string }) {
           className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200"
           style={rating === 'helpful'
             ? { background: 'rgba(0,193,122,0.15)', border: '1.5px solid rgba(0,193,122,0.4)', color: '#00C17A' }
-            : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+            : { background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', color: '#64748b' }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
           </svg>
@@ -273,7 +273,7 @@ function FeedbackCard({ testId }: { testId: string }) {
           className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200"
           style={rating === 'not_helpful'
             ? { background: 'rgba(255,59,92,0.1)', border: '1.5px solid rgba(255,59,92,0.3)', color: '#FF3B5C' }
-            : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+            : { background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', color: '#64748b' }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
           </svg>
@@ -287,8 +287,8 @@ function FeedbackCard({ testId }: { testId: string }) {
             onChange={(e) => { setNote(e.target.value); setFeedbackError('') }}
             placeholder="What was off? (optional — helps us improve)"
             rows={2}
-            className="w-full px-3.5 py-3 rounded-xl text-sm text-white placeholder-white/20 outline-none resize-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+            className="w-full px-3.5 py-3 rounded-xl text-sm text-slate-700 placeholder-slate-300 outline-none resize-none bg-slate-50"
+            style={{ border: '1px solid rgba(0,0,0,0.08)' }}
           />
           {feedbackError && (
             <p className="text-xs font-medium" style={{ color: '#FF3B5C' }}>{feedbackError}</p>
@@ -296,8 +296,8 @@ function FeedbackCard({ testId }: { testId: string }) {
           <button
             onClick={submitWithNote}
             disabled={saving}
-            className="w-full py-2.5 rounded-xl text-sm font-semibold text-white/70 transition-all hover:text-white"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            className="w-full py-2.5 rounded-xl text-sm font-semibold text-slate-600 transition-all hover:text-slate-900"
+            style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)' }}>
             {saving ? 'Sending…' : 'Submit feedback'}
           </button>
         </div>

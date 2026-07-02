@@ -117,35 +117,33 @@ export default function OnboardingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6"
-        style={{ background: 'linear-gradient(135deg, #0B1120 0%, #0a1f44 50%, #003380 100%)' }}>
-        <div className="w-12 h-12 border-4 border-white/20 rounded-full animate-spin mb-5"
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-slate-50">
+        <div className="w-12 h-12 border-4 border-slate-200 rounded-full animate-spin mb-5"
           style={{ borderTopColor: '#00C9B1' }} />
-        <p className="text-white font-semibold text-lg">Personalising your experience...</p>
-        <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>This only takes a second</p>
+        <p className="text-slate-900 font-semibold text-lg">Personalising your experience...</p>
+        <p className="text-slate-500 text-sm mt-2">This only takes a second</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col"
-      style={{ background: 'linear-gradient(135deg, #0B1120 0%, #0a1f44 60%, #003380 100%)' }}>
+    <div className="min-h-screen flex flex-col bg-slate-50">
 
-      <div className="fixed top-0 left-0 right-0 h-1 z-50" style={{ background: 'rgba(255,255,255,0.10)' }}>
+      <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-slate-200">
         <div className="h-full transition-all duration-500 ease-out"
           style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #00C9B1, #006FFF)' }} />
       </div>
 
       <div className="px-6 pt-8 pb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-white text-lg">HydroSource</span>
+          <span className="font-bold text-slate-900 text-lg">HydroSource</span>
           <span className="font-bold text-lg" style={{ color: '#00C9B1' }}>AI</span>
           <span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(0,201,177,0.2)', color: '#00C9B1', border: '1px solid rgba(0,201,177,0.3)' }}>
+            style={{ background: 'rgba(0,201,177,0.10)', color: '#00A99A', border: '1px solid rgba(0,201,177,0.25)' }}>
             BETA
           </span>
         </div>
-        <button onClick={skip} className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <button onClick={skip} className="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors">
           Skip for now
         </button>
       </div>
@@ -157,17 +155,17 @@ export default function OnboardingPage() {
               style={{
                 width: i === step ? '20px' : '6px',
                 height: '6px',
-                background: i <= step ? '#00C9B1' : 'rgba(255,255,255,0.18)',
+                background: i <= step ? '#00C9B1' : 'rgba(0,0,0,0.12)',
               }} />
           ))}
         </div>
 
         <div className="mb-8 animate-in">
-          <p className="text-xs font-bold mb-3 tracking-widest" style={{ color: '#00C9B1' }}>
+          <p className="text-xs font-bold mb-3 tracking-widest" style={{ color: '#00A99A' }}>
             STEP {step + 1} OF {STEPS.length}
           </p>
-          <h1 className="font-display font-bold text-white text-2xl mb-2">{current.title}</h1>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>{current.subtitle}</p>
+          <h1 className="font-display font-bold text-slate-900 text-2xl mb-2">{current.title}</h1>
+          <p className="text-sm text-slate-500">{current.subtitle}</p>
         </div>
 
         <div className="space-y-3 animate-in">
@@ -177,18 +175,18 @@ export default function OnboardingPage() {
               <button
                 key={opt.value}
                 onClick={() => select(opt.value)}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200 border"
+                className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200 border bg-white"
                 style={selected
-                  ? { background: 'rgba(0,201,177,0.12)', borderColor: '#00C9B1', boxShadow: '0 0 0 1px #00C9B1' }
-                  : { background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.10)' }}
+                  ? { borderColor: '#00C9B1', boxShadow: '0 0 0 2px rgba(0,201,177,0.20)', background: 'rgba(0,201,177,0.04)' }
+                  : { borderColor: 'rgba(0,0,0,0.10)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
               >
                 <span className="text-2xl flex-shrink-0">{opt.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white">{opt.label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{opt.desc}</p>
+                  <p className="text-sm font-semibold text-slate-900">{opt.label}</p>
+                  <p className="text-xs mt-0.5 text-slate-500">{opt.desc}</p>
                 </div>
                 <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200"
-                  style={selected ? { borderColor: '#00C9B1', background: '#00C9B1' } : { borderColor: 'rgba(255,255,255,0.2)' }}>
+                  style={selected ? { borderColor: '#00C9B1', background: '#00C9B1' } : { borderColor: 'rgba(0,0,0,0.20)' }}>
                   {selected && (
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -201,8 +199,7 @@ export default function OnboardingPage() {
         </div>
 
         {step > 0 && (
-          <button onClick={() => setStep((s) => s - 1)} className="mt-6 text-sm font-medium"
-            style={{ color: 'rgba(255,255,255,0.35)' }}>
+          <button onClick={() => setStep((s) => s - 1)} className="mt-6 text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">
             Back
           </button>
         )}
