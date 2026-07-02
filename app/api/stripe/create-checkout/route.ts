@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'planType and billingCycle are required.' }, { status: 400 })
   }
 
+  if (process.env.BETA_MODE === 'true') {
+    return NextResponse.json({ betaMode: true }, { status: 200 })
+  }
+
   if (planType === 'FREE' || planType === 'ENTERPRISE') {
     return NextResponse.json({ error: 'This plan does not require Stripe checkout.' }, { status: 400 })
   }

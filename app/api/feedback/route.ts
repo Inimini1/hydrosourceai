@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { sendFeedbackNotificationEmail } from '@/lib/email'
 import type { Database } from '@/lib/supabase/types'
 
 type FeedbackStatus = Database['public']['Tables']['feedback']['Row']['status']
@@ -40,6 +41,15 @@ export async function POST(req: NextRequest) {
     })
 
     if (error) throw error
+
+    // Email notification to founder — non-blocking
+    sendFeedbackNotificationEmail(
+      user?.email ?? null,
+      category ?? 'general',
+      message.trim(),
+      pageUrl ?? null,
+    ).catch(() => {/* non-critical */})
+
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed to save feedback.'

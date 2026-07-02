@@ -36,6 +36,25 @@ type SubQuery = {
 }
 
 export async function resolveSubscription(userId: string): Promise<ResolvedSubscription> {
+  // BETA_MODE=true in env → all users get full Pro access, no payment required.
+  // Remove this env var when beta ends to re-enable Stripe gating.
+  if (process.env.BETA_MODE === 'true') {
+    return {
+      planType: 'POOL_PRO',
+      status: 'active',
+      billingCycle: null,
+      currentPeriodEnd: null,
+      trialEndsAt: null,
+      cancelAtPeriodEnd: false,
+      poolLimit: 50,
+      analysisLimit: -1,
+      isActive: true,
+      isTrial: false,
+      isBeta: true,
+      features: getPlanDefinition('POOL_PRO').features,
+    }
+  }
+
   const admin = createAdminClient()
   const now = new Date()
 

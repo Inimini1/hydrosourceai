@@ -167,6 +167,36 @@ export async function sendBetaNotificationToOwner(
   await send(SUPPORT, `[HydroSource Beta] New Tester: ${name} — Expires ${expiresAt.toLocaleDateString()}`, html)
 }
 
+export async function sendFeedbackNotificationEmail(
+  fromEmail: string | null,
+  category: string,
+  message: string,
+  pageUrl: string | null,
+) {
+  const html = baseTemplate(`
+    <h2 style="color:#0F172A;margin:0 0 8px">New Beta Feedback</h2>
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin:20px 0">
+      ${[
+        ['From', fromEmail ?? 'Anonymous'],
+        ['Category', category],
+        ['Page', pageUrl ?? 'unknown'],
+      ].map(([label, value], i) => `
+        <div style="display:flex;padding:12px 16px;${i > 0 ? 'border-top:1px solid #E2E8F0;' : ''}background:${i % 2 === 0 ? '#F8FAFC' : '#FFFFFF'}">
+          <span style="color:#64748B;font-size:13px;font-weight:600;min-width:100px">${label}</span>
+          <span style="color:#0F172A;font-size:13px">${value}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px;margin-bottom:16px">
+      <p style="color:#166534;margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap">${message}</p>
+    </div>
+    <p style="color:#94A3B8;font-size:12px;margin:0;text-align:center">
+      Reply to this email to respond directly to the user.
+    </p>
+  `)
+  await send(SUPPORT, `[HydroSource Feedback] ${category} from ${fromEmail ?? 'anonymous'}`, html)
+}
+
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   const html = baseTemplate(`
     <h2 style="color:#0F172A;margin:0 0 8px">Reset your password</h2>
