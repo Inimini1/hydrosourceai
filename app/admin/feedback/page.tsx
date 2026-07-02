@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 
-const FOUNDER_EMAIL = 'al.cloud365@gmail.com'
+const FOUNDER_EMAIL = 'to.iniyan@gmail.com'
 
 type FeedbackStatus = 'new' | 'reviewed' | 'actioned' | 'closed'
 type Category = 'bug' | 'feature' | 'ux' | 'pricing' | 'general'

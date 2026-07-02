@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const founderEmail = process.env.FOUNDER_EMAIL ?? 'al.cloud365@gmail.com'
+  const founderEmail = process.env.FOUNDER_EMAIL ?? 'to.iniyan@gmail.com'
   if (user.email !== founderEmail) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
@@ -92,7 +92,7 @@ export async function PATCH(req: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const founderEmail = process.env.FOUNDER_EMAIL ?? 'al.cloud365@gmail.com'
+  const founderEmail = process.env.FOUNDER_EMAIL ?? 'to.iniyan@gmail.com'
   if (user.email !== founderEmail) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
