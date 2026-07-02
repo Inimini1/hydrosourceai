@@ -18,13 +18,36 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'HydroSource — Pool Intelligence',
-  description: 'AI-powered water chemistry analysis, service tracking, and pool management.',
+  title: 'HydroSource — AI Pool Chemistry Analysis',
+  description: 'AI-powered water chemistry analysis and treatment plans for pool professionals. Scan test strips, get instant dosing guidance, and track service history.',
   manifest: '/manifest.json',
   icons: {
     icon: '/icon.svg',
     apple: '/icon.svg',
   },
+  keywords: ['pool chemistry', 'pool management', 'water testing', 'pool professional', 'AI pool analysis', 'test strip scanner'],
+  openGraph: {
+    title: 'HydroSource — AI Pool Chemistry Analysis',
+    description: 'Scan test strips, get instant AI dosing guidance, and track service history. Built for pool professionals.',
+    url: 'https://hydrosource.appscloud365.com',
+    siteName: 'HydroSource',
+    type: 'website',
+    images: [
+      {
+        url: 'https://hydrosource.appscloud365.com/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'HydroSource — AI Pool Chemistry Analysis',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HydroSource — AI Pool Chemistry Analysis',
+    description: 'Scan test strips, get instant AI dosing guidance, and track service history.',
+    images: ['https://hydrosource.appscloud365.com/og.png'],
+  },
+  metadataBase: new URL('https://hydrosource.appscloud365.com'),
 }
 
 export const viewport: Viewport = {
@@ -36,8 +59,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${hankenGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans antialiased bg-[#0f1419]">
+    <html lang="en" className={`${hankenGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body className="font-sans antialiased bg-white">
         <PostHogProvider>
           <ToastProvider>
             {children}
