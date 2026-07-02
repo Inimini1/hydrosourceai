@@ -1,6 +1,6 @@
 const FROM    = process.env.EMAIL_FROM    ?? 'HydroSource <noreply@hydrosourceai.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosourceai.com'
-const SUPPORT = process.env.SUPPORT_EMAIL ?? 'support@hydrosourceai.com'
+const SUPPORT = process.env.SUPPORT_EMAIL ?? 'hydrosource.ai@appscloud365.com'
 
 interface EmailAttachment {
   filename: string
