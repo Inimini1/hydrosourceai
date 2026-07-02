@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 
-const SUPPORT_EMAIL = 'hydrosource@appscloud365.com'
+const SUPPORT_EMAIL = 'hydrosource.ai@appscloud365.com'
 
 export default function GlobalError({
   error,

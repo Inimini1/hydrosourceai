@@ -101,7 +101,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-slate-900 font-bold text-lg mb-3">6. Your Rights</h2>
-            <p className="mb-3">You may request access to, correction of, or deletion of your personal data at any time by emailing al.cloud365@gmail.com. We will respond within 30 days.</p>
+            <p className="mb-3">You may request access to, correction of, or deletion of your personal data at any time by emailing hydrosource.ai@appscloud365.com. We will respond within 30 days.</p>
           </section>
 
           <section>
