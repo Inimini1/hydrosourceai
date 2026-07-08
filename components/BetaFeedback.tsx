@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from './AuthProvider'
+import { useAuthOptional } from './AuthProvider'
 
 type Category = 'bug' | 'feature' | 'ux' | 'pricing' | 'general'
 
@@ -14,7 +14,9 @@ const CATEGORIES: { value: Category; label: string; emoji: string }[] = [
 ]
 
 export function BetaFeedback() {
-  const { user } = useAuth()
+  // Optional: this component renders on public pages (no AuthProvider ancestor)
+  // as well as inside the authenticated dashboard.
+  const user = useAuthOptional()?.user ?? null
   const [open, setOpen]         = useState(false)
   const [message, setMessage]   = useState('')
   const [category, setCategory] = useState<Category>('general')

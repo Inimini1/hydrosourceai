@@ -39,7 +39,8 @@ function baseTemplate(content: string) {
 <body style="margin:0;padding:0;background:#EEF2FF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="max-width:480px;margin:40px auto;padding:0 16px">
     <div style="text-align:center;margin-bottom:24px">
-      <span style="font-size:28px;font-weight:800;color:#006FFF">HydroSource</span><span style="font-size:28px;font-weight:800;color:#00C9B1"> AI</span>
+      <img src="${APP_URL}/email-logo.png" width="48" height="65" alt="HydroSource AI" style="display:block;margin:0 auto 10px;border:0" />
+      <span style="font-size:24px;font-weight:800;color:#006FFF">HydroSource</span><span style="font-size:24px;font-weight:800;color:#00C9B1"> AI</span>
     </div>
     <div style="background:#fff;border-radius:24px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
       ${content}

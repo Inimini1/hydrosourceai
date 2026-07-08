@@ -4,8 +4,8 @@
   "description": "AI-powered pool water chemistry analysis and service tracking",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0a0d10",
-  "theme_color": "#00f2ff",
+  "background_color": "#ffffff",
+  "theme_color": "#00C9B1",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },

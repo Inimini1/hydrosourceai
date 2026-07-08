@@ -4,6 +4,7 @@ import './globals.css'
 import ConsentBanner from '@/components/ConsentBanner'
 import { PostHogProvider } from '@/components/PostHogProvider'
 import { ToastProvider } from '@/components/Toaster'
+import { BetaFeedback } from '@/components/BetaFeedback'
 
 const hankenGrotesk = Hanken_Grotesk({
   subsets: ['latin'],
@@ -51,7 +52,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#00f2ff',
+  themeColor: '#00C9B1',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ToastProvider>
             {children}
             <ConsentBanner />
+            <BetaFeedback />
           </ToastProvider>
         </PostHogProvider>
       </body>

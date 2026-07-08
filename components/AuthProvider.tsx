@@ -76,3 +76,9 @@ export function useAuth(): AuthCtx {
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider')
   return ctx
 }
+
+/** Same as useAuth(), but returns null instead of throwing when rendered
+ *  outside an AuthProvider (e.g. on public pages like the landing page). */
+export function useAuthOptional(): AuthCtx | null {
+  return useContext(Ctx)
+}
