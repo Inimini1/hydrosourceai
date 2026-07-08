@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { provider: st
   }
 
   const state = crypto.randomBytes(16).toString('hex')
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://HydroSource.appscloud365.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
   const redirectUri = `${baseUrl}/api/auth/callback/${provider}`
 
   const qs = new URLSearchParams({

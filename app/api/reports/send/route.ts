@@ -301,7 +301,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
       doc.moveTo(0, PH - 26).lineTo(PW, PH - 26).strokeColor(BORDER).lineWidth(0.5).stroke()
       doc.fillColor(SLATE).font('Helvetica').fontSize(7.5)
          .text(
-           `HydroSource  ·  ${(process.env.NEXT_PUBLIC_APP_URL ?? 'hydrosourceai.com').replace('https://', '')}  ·  Page ${i - range.start + 1} of ${range.count}  ·  General guidance only — not regulatory advice`,
+           `HydroSource  ·  ${(process.env.NEXT_PUBLIC_APP_URL ?? 'hydrosource.appscloud365.com').replace('https://', '')}  ·  Page ${i - range.start + 1} of ${range.count}  ·  General guidance only — not regulatory advice`,
            M, PH - 17,
            { width: PW - M * 2, align: 'center', lineBreak: false }
          )
