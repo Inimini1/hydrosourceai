@@ -78,7 +78,9 @@ See `.env.example` for all variables. The minimum set to go live:
 | `EMAIL_FROM` | A verified sender domain in Resend |
 | `STRIPE_SECRET_KEY` | [dashboard.stripe.com](https://dashboard.stripe.com/apikeys) |
 | `STRIPE_WEBHOOK_SECRET` | Stripe dashboard → Webhooks → your endpoint secret |
-| `STRIPE_PRO_MONTHLY_PRICE_ID` | Stripe dashboard → Products |
+| `STRIPE_HOMEOWNER_PLUS_MONTHLY_PRICE_ID` / `_ANNUAL_` | Stripe dashboard → Products (one pair per plan: Homeowner Plus, Pool Pro, Pool Team) |
+| `STRIPE_POOL_PRO_MONTHLY_PRICE_ID` / `_ANNUAL_` | Stripe dashboard → Products |
+| `STRIPE_POOL_TEAM_MONTHLY_PRICE_ID` / `_ANNUAL_` | Stripe dashboard → Products |
 
 OAuth (Google, Microsoft) are optional — the app works without them.
 
