@@ -8,6 +8,11 @@ import { useAuth } from '@/components/AuthProvider'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
 import { usePageTitle } from '@/lib/usePageTitle'
+import { WaterMoodDrop, type WaterStatus } from '@/components/brand/WaterMoodDrop'
+
+function toWaterStatus(status: string | undefined): WaterStatus {
+  return status === 'safe' || status === 'caution' || status === 'critical' ? status : 'caution'
+}
 
 const staggerContainer = {
   hidden: {},
@@ -415,13 +420,9 @@ export default function DashboardPage() {
 
         {lastTest ? (
           <>
-            {/* 3D Droplet blob — floats continuously */}
+            {/* Mascot mood drop — face reflects water status, floats continuously */}
             <motion.div
-              className="droplet-3d relative z-10 flex flex-col items-center justify-center w-52 h-52 select-none"
-              style={{
-                borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%',
-                boxShadow: `inset -15px -15px 35px rgba(0,0,0,0.50), inset 8px 8px 25px rgba(255,255,255,0.25), 0 0 50px ${scoreGlowColor}`,
-              }}
+              className="relative z-10 flex flex-col items-center justify-center select-none"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1, y: [0, -11, -5, 0] }}
               transition={{
@@ -430,10 +431,14 @@ export default function DashboardPage() {
                 y: { duration: 4.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'loop', delay: 0.6 },
               }}
             >
-              <span className="font-display font-black leading-none text-[#0a0f14]"
-                style={{ fontSize: 72 }}>{score}</span>
-              <span className="font-mono text-[10px] tracking-[0.12em] uppercase mt-1"
-                style={{ color: 'rgba(10,15,20,0.55)' }}>/ 100</span>
+              <WaterMoodDrop status={toWaterStatus(poolStatus)} size={172} />
+              <div
+                className="absolute -bottom-3 right-1 flex items-baseline gap-0.5 px-3 py-1 rounded-full bg-white"
+                style={{ border: `2px solid ${scoreTextColor}`, boxShadow: `0 4px 14px ${scoreGlowColor}` }}
+              >
+                <span className="font-display font-black leading-none" style={{ fontSize: 18, color: scoreTextColor }}>{score}</span>
+                <span className="font-mono text-[9px] tracking-[0.08em] uppercase" style={{ color: '#94a3b8' }}>/100</span>
+              </div>
             </motion.div>
 
             {/* Status label */}
@@ -459,12 +464,7 @@ export default function DashboardPage() {
           </>
         ) : (
           <div className="flex flex-col items-center z-10 py-6">
-            <div
-              className="droplet-3d w-40 h-40 flex items-center justify-center select-none"
-              style={{ borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', opacity: 0.5 }}
-            >
-              <span className="font-mono text-sm" style={{ color: 'rgba(10,15,20,0.5)' }}>—</span>
-            </div>
+            <WaterMoodDrop status="caution" size={140} className="opacity-50" />
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] mt-6"
               style={{ color: '#94a3b8' }}>NO TEST DATA YET</p>
           </div>
