@@ -66,7 +66,13 @@ export async function POST(req: NextRequest) {
       const billingCycle = getBillingCycleFromPriceId(stripeSub.items.data[0]?.price.id ?? '')
       const poolLimit = PLAN_POOL_LIMITS[planType] ?? 1
       const isCancelled = stripeSub.status === 'canceled'
-      const resolvedPlanType: PlanType = (stripeSub.status === 'active' || stripeSub.status === 'trialing') ? planType : 'FREE'
+      // past_due keeps the paid plan during Stripe's dunning retries (grace period) —
+      // access is only revoked once Stripe moves the subscription to a terminal
+      // state (canceled/unpaid), which arrives as its own subscription.updated/deleted event.
+      const resolvedPlanType: PlanType =
+        (stripeSub.status === 'active' || stripeSub.status === 'trialing' || stripeSub.status === 'past_due')
+          ? planType
+          : 'FREE'
       const trialEndsAt = stripeSub.trial_end ? new Date(stripeSub.trial_end * 1000).toISOString() : null
 
       // Cast bypasses stale generated types for new columns added in migration 006
@@ -151,24 +157,21 @@ export async function POST(req: NextRequest) {
     }
 
     case 'invoice.payment_failed': {
+      // Plan/access downgrades are driven solely by the subscription's Stripe status
+      // (handled in customer.subscription.updated/deleted above) to avoid two code
+      // paths racing to set plan_type. This handler only notifies the user.
       const invoice = event.data.object as Stripe.Invoice
       const userId = await getUserIdFromCustomer(invoice.customer as string)
       if (!userId) break
 
       const attemptCount = invoice.attempt_count ?? 1
-      if (attemptCount >= 2) {
-        await (admin.from('subscriptions') as unknown as {
-          update: (d: Record<string, unknown>) => { eq: (col: string, val: string) => Promise<unknown> }
-        }).update({ plan_type: 'FREE', status: 'past_due' }).eq('user_id', userId)
-      }
-
       await admin.from('notifications').insert({
         user_id: userId,
         type: 'SUBSCRIPTION',
         title: 'Payment failed',
         message: attemptCount === 1
-          ? 'Your payment failed. Please update your payment method in Billing before the next retry.'
-          : 'Your payment failed again. Access has been restricted to the Free plan. Update your payment method to restore Pro access.',
+          ? 'Your payment failed. Please update your payment method in Billing — you\'ll keep your current access during the grace period while Stripe retries the charge.'
+          : 'Your payment has failed again. Please update your payment method in Billing — your subscription will be cancelled and access restricted to Free if payment continues to fail.',
       })
       break
     }
@@ -188,6 +191,12 @@ export async function POST(req: NextRequest) {
       }).update({ plan_type: planType, status: 'active', pool_limit: poolLimit }).eq('user_id', userId)
       break
     }
+
+    default:
+      // Log so a misconfigured webhook endpoint (missing event subscriptions) is
+      // visible in server logs instead of silently returning 200 with no writes.
+      console.log(`[webhook] Unhandled event type: ${event.type}`)
+      break
   }
 
   return NextResponse.json({ received: true })

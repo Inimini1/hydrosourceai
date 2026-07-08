@@ -78,7 +78,8 @@ export async function resolveSubscription(userId: string): Promise<ResolvedSubsc
     isBeta ||
     isTrial ||
     sub?.status === 'active' ||
-    sub?.status === 'trialing'
+    sub?.status === 'trialing' ||
+    sub?.status === 'past_due' // grace period — access holds until Stripe cancels/marks unpaid
 
   const dbPoolLimit = sub?.pool_limit ?? 1
   const planPoolLimit = getPoolLimit(rawPlan)
@@ -140,11 +141,20 @@ export async function canRunAnalysis(userId: string): Promise<GateResult> {
   startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0)
 
   const supabase = createClient()
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from('water_tests')
-    .select('id', { count: 'exact', head: true })
+    .select('id, pools!inner(user_id)', { count: 'exact', head: true })
     .eq('pools.user_id', userId)
     .gte('created_at', startOfMonth.toISOString())
+
+  if (error) {
+    console.error('[canRunAnalysis] usage count query failed:', error.message)
+    return {
+      allowed: false,
+      reason: 'Unable to verify your analysis usage right now. Please try again.',
+      upgradeRequired: 'HOMEOWNER_PLUS',
+    }
+  }
 
   const tested = count ?? 0
   if (tested >= sub.analysisLimit) {

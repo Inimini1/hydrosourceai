@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendWaterReportEmail } from '@/lib/email'
 import { canSendEmailReports } from '@/lib/subscription'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 export const runtime = 'nodejs'
 
@@ -9,6 +10,15 @@ export async function POST(req: NextRequest) {
   const supabase = createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // PDF generation + outbound email send is expensive — throttle per user
+  const rateLimit = await checkRateLimit(`reports:send:${user.id}`, 20, 60 * 60 * 1000)
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many report emails sent. Please wait before sending another.' },
+      { status: 429 }
+    )
+  }
 
   const gate = await canSendEmailReports(user.id)
   if (!gate.allowed) {
@@ -301,7 +311,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
       doc.moveTo(0, PH - 26).lineTo(PW, PH - 26).strokeColor(BORDER).lineWidth(0.5).stroke()
       doc.fillColor(SLATE).font('Helvetica').fontSize(7.5)
          .text(
-           `HydroSource  ·  ${(process.env.NEXT_PUBLIC_APP_URL ?? 'hydrosourceai.com').replace('https://', '')}  ·  Page ${i - range.start + 1} of ${range.count}  ·  General guidance only — not regulatory advice`,
+           `HydroSource  ·  ${(process.env.NEXT_PUBLIC_APP_URL ?? 'hydrosource.appscloud365.com').replace('https://', '')}  ·  Page ${i - range.start + 1} of ${range.count}  ·  General guidance only — not regulatory advice`,
            M, PH - 17,
            { width: PW - M * 2, align: 'center', lineBreak: false }
          )

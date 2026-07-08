@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 
-const SUPPORT_EMAIL = 'support@hydrosourceai.com'
+const SUPPORT_EMAIL = 'hydrosource.ai@appscloud365.com'
 
 export default function DashboardError({
   error,
