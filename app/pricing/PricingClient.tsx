@@ -288,6 +288,10 @@ export default function PricingClient() {
         router.push(`/signup?plan=${planType}&cycle=${billingCycle}`)
         return
       }
+      if (data.betaMode) {
+        router.push('/dashboard?beta=1')
+        return
+      }
       if (data.url) {
         if (plan.features.trial) {
           posthog.capture('trial_started', { plan: planType, billing_cycle: billingCycle })

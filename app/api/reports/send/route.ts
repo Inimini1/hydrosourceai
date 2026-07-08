@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendWaterReportEmail } from '@/lib/email'
 import { canSendEmailReports } from '@/lib/subscription'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 export const runtime = 'nodejs'
 
@@ -9,6 +10,15 @@ export async function POST(req: NextRequest) {
   const supabase = createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // PDF generation + outbound email send is expensive — throttle per user
+  const rateLimit = await checkRateLimit(`reports:send:${user.id}`, 20, 60 * 60 * 1000)
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many report emails sent. Please wait before sending another.' },
+      { status: 429 }
+    )
+  }
 
   const gate = await canSendEmailReports(user.id)
   if (!gate.allowed) {

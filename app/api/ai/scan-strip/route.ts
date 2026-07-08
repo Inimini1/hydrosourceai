@@ -3,7 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import { analyzeTestStripImage } from '@/lib/ai'
 import { checkRateLimit } from '@/lib/rateLimit'
 
-const MAX_IMAGE_BYTES = 5_000_000
+// Base64 inflates raw bytes by ~4/3, so compare the encoded string length
+// against the raw limit scaled up, not the raw limit itself.
+const MAX_IMAGE_RAW_BYTES = 4_000_000
+const MAX_IMAGE_BASE64_LENGTH = Math.ceil(MAX_IMAGE_RAW_BYTES * 4 / 3)
 
 export async function POST(req: NextRequest) {
   const supabase = createClient()
@@ -20,7 +23,7 @@ export async function POST(req: NextRequest) {
     const { imageBase64, imageMimeType, brand } = body as { imageBase64?: string; imageMimeType?: string; brand?: string }
     if (!imageBase64) return NextResponse.json({ error: 'No image provided.' }, { status: 400 })
 
-    if (imageBase64.length > MAX_IMAGE_BYTES) {
+    if (imageBase64.length > MAX_IMAGE_BASE64_LENGTH) {
       return NextResponse.json({ error: 'Image too large. Please use a smaller photo (max 4MB).' }, { status: 413 })
     }
 
