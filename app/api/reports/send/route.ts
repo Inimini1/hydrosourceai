@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { sendWaterReportEmail } from '@/lib/email'
 import { canSendEmailReports } from '@/lib/subscription'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { cyaAdjustedMinChlorine } from '@/lib/pool-chemistry-db'
 
 export const runtime = 'nodejs'
 
@@ -196,8 +197,14 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     )
     y += 20
 
+    // Free chlorine's real "ideal" floor depends on CYA (chlorine lock) — a flat
+    // 1-3ppm range would show "Ideal" here while the analysis above correctly
+    // flags the same reading as caution/critical for the same test.
+    const clMin = cyaAdjustedMinChlorine(test.cyanuricAcid)
+    const clMax = Math.max(3, clMin + 1)
+
     const readings: Array<{ label: string; ideal: string; val: number; unit: string; min: number; max: number; critMin?: number; critMax?: number }> = [
-      { label: 'Free Chlorine', ideal: '1–3 ppm',    val: test.chlorine,          unit: ' ppm', min: 1,   max: 3,   critMin: 0.5, critMax: 5 },
+      { label: 'Free Chlorine', ideal: `${clMin}–${clMax} ppm${test.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`, val: test.chlorine, unit: ' ppm', min: clMin, max: clMax, critMin: Math.min(0.5, clMin * 0.5), critMax: Math.max(5, clMax * 1.5) },
       { label: 'pH',            ideal: '7.2–7.6',    val: test.pH,                unit: '',     min: 7.2, max: 7.6, critMin: 7.0, critMax: 8.0 },
       { label: 'Alkalinity',    ideal: '80–120 ppm', val: test.alkalinity,        unit: ' ppm', min: 80,  max: 120, critMin: 60,  critMax: 150 },
       ...(test.calciumHardness != null ? [{ label: 'Ca. Hardness', ideal: '200–400 ppm', val: test.calciumHardness, unit: ' ppm', min: 200, max: 400 }] : []),

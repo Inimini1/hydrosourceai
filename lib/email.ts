@@ -27,9 +27,36 @@ async function send(to: string, subject: string, html: string, attachments?: Ema
     }),
   })
   if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`Resend error: ${err}`)
+    const errText = await res.text()
+    throw new Error(`Resend error (${res.status}): ${describeResendError(res.status, errText)}`)
   }
+}
+
+/** Translates Resend's raw error response into a plain-English reason,
+ *  since "Resend error: {"statusCode":403,...}" tells a non-developer nothing. */
+function describeResendError(status: number, rawBody: string): string {
+  let message = rawBody
+  try {
+    const parsed = JSON.parse(rawBody) as { message?: string; name?: string }
+    message = parsed.message ?? rawBody
+  } catch {
+    // not JSON — use the raw text as-is
+  }
+
+  const lower = message.toLowerCase()
+  if (lower.includes('you can only send testing emails to your own email address')) {
+    return `Your Resend account is still in sandbox/testing mode — it can only send to the email address you signed up to Resend with, not to other recipients. Verify a sending domain in the Resend dashboard (Domains tab must show "Verified", not just "Pending") to unlock sending to any address. Raw: ${message}`
+  }
+  if (lower.includes('domain is not verified') || lower.includes('domain not verified')) {
+    return `The domain in EMAIL_FROM is not verified in Resend. Check Resend dashboard → Domains — it must show "Verified", and the domain must exactly match what EMAIL_FROM uses. Raw: ${message}`
+  }
+  if (status === 401 || lower.includes('invalid api key') || lower.includes('missing api key')) {
+    return `RESEND_API_KEY is missing, invalid, or was revoked/regenerated in the Resend dashboard since it was last pasted into Vercel. Raw: ${message}`
+  }
+  if (lower.includes('invalid') && lower.includes('from')) {
+    return `The EMAIL_FROM address format or domain is invalid or unverified. Raw: ${message}`
+  }
+  return message
 }
 
 function baseTemplate(content: string) {

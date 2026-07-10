@@ -211,6 +211,30 @@ export const CYA_CHLORINE_TABLE = [
   { cya_ppm: 150, min_free_cl: 11.25, recommended_cl: 15.0, notes: 'CRITICAL — pool is essentially unsanitized, drain required' },
 ]
 
+/**
+ * The CYA-adjusted minimum effective free chlorine level, interpolated from
+ * CYA_CHLORINE_TABLE above. This is the single source of truth for "is this
+ * free chlorine reading actually adequate" — a flat 1–3 ppm range ignores
+ * CYA entirely and is why a reading can look "in range" on its own while
+ * still being flagged caution/critical in the overall analysis. Used both
+ * to ground the AI prompt and to drive the UI's displayed ideal range, so
+ * they can never show conflicting verdicts for the same test.
+ */
+export function cyaAdjustedMinChlorine(cya: number | null | undefined): number {
+  if (cya == null || cya <= 0) return CYA_CHLORINE_TABLE[0].min_free_cl
+  const table = CYA_CHLORINE_TABLE
+  if (cya <= table[0].cya_ppm) return table[0].min_free_cl
+  if (cya >= table[table.length - 1].cya_ppm) return table[table.length - 1].min_free_cl
+  for (let i = 0; i < table.length - 1; i++) {
+    const lo = table[i], hi = table[i + 1]
+    if (cya >= lo.cya_ppm && cya <= hi.cya_ppm) {
+      const t = (cya - lo.cya_ppm) / (hi.cya_ppm - lo.cya_ppm)
+      return Math.round((lo.min_free_cl + t * (hi.min_free_cl - lo.min_free_cl)) * 10) / 10
+    }
+  }
+  return table[0].min_free_cl
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SECTION 3 — CHEMICAL PRODUCTS DATABASE
 // ─────────────────────────────────────────────────────────────────────────────

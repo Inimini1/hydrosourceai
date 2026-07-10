@@ -156,16 +156,30 @@ CRITICAL THRESHOLDS — always set status = "critical" and health_score ≤ 40:
 - Alkalinity > 150 ppm → scaling, cloudy water
 
 CYA-ADJUSTED MINIMUM FREE CHLORINE (CRITICAL — apply whenever CYA is known):
-- Without CYA or CYA < 10 ppm: min FC = 1 ppm
+This is the SAME table the app's UI uses to compute the "ideal chlorine" range shown
+to the user (lib/pool-chemistry-db.ts CYA_CHLORINE_TABLE) — your diagnosis must be
+consistent with what the user sees on screen, not a separately-invented threshold.
+- CYA 0 ppm: min FC = 1.0 ppm
+- CYA 10 ppm: min FC = 0.8 ppm
 - CYA 20 ppm: min FC = 1.5 ppm
-- CYA 30 ppm: min FC = 2 ppm
-- CYA 40 ppm: min FC = 3 ppm
-- CYA 50 ppm: min FC = 4 ppm (standard residential)
-- CYA 60 ppm: min FC = 5 ppm
-- CYA 70–80 ppm: min FC = 6–7 ppm (approach recommending partial drain)
-- CYA > 90 ppm: RECOMMEND partial drain — chlorine becomes nearly ineffective
+- CYA 30 ppm: min FC = 2.0 ppm
+- CYA 40 ppm: min FC = 3.0 ppm
+- CYA 50 ppm: min FC = 4.0 ppm (standard residential upper-ideal)
+- CYA 60 ppm: min FC = 4.5 ppm
+- CYA 70 ppm: min FC = 5.25 ppm
+- CYA 80 ppm: min FC = 6.0 ppm
+- CYA 100 ppm: min FC = 7.5 ppm — severe chlorine lock, recommend partial drain
+- CYA 150+ ppm: min FC = 11.25 ppm — pool is essentially unsanitized, drain required
+(Interpolate linearly between adjacent rows for values in between, e.g. CYA 45 → min FC = 3.5 ppm.)
 - SLAM/shock target = CYA × 0.40 minimum
-When FC is "in range" by absolute ppm but below CYA-adjusted minimum, flag as CAUTION or CRITICAL.
+DETERMINISTIC RULE — when FC is "in range" by absolute ppm (e.g. 1-3 ppm) but below the
+CYA-adjusted minimum above, do NOT treat it as safe. Compare current FC against the
+CYA-adjusted minimum for THIS pool's CYA:
+  - If FC is at least 60% of the CYA-adjusted minimum → status = "caution" (chlorine present but under-protected for this CYA level)
+  - If FC is below 60% of the CYA-adjusted minimum → status = "critical" (functionally unsanitized despite a "normal-looking" reading)
+Always name this explicitly in key_causes and diagnosis (e.g. "Free chlorine of 2.5 ppm looks normal but your CYA of 50 ppm
+requires at least 4 ppm to sanitize effectively — this is chlorine lock, not a healthy reading") so the user understands
+why a reading that looks "in range" is still driving the health score down.
 
 TEMPERATURE ADJUSTMENTS:
 - Water temp > 85°F: chlorine depletes 30–50% faster; recommend daily testing and note increased demand

@@ -8,6 +8,7 @@ import { haptics } from '@/lib/haptics'
 import { PoolDropIcon } from '@/components/TestReminderBanner'
 import TreatmentPrescription from '@/components/TreatmentPrescription'
 import { StripColorChart } from '@/components/StripColorChart'
+import { cyaAdjustedMinChlorine } from '@/lib/pool-chemistry-db'
 
 interface ChemicalDose { chemical: string; amount: string; how_to_apply: string }
 
@@ -103,11 +104,17 @@ const RANGES: Record<string, { label: string; unit: string; ideal: string; min: 
   temperature:     { label: 'Temperature',   unit: '°F',  ideal: '70–85',     min: 70,  max: 85 },
 }
 
-function readingStatus(key: string, val: number): 'safe' | 'caution' | 'critical' {
+function readingStatus(key: string, val: number, effectiveMin?: number): 'safe' | 'caution' | 'critical' {
   const r = RANGES[key]
   if (!r) return 'safe'
+  const min = effectiveMin ?? r.min
   if ((r.critMin !== undefined && val < r.critMin) || (r.critMax !== undefined && val > r.critMax)) return 'critical'
-  if (val < r.min || val > r.max) return 'caution'
+  // Below the CYA-adjusted minimum but still above the absolute critical floor —
+  // chlorine is technically present but not enough to be effective at this CYA level.
+  if (key === 'chlorine' && effectiveMin !== undefined && val < effectiveMin) {
+    return val < effectiveMin * 0.6 ? 'critical' : 'caution'
+  }
+  if (val < min || val > r.max) return 'caution'
   return 'safe'
 }
 
@@ -603,17 +610,26 @@ export default function AddTestPage() {
             {readings.map(({ key, val }) => {
               const meta = RANGES[key]
               if (!meta) return null
-              const st = readingStatus(key, val)
+
+              // Free chlorine's real "ideal" floor depends on CYA — a flat 1–3 ppm
+              // range ignores chlorine lock and is why a reading can show "in range"
+              // here while the overall analysis still flags caution/critical.
+              const cyaMin = key === 'chlorine' ? cyaAdjustedMinChlorine(result.cyanuricAcid) : undefined
+              const effMin = cyaMin ?? meta.min
+              const effMax = cyaMin !== undefined ? Math.max(meta.max, cyaMin + 1) : meta.max
+              const effIdealLabel = cyaMin !== undefined ? `${effMin}–${effMax}` : meta.ideal
+
+              const st = readingStatus(key, val, cyaMin)
               const c = STATUS_COLORS[st]
-              const dMin = meta.critMin !== undefined ? meta.critMin : Math.max(0, meta.min * 0.4)
-              const dMax = meta.critMax !== undefined ? meta.critMax : meta.max * 1.8
+              const dMin = meta.critMin !== undefined ? meta.critMin : Math.max(0, effMin * 0.4)
+              const dMax = meta.critMax !== undefined ? meta.critMax : effMax * 1.8
               const pct = Math.min(100, Math.max(0, ((val - dMin) / (dMax - dMin)) * 100))
-              const idealL = Math.max(0, ((meta.min - dMin) / (dMax - dMin)) * 100)
-              const idealW = Math.min(100 - idealL, ((meta.max - meta.min) / (dMax - dMin)) * 100)
+              const idealL = Math.max(0, ((effMin - dMin) / (dMax - dMin)) * 100)
+              const idealW = Math.min(100 - idealL, ((effMax - effMin) / (dMax - dMin)) * 100)
               const statusLabel =
                 st === 'safe' ? 'In Range'
-                : st === 'caution' ? (val < meta.min ? 'Low' : 'High')
-                : (val < meta.min ? 'Critical Low' : 'Critical High')
+                : st === 'caution' ? (val < effMin ? 'Low' : 'High')
+                : (val < effMin ? 'Critical Low' : 'Critical High')
               return (
                 <div key={key} className="rounded-2xl px-4 py-3.5 bg-white transition-all"
                   style={{ border: `1px solid ${st === 'safe' ? 'rgba(0,0,0,0.07)' : c.border}` }}>
@@ -637,7 +653,9 @@ export default function AddTestPage() {
                   </div>
                   <div className="flex justify-between mt-1.5">
                     <span className="text-[9px] text-slate-300">{dMin}{meta.unit}</span>
-                    <span className="text-[9px] font-medium text-slate-400">Ideal {meta.ideal}{meta.unit ? ` ${meta.unit}` : ''}</span>
+                    <span className="text-[9px] font-medium text-slate-400">
+                      Ideal {effIdealLabel}{meta.unit ? ` ${meta.unit}` : ''}{cyaMin !== undefined ? ' (CYA-adjusted)' : ''}
+                    </span>
                     <span className="text-[9px] text-slate-300">{dMax}{meta.unit}</span>
                   </div>
                 </div>
