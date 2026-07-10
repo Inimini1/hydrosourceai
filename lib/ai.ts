@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { buildPoolContext } from './pool-context'
+import { STRIP_BRAND_CHARTS, type BrandChart } from './stripBrandColors'
 
 export interface ChemicalDose {
   chemical: string
@@ -210,18 +211,23 @@ CHEMISTRY PRIORITY ORDER (NEVER violate — this is critical science):
 3. Fix chlorine/sanitizer last (now works efficiently at correct pH)
 
 CHEMICAL DOSING (calculate precisely for the given pool size):
-- LOWER pH: Muriatic acid (31.45%): 20 fl oz per 10,000 gal lowers pH by ~0.2
-  OR Dry acid (sodium bisulfate): 12 oz per 10,000 gal lowers pH by ~0.2
-- RAISE pH: Soda ash (sodium carbonate): 6 oz per 10,000 gal raises pH by ~0.2
-- RAISE alkalinity: Baking soda (sodium bicarbonate): 1.5 lbs per 10,000 gal raises TA by ~10 ppm
-- LOWER alkalinity: Muriatic acid: 26 fl oz per 10,000 gal — aerate after
+- LOWER pH: Muriatic acid (31.45%): baseline 20 fl oz per 10,000 gal lowers pH by ~0.2 AT a baseline Total Alkalinity of ~100 ppm.
+  TA-DEPENDENCY (apply always — this is real acid-base buffering chemistry, not optional): required acid dose scales roughly
+  linearly with current TA, because TA is the water's buffering capacity against pH change. If current TA is above 100 ppm,
+  scale the dose up proportionally (e.g. TA=150 → use ~50% more acid than baseline); if TA is below 100 ppm, scale the dose
+  down proportionally (e.g. TA=70 → use ~30% less). Always state the assumption ("based on your current TA of X ppm") and
+  recommend retesting after 2–4 hours before adding more, since acid demand varies pool to pool.
+  OR Dry acid (sodium bisulfate): 12 oz per 10,000 gal lowers pH by ~0.2 (same TA-dependency applies)
+- RAISE pH: Soda ash (sodium carbonate): 6 oz per 10,000 gal raises pH by ~0.2 (also raises TA by ~5 ppm as a side effect — factor this in if TA is already near the top of range)
+- RAISE alkalinity: Baking soda (sodium bicarbonate): 1.5 lbs per 10,000 gal raises TA by ~10 ppm (does not meaningfully change pH)
+- LOWER alkalinity: Muriatic acid: ~25 fl oz per 10,000 gal lowers TA by ~10 ppm — dose in small increments, aerate afterward (running the pump/fountains for several hours) to let CO₂ off-gas and prevent pH from rebounding upward afterward
 - RAISE chlorine (regular): Liquid chlorine (10%): 12 fl oz per 10,000 gal raises 1 ppm; use 10 fl oz for 12.5% pool store liquid chlorine
-- SHOCK/RAISE chlorine fast: Cal-Hypo (73%): 1 lb per 10,000 gal raises ~7 ppm; use at dusk
+- SHOCK/RAISE chlorine fast: Cal-Hypo (73%): 1 lb per 10,000 gal raises ~7 ppm; use at dusk. Note: cal-hypo also raises calcium hardness by ~2–3 ppm per 1 ppm FC added — factor this in for pools already near the top of the calcium hardness range
   OR Leslie's Power Powder Plus 73: same dosing
 - LOWER chlorine: Dilution or sodium thiosulfate 2 oz per 10,000 gal per 1 ppm reduction
 - RAISE cyanuric acid: Stabilizer (cyanuric acid granules): 13 oz per 10,000 gal raises ~10 ppm (place in skimmer sock; takes 5–7 days to register)
 - LOWER cyanuric acid: Partial drain and refill (no chemical fix)
-- RAISE calcium hardness: Calcium chloride (77%): 20 oz per 10,000 gal raises ~10 ppm (dissolve in bucket first — highly exothermic)
+- RAISE calcium hardness: Calcium chloride dihydrate (77%): 22 oz per 10,000 gal raises ~10 ppm (dissolve in a bucket of water first before adding — highly exothermic, and never add water to the chemical, always chemical to water)
 
 SAFETY RULES (always include relevant ones in mistakes_to_avoid):
 - NEVER mix chemicals directly — add each to water separately
@@ -429,67 +435,28 @@ Synthesize all the reference data above into the best possible diagnosis and act
   return analysis
 }
 
-// Brand-specific color calibration tables.
-// Each brand prints different dye formulations — same color can mean different values.
-const STRIP_BRAND_CALIBRATION: Record<string, string> = {
-  aquachek: `
-BRAND: AquaChek Select / AquaChek 7 (most common US retail brand)
-PAD ORDER (top to bottom on strip): Total Hardness, Total Chlorine, Free Chlorine, pH, Total Alkalinity, CYA (if 7-way)
-pH pad colors:  6.2=deep red, 6.8=red-orange, 7.2=orange-red, 7.4=orange (IDEAL), 7.6=orange-yellow, 7.8=yellow-orange, 8.0=yellow, 8.4=bright yellow
-Free Chlorine:  0=white/cream, 0.5=very pale pink, 1=light peach-pink, 2=medium pink (IDEAL), 3=pink, 5=dark pink, 10=magenta/dark purple
-Total Chlorine: same color scale as Free Chlorine pad but separate pad
-Total Alkalinity: 0=burnt orange, 40=orange, 80=light tan-orange, 120=tan/beige (IDEAL), 180=green-tan, 240=olive green
-Total Hardness: 0=orange-red, 25=peach, 50=light purple-pink, 120=light purple, 250=medium purple (IDEAL), 500=dark purple
-CYA/Stabilizer: 0=white, 30=pale peach, 50=light peach (IDEAL), 100=medium peach, 150=dark peach, 300=dark orange-brown`,
-
-  lamottes: `
-BRAND: LaMotte Insta-Test or LaMotte ColorQ (professional/semi-pro grade)
-PAD ORDER: varies by model — read from label end to tip
-pH pad colors: 6.0=yellow, 6.5=green-yellow, 7.0=green, 7.2=blue-green, 7.4=teal-blue (IDEAL), 7.6=blue, 7.8=blue-purple, 8.0=purple, 8.5=dark purple
-Free Chlorine: 0=white, 0.5=pale lavender, 1=light purple, 2=medium purple (IDEAL), 4=dark purple, 10=very dark purple-black
-Total Alkalinity: 0=yellow, 40=yellow-green, 80=light green, 120=green (IDEAL), 180=dark green, 240=very dark green
-Calcium Hardness: 0=pink, 100=light pink-red, 200=medium red, 400=dark red (IDEAL), 800=very dark red-maroon`,
-
-  hth: `
-BRAND: HTH 6-Way or HTH Easy Strips (budget/retail)
-PAD ORDER: Free Chlorine, Total Chlorine, Bromine, pH, Total Alkalinity, Total Hardness
-pH pad colors: 6.2=orange-red, 6.8=orange, 7.2=orange-yellow, 7.4=yellow-orange (IDEAL), 7.6=yellow, 7.8=pale yellow, 8.0=greenish-yellow
-Free Chlorine: 0=white, 1=very pale pink, 2=light pink (IDEAL), 3=pink, 5=medium pink, 10=dark magenta
-Total Alkalinity: 0=orange, 40=peach, 80=light tan, 120=tan (IDEAL), 180=gray-tan, 240=gray-green`,
-
-  jnw: `
-BRAND: JNW Direct Pool & Spa Test Strips (Amazon bestseller, 7-way)
-PAD ORDER (top to bottom): Total Hardness, Total Chlorine, Free Chlorine, Bromine, pH, Total Alkalinity, CYA
-pH pad colors: 6.2=bright red, 6.8=red-orange, 7.0=orange-red, 7.2=orange, 7.4=orange-yellow (IDEAL), 7.6=yellow-orange, 7.8=pale yellow, 8.0=yellow-green, 8.4=light green
-Free Chlorine: 0=white, 0.5=very pale pink, 1=pale pink, 2=light pink (IDEAL), 3=medium pink, 5=hot pink, 10=dark magenta-purple
-Total Alkalinity: 0=orange-red, 40=orange, 80=light orange-tan, 120=tan (IDEAL), 180=olive-tan, 240=olive-gray
-Total Hardness: 0=orange, 100=peach, 200=light pink-purple, 250=light purple (IDEAL), 500=medium purple, 800=dark purple
-CYA: 0=white, 30=pale cream, 50=light peach (IDEAL), 100=peach, 150=orange-peach, 300=dark orange`,
-
-  poolmaster: `
-BRAND: Poolmaster 5-Way or Poolmaster Essential
-PAD ORDER: Free Chlorine, Bromine, pH, Total Alkalinity, Total Hardness
-pH pad colors: 6.8=red-orange, 7.0=orange, 7.2=orange-amber, 7.4=amber-yellow (IDEAL), 7.6=pale yellow, 7.8=greenish-yellow, 8.0=yellow-green
-Free Chlorine: 0=white, 1=pale blush, 2=light pink (IDEAL), 3=medium pink, 5=dark pink, 10=purple-magenta
-Total Alkalinity: 0=rust-orange, 40=orange, 80=tan-orange, 120=tan (IDEAL), 180=brown-tan, 240=brown-green
-Total Hardness: 0=pink-red, 100=light red, 250=pink-purple (IDEAL), 500=dark purple`,
-
-  leslies: `
-BRAND: Leslie's 4-Way or Leslie's AccuBlue (pool retail chain brand)
-PAD ORDER: Free Chlorine, pH, Total Alkalinity, Total Hardness
-pH pad colors: 6.8=red, 7.2=orange-red, 7.4=orange (IDEAL), 7.6=orange-yellow, 7.8=yellow, 8.0=pale green-yellow, 8.4=green
-Free Chlorine: 0=cream-white, 1=pale pink, 2=pink (IDEAL), 3=medium pink, 5=deep pink, 10=magenta
-Total Alkalinity: 0=orange, 80=tan-orange, 120=tan (IDEAL), 180=green-gray, 240=dark green-gray
-Total Hardness: 0=salmon-orange, 200=pink, 400=pink-purple (IDEAL), 800=dark purple`,
-
-  generic: `
-BRAND: Generic/Store Brand or Unknown
-Using universal pool chemistry color norms — interpretation may be less precise.
-pH: red/orange tones = acidic (low), yellow tones = neutral 7.4–7.6, green/blue = alkaline (high)
-Free Chlorine: white/cream = 0, pink shades = 1–3 ppm (IDEAL), dark pink/magenta = 5–10 ppm
-Total Alkalinity: orange = low, tan/beige = ideal 80–120 ppm, green = high
-Calcium Hardness: pink = low, dark pink/purple = ideal 200–400 ppm`,
+// Brand-specific color calibration, generated from lib/stripBrandColors.ts —
+// the SAME data structure that renders the customer-visible color chart in
+// the test-strip scan UI, so the model is anchored to the exact swatch
+// values/hex codes the user sees on screen, not a separately-maintained copy.
+function buildCalibrationText(chart: BrandChart): string {
+  const lines = [
+    `BRAND: ${chart.name}`,
+    chart.padOrder ? `PAD ORDER (top to bottom on strip): ${chart.padOrder}` : null,
+    chart.note,
+    ...chart.params.map((p) => {
+      const swatchStr = p.swatches
+        .map((s) => `${s.value}${p.unit ? ' ' + p.unit : ''}=${s.hex}${s.ideal ? ' (IDEAL)' : ''}`)
+        .join(', ')
+      return `${p.label} pad hex reference: ${swatchStr}`
+    }),
+  ].filter(Boolean)
+  return '\n' + lines.join('\n')
 }
+
+const STRIP_BRAND_CALIBRATION: Record<string, string> = Object.fromEntries(
+  Object.entries(STRIP_BRAND_CHARTS).map(([key, chart]) => [key, buildCalibrationText(chart)])
+)
 
 export interface StripScanResult extends Partial<AnalyzeInput> {
   photo_quality?: 'good' | 'fair' | 'poor'
@@ -528,11 +495,11 @@ ${calibration}
 
 UNIVERSAL READING INSTRUCTIONS:
 1. Identify the brand and pad positions from the calibration table above
-2. Match each pad color to the specific calibration values for THIS brand — do not use generic assumptions
+2. For each pad, directly compare the photographed pad color against the hex reference values given for THIS brand and parameter — treat each "value=hex" pair as a fixed anchor point, find which reference hex the photographed color is closest to (or interpolate between the two nearest anchors), and do not fall back on generic/memorized color assumptions instead of these specific values
 3. Correct for image lighting: if photo is warm/yellow-tinted, shift readings slightly cooler; if blue-tinted, shift warmer
 4. Wet strips shift color slightly — if the image looks wet/shiny, the true value is typically 5–10% lower on concentration scales
 5. If a pad is physically absent from this strip model, return null
-6. If a pad is present but color is ambiguous between two values, return the average (e.g. between 2 and 3 ppm → return 2.5)
+6. If a pad's photographed color falls roughly halfway between two reference hex anchors, return the average of those two values (e.g. between 2 and 3 ppm → return 2.5)
 7. Never guess wildly — return null only if the pad is genuinely unreadable (out of frame, obscured, or missing)
 
 SCIENTIFIC VALIDATION:

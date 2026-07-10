@@ -67,13 +67,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Report data is corrupted.' }, { status: 500 })
   }
 
+  let pdfBuffer: Buffer
   try {
-    const pdfBuffer = await generateReportPdf(test, analysis)
+    pdfBuffer = await generateReportPdf(test, analysis)
+  } catch (err) {
+    console.error('Report PDF generation error:', err)
+    return NextResponse.json({ error: 'Failed to generate the PDF report. Please try again.' }, { status: 500 })
+  }
+
+  try {
     await sendWaterReportEmail(recipientEmail, test.pool.poolName, test.createdAt, pdfBuffer)
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Report generation/send error:', err)
-    return NextResponse.json({ error: 'Failed to send report. Please try again.' }, { status: 500 })
+    // Surface the real reason (e.g. Resend's own rejection message) instead of a
+    // generic failure — this is what actually explains "it just says failed" reports.
+    const detail = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Report email send error:', detail)
+    return NextResponse.json({ error: `Failed to send the email: ${detail}` }, { status: 502 })
   }
 }
 

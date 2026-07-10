@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { haptics } from '@/lib/haptics'
 import { PoolDropIcon } from '@/components/TestReminderBanner'
 import TreatmentPrescription from '@/components/TreatmentPrescription'
+import { StripColorChart } from '@/components/StripColorChart'
 
 interface ChemicalDose { chemical: string; amount: string; how_to_apply: string }
 
@@ -1053,6 +1054,22 @@ export default function AddTestPage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Customer-visible brand color chart — same reference the AI uses */}
+            <StripColorChart brand={stripBrand} />
+
+            {/* Lighting tip — bad lighting is the #1 cause of inaccurate strip scans */}
+            <div
+              className="flex items-start gap-2.5 px-4 py-3 rounded-2xl"
+              style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}
+            >
+              <span className="text-base leading-none">☀️</span>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                <span className="font-semibold">Take the photo in good, even natural lighting</span> — avoid shade,
+                yellow indoor bulbs, or direct glare. Poor lighting shifts the strip colors and is the most common
+                cause of an inaccurate reading.
+              </p>
             </div>
 
             <div
