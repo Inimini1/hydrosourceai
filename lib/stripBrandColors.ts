@@ -384,3 +384,80 @@ export function getBrandChart(brand: string | null | undefined): BrandChart {
   const key = (brand ?? 'generic').toLowerCase().replace(/[^a-z]/g, '')
   return STRIP_BRAND_CHARTS[key] ?? STRIP_BRAND_CHARTS.generic
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Deterministic color-to-value mapping.
+//
+// Previously, the AI was asked to both *perceive* the pad's color and *do the
+// arithmetic* of matching it against a table of named/hex anchors, entirely
+// inside one language-model pass — a step where numeric interpolation errors
+// are easy to introduce even when the color perception itself is fine.
+//
+// This module splits that into two separate, more reliable steps:
+//   1. The AI reports the pad's color as it actually looks (a perception task
+//      models are reasonably good at) as a hex string.
+//   2. This code deterministically finds the nearest calibration anchor(s) by
+//      real color-distance math and interpolates the value — the same
+//      calculation every time for the same color, with no risk of the model
+//      "eyeballing" the wrong number from a long table.
+// ─────────────────────────────────────────────────────────────────────────────
+
+function hexToRgb(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) return null
+  const n = parseInt(m[1], 16)
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+}
+
+/** "redmean" perceptual color distance — a well-established, cheap
+ *  approximation of perceptual difference that's meaningfully more accurate
+ *  than plain Euclidean RGB distance without needing a full CIELAB conversion. */
+function colorDistance(hexA: string, hexB: string): number | null {
+  const a = hexToRgb(hexA)
+  const b = hexToRgb(hexB)
+  if (!a || !b) return null
+  const [r1, g1, b1] = a
+  const [r2, g2, b2] = b
+  const rMean = (r1 + r2) / 2
+  const dR = r1 - r2, dG = g1 - g2, dB = b1 - b2
+  return Math.sqrt((2 + rMean / 256) * dR * dR + 4 * dG * dG + (2 + (255 - rMean) / 256) * dB * dB)
+}
+
+export interface ColorMatchResult {
+  value: number
+  /** Distance to the single nearest anchor — lower is more confident. Redmean
+   *  distances below ~15 are a near-exact match; above ~60 is a poor/ambiguous read. */
+  nearestDistance: number
+  interpolated: boolean
+}
+
+/** Deterministically maps a detected pad color to a parameter value by
+ *  finding the nearest calibration anchor(s), interpolating between the two
+ *  closest when the color falls between two reference points. */
+export function estimateValueFromColor(detectedHex: string, swatches: ColorSwatch[]): ColorMatchResult | null {
+  if (swatches.length === 0) return null
+  const distances = swatches
+    .map((s) => ({ swatch: s, dist: colorDistance(detectedHex, s.hex) }))
+    .filter((d): d is { swatch: ColorSwatch; dist: number } => d.dist !== null)
+    .sort((a, b) => a.dist - b.dist)
+
+  if (distances.length === 0) return null
+  const nearest = distances[0]
+  const second = distances[1]
+
+  // If the second-closest anchor is nearly as close as the nearest one, the
+  // true color likely falls between them — interpolate weighted by distance.
+  if (second && second.dist < nearest.dist * 1.8) {
+    const totalDist = nearest.dist + second.dist
+    // Closer anchor gets more weight; guard against both distances being 0.
+    const weightNearest = totalDist === 0 ? 1 : 1 - nearest.dist / totalDist
+    const value = nearest.swatch.value * weightNearest + second.swatch.value * (1 - weightNearest)
+    return {
+      value: Math.round(value * 100) / 100,
+      nearestDistance: nearest.dist,
+      interpolated: true,
+    }
+  }
+
+  return { value: nearest.swatch.value, nearestDistance: nearest.dist, interpolated: false }
+}

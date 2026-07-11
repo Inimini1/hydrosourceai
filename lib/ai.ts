@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { buildPoolContext } from './pool-context'
-import { STRIP_BRAND_CHARTS, type BrandChart } from './stripBrandColors'
+import { STRIP_BRAND_CHARTS, getBrandChart, estimateValueFromColor, type BrandChart, type ParamChart } from './stripBrandColors'
 
 export interface ChemicalDose {
   chemical: string
@@ -134,14 +134,12 @@ GOALS:
 5. Help users save time and money with minimum effective dosing
 
 KNOWLEDGE BASE — IDEAL RANGES:
-(Target/acceptable split matches standard industry practice, e.g. Leslie's published pool care ranges and PHTA/APSP-11 —
-"target" is the tight zone to aim dosing for, "acceptable" is the wider band that doesn't need immediate correction.)
-- pH: target 7.4–7.6, acceptable 7.2–7.8
-- Free Chlorine: target 2–3 ppm, acceptable 1–4 ppm — but ALWAYS apply the CYA-adjusted minimum below; a reading inside
-  this absolute range can still be functionally inadequate at higher CYA
-- Total Alkalinity: 80–120 ppm (60–80 ppm for salt/SWG pools — see SWG section below)
-- Calcium Hardness: target 200–400 ppm (plaster/concrete pools); 150–250 ppm acceptable for vinyl liner/fiberglass (lower CH needed — high CH damages non-plaster surfaces less but still causes scale)
-- Cyanuric Acid (Stabilizer): target 30–50 ppm (residential, traditional chlorine); 60–80 ppm for salt/SWG pools (SWG cells need more UV protection since they generate chlorine continuously)
+- pH: 7.2–7.6
+- Free Chlorine: 1–3 ppm — but ALWAYS apply the CYA-adjusted minimum below; a reading inside this absolute range can
+  still be functionally inadequate at higher CYA
+- Total Alkalinity: 80–120 ppm
+- Calcium Hardness: 200–400 ppm
+- Cyanuric Acid (Stabilizer): 30–50 ppm
 
 HEALTH SCORE (0–100):
 - 90–100: All parameters ideal, no symptoms
@@ -505,36 +503,43 @@ export async function analyzeTestStripImage(
       Object.keys(STRIP_BRAND_CALIBRATION).find((k) => brandKey.includes(k)) ?? 'generic'
     ] ??
     STRIP_BRAND_CALIBRATION.generic
+  const chart = getBrandChart(brand)
 
   const prompt = `You are an expert pool test strip color reader with professional-grade color calibration knowledge. Analyze this test strip image with maximum accuracy.
 
 ${calibration}
 
-UNIVERSAL READING INSTRUCTIONS:
-1. Identify the brand and pad positions from the calibration table above
-2. For each pad, directly compare the photographed pad color against the hex reference values given for THIS brand and parameter — treat each "value=hex" pair as a fixed anchor point, find which reference hex the photographed color is closest to (or interpolate between the two nearest anchors), and do not fall back on generic/memorized color assumptions instead of these specific values
-3. Correct for image lighting: if photo is warm/yellow-tinted, shift readings slightly cooler; if blue-tinted, shift warmer
-4. Wet strips shift color slightly — if the image looks wet/shiny, the true value is typically 5–10% lower on concentration scales
-5. If a pad is physically absent from this strip model, return null
-6. If a pad's photographed color falls roughly halfway between two reference hex anchors, return the average of those two values (e.g. between 2 and 3 ppm → return 2.5)
-7. Never guess wildly — return null only if the pad is genuinely unreadable (out of frame, obscured, or missing)
+READING METHOD — two separate steps, do not skip either:
+1. PERCEPTION: For each pad, report the color you actually see as a 6-digit hex code (e.g. "#E8934A") in the "_color" fields
+   below. This should be your honest read of the photographed pad's color, not a color copied from the reference table.
+2. ESTIMATE: Also give your own best-guess numeric value per parameter in the plain fields, as a cross-check — the exact
+   value will actually be computed separately from your reported hex color against the calibration table above, so your
+   number here is a sanity-check signal, not the final answer. If your numeric guess and what the hex color would suggest
+   disagree substantially, that pad is genuinely ambiguous — say so in low_confidence_params.
+
+INSTRUCTIONS:
+- Correct for image lighting before reporting hex: if the photo is warm/yellow-tinted, shift your reported color slightly
+  cooler; if blue-tinted, shift warmer — report the corrected color, not the raw photographed pixel color
+- Wet strips shift color slightly — if the image looks wet/shiny, note this in low_confidence_params for affected pads
+- If a pad is physically absent from this strip model, return null for both its hex and numeric fields
+- Never guess wildly — return null only if the pad is genuinely unreadable (out of frame, obscured, or missing)
 
 SCIENTIFIC VALIDATION:
 - Cross-check your readings for internal consistency: if pH is 8.4+ and chlorine reads high, confirm — high pH makes chlorine ineffective so high FC with high pH is physically plausible but unusual
 - If chlorine reads 0 and the strip shows typical pad positions, verify the pad is not just faded/overexposed
-- CYA pads are notoriously difficult to read accurately — if uncertain, return the midpoint of the two closest values
-- If the image is blurry, very dark, heavily shadowed, or the strip pads are folded/obscured, set photo_quality to "poor" and return null for any pad you cannot read with confidence
+- CYA pads are notoriously difficult to read accurately — flag low confidence rather than guessing precisely
+- If the image is blurry, very dark, heavily shadowed, or the strip pads are folded/obscured, set photo_quality to "poor"
 - If lighting is good and pads are clearly visible, set photo_quality to "good"
 
 Return ONLY valid JSON, no markdown, no other text:
 {
-  "pH": number or null,
-  "chlorine": number or null,
-  "alkalinity": number or null,
-  "calciumHardness": number or null,
-  "cyanuricAcid": number or null,
+  "pH": number or null, "pH_color": "#hexcode" or null,
+  "chlorine": number or null, "chlorine_color": "#hexcode" or null,
+  "alkalinity": number or null, "alkalinity_color": "#hexcode" or null,
+  "calciumHardness": number or null, "calciumHardness_color": "#hexcode" or null,
+  "cyanuricAcid": number or null, "cyanuricAcid_color": "#hexcode" or null,
   "photo_quality": "good" | "fair" | "poor",
-  "low_confidence_params": ["list any parameter names where you were uncertain between two adjacent values"]
+  "low_confidence_params": ["list any parameter names where you were uncertain"]
 }`
 
   const result = await withTimeout(
@@ -549,28 +554,66 @@ Return ONLY valid JSON, no markdown, no other text:
 
   const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>
 
-  // Validate and clamp values to realistic ranges
   const clamp = (v: unknown, min: number, max: number): number | undefined => {
     if (v === null || v === undefined || typeof v !== 'number' || isNaN(v)) return undefined
     return Math.min(max, Math.max(min, v))
   }
 
   const qualityValues = ['good', 'fair', 'poor']
-  const photoQuality = qualityValues.includes(parsed.photo_quality as string)
+  let photoQuality = qualityValues.includes(parsed.photo_quality as string)
     ? (parsed.photo_quality as 'good' | 'fair' | 'poor')
     : 'fair'
 
-  const lowConfidence = Array.isArray(parsed.low_confidence_params)
-    ? (parsed.low_confidence_params as string[]).filter((p) => typeof p === 'string')
-    : []
+  const lowConfidence = new Set(
+    Array.isArray(parsed.low_confidence_params)
+      ? (parsed.low_confidence_params as string[]).filter((p) => typeof p === 'string')
+      : []
+  )
+
+  // For each parameter, prefer the deterministic color-distance match over the
+  // model's own numeric guess whenever it reported a usable hex color — this
+  // removes the model's in-context arithmetic as a source of error, replacing
+  // it with the same calculation every time for the same detected color.
+  function resolveValue(
+    apiKey: 'pH' | 'chlorine' | 'alkalinity' | 'calciumHardness' | 'cyanuricAcid',
+    labelPattern: RegExp,
+    min: number,
+    max: number,
+  ): number | undefined {
+    const modelGuess = clamp(parsed[apiKey], min, max)
+    const hex = parsed[`${apiKey}_color`]
+    if (typeof hex !== 'string' || !/^#?[0-9a-f]{6}$/i.test(hex.trim())) return modelGuess
+
+    const paramChart: ParamChart | undefined = chart.params.find((p) => labelPattern.test(p.label))
+    if (!paramChart) return modelGuess
+
+    const match = estimateValueFromColor(hex, paramChart.swatches)
+    if (!match) return modelGuess
+
+    // Distance too large to trust — the color didn't resemble any calibration
+    // anchor well, likely a bad photo/lighting issue rather than a real value.
+    if (match.nearestDistance > 70) {
+      lowConfidence.add(apiKey)
+      if (photoQuality === 'good') photoQuality = 'fair'
+      return modelGuess ?? clamp(match.value, min, max)
+    }
+
+    // Model's own numeric guess and the deterministic color match disagree
+    // meaningfully — flag it so the user knows to double-check this pad.
+    if (modelGuess !== undefined && Math.abs(modelGuess - match.value) > (max - min) * 0.15) {
+      lowConfidence.add(apiKey)
+    }
+
+    return clamp(match.value, min, max)
+  }
 
   return {
-    pH: clamp(parsed.pH, 6.0, 9.0),
-    chlorine: clamp(parsed.chlorine, 0, 20),
-    alkalinity: clamp(parsed.alkalinity, 0, 300),
-    calciumHardness: clamp(parsed.calciumHardness, 0, 800),
-    cyanuricAcid: clamp(parsed.cyanuricAcid, 0, 300),
+    pH: resolveValue('pH', /^ph$/i, 6.0, 9.0),
+    chlorine: resolveValue('chlorine', /free chlorine/i, 0, 20),
+    alkalinity: resolveValue('alkalinity', /alkalinity/i, 0, 300),
+    calciumHardness: resolveValue('calciumHardness', /hardness/i, 0, 800),
+    cyanuricAcid: resolveValue('cyanuricAcid', /cya|stabilizer/i, 0, 300),
     photo_quality: photoQuality,
-    low_confidence_params: lowConfidence,
+    low_confidence_params: Array.from(lowConfidence),
   }
 }
