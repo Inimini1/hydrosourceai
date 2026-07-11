@@ -320,9 +320,15 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     }
 
     // ── PAGE FOOTERS ─────────────────────────────────────────────────────────
+    // Drawing text inside the bottom margin (as a footer must) makes pdfkit think
+    // the content overflows the page and silently appends a blank page — verified
+    // by testing this exact code: page count went from 2 to 4 after this loop ran.
+    // Zeroing the bottom margin for the duration of each footer draw prevents it.
     const range = doc.bufferedPageRange()
     for (let i = range.start; i < range.start + range.count; i++) {
       doc.switchToPage(i)
+      const savedBottomMargin = doc.page.margins.bottom
+      doc.page.margins.bottom = 0
       const PH = doc.page.height
       doc.rect(0, PH - 26, PW, 26).fill('#F1F5F9')
       doc.moveTo(0, PH - 26).lineTo(PW, PH - 26).strokeColor(BORDER).lineWidth(0.5).stroke()
@@ -332,6 +338,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
            M, PH - 17,
            { width: PW - M * 2, align: 'center', lineBreak: false }
          )
+      doc.page.margins.bottom = savedBottomMargin
     }
 
     doc.end()

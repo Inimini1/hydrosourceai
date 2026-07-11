@@ -93,8 +93,8 @@ export const STRIP_BRAND_CHARTS: Record<string, BrandChart> = {
   },
 
   lamottes: {
-    name: 'LaMotte Insta-Test / ColorQ',
-    note: 'Professional / semi-pro grade. Uses a different (green/blue-based) pH scale and purple-based chlorine scale than most retail brands.',
+    name: 'LaMotte Insta-Test',
+    note: 'Professional / semi-pro grade dip test strip. (LaMotte ColorQ is a separate electronic photometer that reads liquid reagents, not a dip strip — not covered by this chart.) Uses a different (green/blue-based) pH scale and purple-based chlorine scale than most retail brands.',
     padOrder: 'varies by model — read from label end to tip',
     params: [
       {
@@ -291,8 +291,8 @@ export const STRIP_BRAND_CHARTS: Record<string, BrandChart> = {
   },
 
   leslies: {
-    name: "Leslie's 4-Way / AccuBlue",
-    note: "Pool retail chain brand. Pad order: Free Chlorine, pH, Total Alkalinity, Total Hardness.",
+    name: "Leslie's 4-Way Test Strips",
+    note: "Pool retail chain brand dip test strip. (Leslie's AccuBlue is a separate liquid-reagent + camera testing system, not a dip strip — not covered by this chart.) Pad order: Free Chlorine, pH, Total Alkalinity, Total Hardness.",
     padOrder: 'Free Chlorine, pH, Total Alkalinity, Total Hardness',
     params: [
       {

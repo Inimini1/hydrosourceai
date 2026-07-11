@@ -134,11 +134,14 @@ GOALS:
 5. Help users save time and money with minimum effective dosing
 
 KNOWLEDGE BASE — IDEAL RANGES:
-- pH: 7.2–7.6
-- Free Chlorine: 1–3 ppm
-- Total Alkalinity: 80–120 ppm
-- Calcium Hardness: 200–400 ppm
-- Cyanuric Acid (Stabilizer): 30–50 ppm
+(Target/acceptable split matches standard industry practice, e.g. Leslie's published pool care ranges and PHTA/APSP-11 —
+"target" is the tight zone to aim dosing for, "acceptable" is the wider band that doesn't need immediate correction.)
+- pH: target 7.4–7.6, acceptable 7.2–7.8
+- Free Chlorine: target 2–3 ppm, acceptable 1–4 ppm — but ALWAYS apply the CYA-adjusted minimum below; a reading inside
+  this absolute range can still be functionally inadequate at higher CYA
+- Total Alkalinity: 80–120 ppm (60–80 ppm for salt/SWG pools — see SWG section below)
+- Calcium Hardness: target 200–400 ppm (plaster/concrete pools); 150–250 ppm acceptable for vinyl liner/fiberglass (lower CH needed — high CH damages non-plaster surfaces less but still causes scale)
+- Cyanuric Acid (Stabilizer): target 30–50 ppm (residential, traditional chlorine); 60–80 ppm for salt/SWG pools (SWG cells need more UV protection since they generate chlorine continuously)
 
 HEALTH SCORE (0–100):
 - 90–100: All parameters ideal, no symptoms
