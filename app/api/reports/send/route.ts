@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { sendWaterReportEmail } from '@/lib/email'
 import { canSendEmailReports } from '@/lib/subscription'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { cyaAdjustedMinChlorine } from '@/lib/pool-chemistry-db'
 
 export const runtime = 'nodejs'
 
@@ -67,13 +68,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Report data is corrupted.' }, { status: 500 })
   }
 
+  let pdfBuffer: Buffer
   try {
-    const pdfBuffer = await generateReportPdf(test, analysis)
+    pdfBuffer = await generateReportPdf(test, analysis)
+  } catch (err) {
+    console.error('Report PDF generation error:', err)
+    return NextResponse.json({ error: 'Failed to generate the PDF report. Please try again.' }, { status: 500 })
+  }
+
+  try {
     await sendWaterReportEmail(recipientEmail, test.pool.poolName, test.createdAt, pdfBuffer)
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Report generation/send error:', err)
-    return NextResponse.json({ error: 'Failed to send report. Please try again.' }, { status: 500 })
+    // Surface the real reason (e.g. Resend's own rejection message) instead of a
+    // generic failure — this is what actually explains "it just says failed" reports.
+    const detail = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Report email send error:', detail)
+    return NextResponse.json({ error: `Failed to send the email: ${detail}` }, { status: 502 })
   }
 }
 
@@ -186,8 +197,14 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     )
     y += 20
 
+    // Free chlorine's real "ideal" floor depends on CYA (chlorine lock) — a flat
+    // 1-3ppm range would show "Ideal" here while the analysis above correctly
+    // flags the same reading as caution/critical for the same test.
+    const clMin = cyaAdjustedMinChlorine(test.cyanuricAcid)
+    const clMax = Math.max(3, clMin + 1)
+
     const readings: Array<{ label: string; ideal: string; val: number; unit: string; min: number; max: number; critMin?: number; critMax?: number }> = [
-      { label: 'Free Chlorine', ideal: '1–3 ppm',    val: test.chlorine,          unit: ' ppm', min: 1,   max: 3,   critMin: 0.5, critMax: 5 },
+      { label: 'Free Chlorine', ideal: `${clMin}–${clMax} ppm${test.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`, val: test.chlorine, unit: ' ppm', min: clMin, max: clMax, critMin: Math.min(0.5, clMin * 0.5), critMax: Math.max(5, clMax * 1.5) },
       { label: 'pH',            ideal: '7.2–7.6',    val: test.pH,                unit: '',     min: 7.2, max: 7.6, critMin: 7.0, critMax: 8.0 },
       { label: 'Alkalinity',    ideal: '80–120 ppm', val: test.alkalinity,        unit: ' ppm', min: 80,  max: 120, critMin: 60,  critMax: 150 },
       ...(test.calciumHardness != null ? [{ label: 'Ca. Hardness', ideal: '200–400 ppm', val: test.calciumHardness, unit: ' ppm', min: 200, max: 400 }] : []),
@@ -303,9 +320,15 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     }
 
     // ── PAGE FOOTERS ─────────────────────────────────────────────────────────
+    // Drawing text inside the bottom margin (as a footer must) makes pdfkit think
+    // the content overflows the page and silently appends a blank page — verified
+    // by testing this exact code: page count went from 2 to 4 after this loop ran.
+    // Zeroing the bottom margin for the duration of each footer draw prevents it.
     const range = doc.bufferedPageRange()
     for (let i = range.start; i < range.start + range.count; i++) {
       doc.switchToPage(i)
+      const savedBottomMargin = doc.page.margins.bottom
+      doc.page.margins.bottom = 0
       const PH = doc.page.height
       doc.rect(0, PH - 26, PW, 26).fill('#F1F5F9')
       doc.moveTo(0, PH - 26).lineTo(PW, PH - 26).strokeColor(BORDER).lineWidth(0.5).stroke()
@@ -315,6 +338,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
            M, PH - 17,
            { width: PW - M * 2, align: 'center', lineBreak: false }
          )
+      doc.page.margins.bottom = savedBottomMargin
     }
 
     doc.end()

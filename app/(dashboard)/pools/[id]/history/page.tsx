@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import TestReminderBanner from '@/components/TestReminderBanner'
 import { PageError } from '@/components/PageError'
+import { cyaAdjustedMinChlorine } from '@/lib/pool-chemistry-db'
 
 interface WaterTest {
   id: string
@@ -459,6 +460,12 @@ export default function HistoryPage() {
   const cyaIdealMin = isSalt ? 60 : 30
   const cyaIdealMax = isSalt ? 80 : 50
 
+  // Free chlorine's real ideal floor depends on CYA (chlorine lock) — base the
+  // chart's ideal band on the most recent CYA reading rather than a flat 1–3 ppm
+  // that can silently disagree with the AI's own CYA-adjusted verdict.
+  const clIdealMin = cyaAdjustedMinChlorine(lastTest?.cyanuricAcid ?? null)
+  const clIdealMax = Math.max(3, clIdealMin + 1)
+
   if (loading) {
     return (
       <div className="pb-8">
@@ -581,9 +588,9 @@ export default function HistoryPage() {
             label="Free Chlorine"
             unit="ppm"
             color="#006FFF"
-            idealMin={1}
-            idealMax={3}
-            idealLabel="1–3 ppm"
+            idealMin={clIdealMin}
+            idealMax={clIdealMax}
+            idealLabel={`${clIdealMin}–${clIdealMax} ppm${lastTest?.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`}
             points={clPoints}
             poolType={pool?.chlorineType}
           />

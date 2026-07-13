@@ -2,7 +2,6 @@
 
 import { useState, useEffect, FormEvent } from 'react'
 import { useAuth } from '@/components/AuthProvider'
-import { useTheme } from '@/components/ThemeProvider'
 import Link from 'next/link'
 import { usePageTitle } from '@/lib/usePageTitle'
 
@@ -28,7 +27,6 @@ const AVATAR_COLORS = [
 export default function AccountPage() {
   usePageTitle('Account')
   const { user, refresh } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const [usage, setUsage] = useState<Usage | null>(null)
 
   const [displayName, setDisplayName] = useState('')
@@ -220,28 +218,6 @@ export default function AccountPage() {
               Beta — All Pro features active
             </div>
           )}
-        </div>
-
-        {/* Appearance */}
-        <div className="card-light p-5 rounded-3xl">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Appearance</p>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">Dark mode</p>
-              <p className="text-xs text-slate-400 mt-0.5">{theme === 'dark' ? 'Currently using dark theme' : 'Currently using light theme'}</p>
-            </div>
-            <button
-              onClick={toggleTheme}
-              className="relative w-14 h-7 rounded-full transition-colors duration-300 flex-shrink-0 focus:outline-none"
-              style={{ background: theme === 'dark' ? '#00C9B1' : '#CBD5E1' }}
-              aria-label="Toggle dark mode"
-            >
-              <span
-                className="absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300"
-                style={{ left: theme === 'dark' ? '30px' : '4px' }}
-              />
-            </button>
-          </div>
         </div>
 
         {/* Usage */}

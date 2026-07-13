@@ -1,6 +1,7 @@
 export { PoolLensIcon, PoolLensMark } from './PoolLensIcon';
 export { AppIcon } from './AppIcon';
 export { LogoLockup, LogoLockupLight } from './LogoLockup';
+export { WaterMoodDrop } from './WaterMoodDrop';
 
 // Legacy alias — keeps existing imports working during transition
 export { PoolLensIcon as HydroSourceLogo } from './PoolLensIcon';

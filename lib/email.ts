@@ -27,9 +27,36 @@ async function send(to: string, subject: string, html: string, attachments?: Ema
     }),
   })
   if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`Resend error: ${err}`)
+    const errText = await res.text()
+    throw new Error(`Resend error (${res.status}): ${describeResendError(res.status, errText)}`)
   }
+}
+
+/** Translates Resend's raw error response into a plain-English reason,
+ *  since "Resend error: {"statusCode":403,...}" tells a non-developer nothing. */
+function describeResendError(status: number, rawBody: string): string {
+  let message = rawBody
+  try {
+    const parsed = JSON.parse(rawBody) as { message?: string; name?: string }
+    message = parsed.message ?? rawBody
+  } catch {
+    // not JSON — use the raw text as-is
+  }
+
+  const lower = message.toLowerCase()
+  if (lower.includes('you can only send testing emails to your own email address')) {
+    return `Your Resend account is still in sandbox/testing mode — it can only send to the email address you signed up to Resend with, not to other recipients. Verify a sending domain in the Resend dashboard (Domains tab must show "Verified", not just "Pending") to unlock sending to any address. Raw: ${message}`
+  }
+  if (lower.includes('domain is not verified') || lower.includes('domain not verified')) {
+    return `The domain in EMAIL_FROM is not verified in Resend. Check Resend dashboard → Domains — it must show "Verified", and the domain must exactly match what EMAIL_FROM uses. Raw: ${message}`
+  }
+  if (status === 401 || lower.includes('invalid api key') || lower.includes('missing api key')) {
+    return `RESEND_API_KEY is missing, invalid, or was revoked/regenerated in the Resend dashboard since it was last pasted into Vercel. Raw: ${message}`
+  }
+  if (lower.includes('invalid') && lower.includes('from')) {
+    return `The EMAIL_FROM address format or domain is invalid or unverified. Raw: ${message}`
+  }
+  return message
 }
 
 function baseTemplate(content: string) {
@@ -39,7 +66,8 @@ function baseTemplate(content: string) {
 <body style="margin:0;padding:0;background:#EEF2FF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="max-width:480px;margin:40px auto;padding:0 16px">
     <div style="text-align:center;margin-bottom:24px">
-      <span style="font-size:28px;font-weight:800;color:#006FFF">HydroSource</span><span style="font-size:28px;font-weight:800;color:#00C9B1"> AI</span>
+      <img src="${APP_URL}/email-logo.png" width="48" height="65" alt="HydroSource AI" style="display:block;margin:0 auto 10px;border:0" />
+      <span style="font-size:24px;font-weight:800;color:#006FFF">HydroSource</span><span style="font-size:24px;font-weight:800;color:#00C9B1"> AI</span>
     </div>
     <div style="background:#fff;border-radius:24px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
       ${content}
