@@ -21,7 +21,10 @@ export async function GET(req: NextRequest) {
     .eq('pool_id', poolId)
     .order('created_at', { ascending: false })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[GET /api/service-logs] query failed:', error.message)
+    return NextResponse.json({ error: 'Failed to load service logs.' }, { status: 500 })
+  }
 
   // treatment_plan column added in migration 006 — cast to access it
   type LogRow = typeof logsRaw extends (infer T)[] | null ? T & { treatment_plan?: string | null } : never
@@ -101,7 +104,10 @@ export async function POST(req: NextRequest) {
       treatment_plan: safeTreatmentPlan,
     }).select().single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      console.error('[POST /api/service-logs] insert failed:', error.message)
+      return NextResponse.json({ error: 'Failed to save service log.' }, { status: 500 })
+    }
 
     return NextResponse.json({ log }, { status: 201 })
   } catch {

@@ -12,7 +12,10 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(50)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[GET /api/notifications] query failed:', error.message)
+    return NextResponse.json({ error: 'Failed to load notifications.' }, { status: 500 })
+  }
 
   const mapped = (notifications ?? []).map((n) => ({
     id:        n.id,
