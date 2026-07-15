@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
         { status: 503 }
       )
     }
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('[POST /api/ai/analyze] failed:', message)
+    return NextResponse.json({ error: 'AI analysis failed. Please try again.' }, { status: 500 })
   }
 }

@@ -4,11 +4,17 @@ import { useState, useEffect, FormEvent } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+// Kept in sync with app/api/pools/[id]/route.ts's validTypes and the
+// creation page (app/(dashboard)/pools/new/page.tsx) — the AI chemistry
+// prompt (lib/ai.ts) only has dosing logic for these three sanitizer
+// types. Biguanide (PHMB) is a genuinely different, chlorine-free system
+// with no dosing/safety logic anywhere in the app, so it's deliberately
+// not offered here rather than silently giving chlorine-based advice to
+// a biguanide pool.
 const CHLORINE_TYPES = [
-  { value: 'CHLORINE',  label: 'Chlorine',   desc: 'Traditional tablets or liquid', emoji: '🧪' },
-  { value: 'SALT',      label: 'Salt Water',  desc: 'Electrolytic chlorine generator', emoji: '🌊' },
-  { value: 'BROMINE',   label: 'Bromine',     desc: 'Common in spas and hot tubs', emoji: '⚗️' },
-  { value: 'BIGUANIDE', label: 'Biguanide',   desc: 'Chlorine-free (Baquacil)', emoji: '🟢' },
+  { value: 'CHLORINE', label: 'Chlorine',   desc: 'Traditional tablets or liquid', emoji: '🧪' },
+  { value: 'SALT',     label: 'Salt Water',  desc: 'Electrolytic chlorine generator', emoji: '🌊' },
+  { value: 'BROMINE',  label: 'Bromine',     desc: 'Common in spas and hot tubs', emoji: '⚗️' },
 ]
 
 const GALLON_PRESETS = [

@@ -12,7 +12,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     .delete()
     .eq('id', params.id)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[DELETE /api/service-logs/:id] failed:', error.message)
+    return NextResponse.json({ error: 'Failed to delete service log.' }, { status: 500 })
+  }
 
   return NextResponse.json({ message: 'Deleted.' })
 }

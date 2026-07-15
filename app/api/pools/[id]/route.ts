@@ -82,7 +82,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   if (chlorineType != null) {
-    const validTypes = ['CHLORINE', 'SALTWATER', 'BROMINE']
+    const validTypes = ['CHLORINE', 'SALT', 'BROMINE']
     if (!validTypes.includes(chlorineType)) {
       return NextResponse.json({ error: 'Invalid chlorine type.' }, { status: 400 })
     }

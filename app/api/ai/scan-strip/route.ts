@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { analyzeTestStripImage } from '@/lib/ai'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { canRunAnalysis } from '@/lib/subscription'
 
 // Base64 inflates raw bytes by ~4/3, so compare the encoded string length
 // against the raw limit scaled up, not the raw limit itself.
@@ -16,6 +17,14 @@ export async function POST(req: NextRequest) {
   const rateLimit = await checkRateLimit(`ai:scan:${user.id}`, 20, 60 * 60 * 1000)
   if (!rateLimit.allowed) {
     return NextResponse.json({ error: 'Too many scan requests. Please wait before trying again.' }, { status: 429 })
+  }
+
+  // Strip scans use the same Gemini vision call as a full analysis, so they must
+  // count against the same monthly cap as /api/ai/analyze — without this, the
+  // free-tier analysis limit was fully bypassable via the scan endpoint.
+  const gate = await canRunAnalysis(user.id)
+  if (!gate.allowed) {
+    return NextResponse.json({ error: gate.reason, upgradeRequired: gate.upgradeRequired }, { status: 403 })
   }
 
   try {

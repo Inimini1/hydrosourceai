@@ -456,7 +456,7 @@ export default function HistoryPage() {
   const pastTests = [...filtered].reverse()
 
   // For salt pools, adjust ideal CYA range (SWG prefers lower CYA)
-  const isSalt = pool?.chlorineType === 'SALTWATER'
+  const isSalt = pool?.chlorineType === 'SALT'
   const cyaIdealMin = isSalt ? 60 : 30
   const cyaIdealMax = isSalt ? 80 : 50
 

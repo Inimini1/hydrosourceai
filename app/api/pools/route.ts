@@ -22,7 +22,10 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false, foreignTable: 'water_tests' })
     .limit(testLimit, { foreignTable: 'water_tests' })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[GET /api/pools] query failed:', error.message)
+    return NextResponse.json({ error: 'Failed to load pools.' }, { status: 500 })
+  }
 
   type RawPool = {
     id: string; pool_name: string; gallons: number; chlorine_type: string
@@ -80,13 +83,23 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Same allowed set as the PATCH route (app/api/pools/[id]/route.ts) — this
+    // insert previously wrote whatever raw string was sent with no validation.
+    const validChlorineTypes = ['CHLORINE', 'SALT', 'BROMINE']
+    if (!validChlorineTypes.includes(chlorineType)) {
+      return NextResponse.json({ error: 'Invalid chlorine type.' }, { status: 400 })
+    }
+
     const { data: pool, error } = await supabase
       .from('pools')
       .insert({ user_id: user.id, pool_name: poolName.trim(), gallons: parseInt(gallons), chlorine_type: chlorineType })
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      console.error('[POST /api/pools] insert failed:', error.message)
+      return NextResponse.json({ error: 'Failed to create pool.' }, { status: 500 })
+    }
 
     return NextResponse.json({
       pool: { id: pool.id, poolName: pool.pool_name, gallons: pool.gallons, chlorineType: pool.chlorine_type },

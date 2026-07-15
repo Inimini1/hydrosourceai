@@ -52,8 +52,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed to save feedback.'
-    return NextResponse.json({ error: msg }, { status: 500 })
+    console.error('[POST /api/feedback] failed:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'Failed to save feedback.' }, { status: 500 })
   }
 }
 
@@ -82,7 +82,10 @@ export async function GET(req: NextRequest) {
   if (status) query = query.eq('status', status as FeedbackStatus)
 
   const { data, error } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[GET /api/feedback] query failed:', error.message)
+    return NextResponse.json({ error: 'Failed to load feedback.' }, { status: 500 })
+  }
   return NextResponse.json({ feedback: data })
 }
 
@@ -106,6 +109,9 @@ export async function PATCH(req: NextRequest) {
   if (founderNote !== undefined) update.founder_note = founderNote as string
 
   const { error } = await admin.from('feedback').update(update).eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[PATCH /api/feedback] update failed:', error.message)
+    return NextResponse.json({ error: 'Failed to update feedback.' }, { status: 500 })
+  }
   return NextResponse.json({ ok: true })
 }

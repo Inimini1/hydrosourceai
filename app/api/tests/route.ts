@@ -30,7 +30,10 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[GET /api/tests] query failed:', error.message)
+    return NextResponse.json({ error: 'Failed to load water tests.' }, { status: 500 })
+  }
 
   const parsed = (tests ?? []).map((t) => ({
     id: t.id,
