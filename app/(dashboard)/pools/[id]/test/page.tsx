@@ -104,8 +104,12 @@ const RANGES: Record<string, { label: string; unit: string; ideal: string; min: 
   temperature:     { label: 'Temperature',   unit: '°F',  ideal: '70–85',     min: 70,  max: 85 },
 }
 
-function readingStatus(key: string, val: number, effectiveMin?: number): 'safe' | 'caution' | 'critical' {
-  const r = RANGES[key]
+// Bromine has no CYA/chlorine-lock equivalent, and its ideal band sits higher
+// than chlorine's — swap this in for the "chlorine" reading on bromine pools.
+const BROMINE_RANGE = { label: 'Bromine', unit: 'ppm', ideal: '3–5', min: 3, max: 5, critMin: 2, critMax: 10 }
+
+function readingStatus(key: string, val: number, effectiveMin?: number, rangeOverride?: typeof RANGES[string]): 'safe' | 'caution' | 'critical' {
+  const r = rangeOverride ?? RANGES[key]
   if (!r) return 'safe'
   const min = effectiveMin ?? r.min
   if ((r.critMin !== undefined && val < r.critMin) || (r.critMax !== undefined && val > r.critMax)) return 'critical'
@@ -317,6 +321,17 @@ function FeedbackCard({ testId }: { testId: string }) {
 // ── Main component ───────────────────────────────────────────────────────────
 export default function AddTestPage() {
   const { id } = useParams<{ id: string }>()
+
+  const [chlorineType, setChlorineType] = useState('CHLORINE')
+
+  useEffect(() => {
+    fetch(`/api/pools/${id}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.pool?.chlorineType) setChlorineType(d.pool.chlorineType) })
+      .catch(() => {/* non-critical — falls back to default chlorine labeling */})
+  }, [id])
+
+  const isBromine = chlorineType === 'BROMINE'
 
   const [tab, setTab] = useState<'manual' | 'photo'>('manual')
   const [chlorine, setChlorine] = useState('')
@@ -608,18 +623,19 @@ export default function AddTestPage() {
           <div className="space-y-2 animate-in-delay-2">
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Water Chemistry</p>
             {readings.map(({ key, val }) => {
-              const meta = RANGES[key]
+              const meta = key === 'chlorine' && isBromine ? BROMINE_RANGE : RANGES[key]
               if (!meta) return null
 
               // Free chlorine's real "ideal" floor depends on CYA — a flat 1–3 ppm
               // range ignores chlorine lock and is why a reading can show "in range"
               // here while the overall analysis still flags caution/critical.
-              const cyaMin = key === 'chlorine' ? cyaAdjustedMinChlorine(result.cyanuricAcid) : undefined
+              // Bromine has no CYA equivalent, so this adjustment never applies to it.
+              const cyaMin = key === 'chlorine' && !isBromine ? cyaAdjustedMinChlorine(result.cyanuricAcid) : undefined
               const effMin = cyaMin ?? meta.min
               const effMax = cyaMin !== undefined ? Math.max(meta.max, cyaMin + 1) : meta.max
               const effIdealLabel = cyaMin !== undefined ? `${effMin}–${effMax}` : meta.ideal
 
-              const st = readingStatus(key, val, cyaMin)
+              const st = readingStatus(key, val, cyaMin, meta)
               const c = STATUS_COLORS[st]
               const dMin = meta.critMin !== undefined ? meta.critMin : Math.max(0, effMin * 0.4)
               const dMax = meta.critMax !== undefined ? meta.critMax : effMax * 1.8
@@ -1157,8 +1173,8 @@ export default function AddTestPage() {
               </div>
               <div className="space-y-3">
                 <ParameterInput
-                  label="Free Chlorine" unit="ppm" ideal="1–3"
-                  idealMin={1} idealMax={3} min={0} max={10} step={0.1}
+                  label={isBromine ? 'Bromine' : 'Free Chlorine'} unit="ppm" ideal={isBromine ? '3–5' : '1–3'}
+                  idealMin={isBromine ? 3 : 1} idealMax={isBromine ? 5 : 3} min={0} max={10} step={0.1}
                   value={chlorine} onChange={setChlorine} required
                 />
                 <ParameterInput

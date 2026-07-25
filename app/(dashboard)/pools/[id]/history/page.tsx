@@ -457,14 +457,16 @@ export default function HistoryPage() {
 
   // For salt pools, adjust ideal CYA range (SWG prefers lower CYA)
   const isSalt = pool?.chlorineType === 'SALT'
+  const isBromine = pool?.chlorineType === 'BROMINE'
   const cyaIdealMin = isSalt ? 60 : 30
   const cyaIdealMax = isSalt ? 80 : 50
 
   // Free chlorine's real ideal floor depends on CYA (chlorine lock) — base the
   // chart's ideal band on the most recent CYA reading rather than a flat 1–3 ppm
   // that can silently disagree with the AI's own CYA-adjusted verdict.
-  const clIdealMin = cyaAdjustedMinChlorine(lastTest?.cyanuricAcid ?? null)
-  const clIdealMax = Math.max(3, clIdealMin + 1)
+  // Bromine has no CYA equivalent and its own ideal band sits higher (3–5 ppm).
+  const clIdealMin = isBromine ? 3 : cyaAdjustedMinChlorine(lastTest?.cyanuricAcid ?? null)
+  const clIdealMax = isBromine ? 5 : Math.max(3, clIdealMin + 1)
 
   if (loading) {
     return (
@@ -585,12 +587,12 @@ export default function HistoryPage() {
 
           {/* Core chemistry charts */}
           <ChartSection
-            label="Free Chlorine"
+            label={isBromine ? 'Bromine' : 'Free Chlorine'}
             unit="ppm"
             color="#006FFF"
             idealMin={clIdealMin}
             idealMax={clIdealMax}
-            idealLabel={`${clIdealMin}–${clIdealMax} ppm${lastTest?.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`}
+            idealLabel={`${clIdealMin}–${clIdealMax} ppm${!isBromine && lastTest?.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`}
             points={clPoints}
             poolType={pool?.chlorineType}
           />
