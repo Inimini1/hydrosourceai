@@ -17,6 +17,20 @@ interface MaintenanceChecklistProps {
   onDelete?: () => void
 }
 
+function parseWaitTime(text: string): { duration: string; note: string; hours: number } | null {
+  const t = text.toLowerCase()
+  const hourRange = t.match(/(?:wait|allow|let it circulate|circulate)[^.]*?(\d+)[–\-–](\d+)\s*hours?/i)
+  if (hourRange) return { duration: `${hourRange[1]}–${hourRange[2]} hours`, note: 'Pump must be running. Retest before next step.', hours: parseInt(hourRange[2]) }
+  const hourSingle = t.match(/(?:wait|allow|let it circulate|circulate|for)[^.]*?(\d+)\s*hours?/i)
+  if (hourSingle) { const h = parseInt(hourSingle[1]); return { duration: `${h} hour${h !== 1 ? 's' : ''}`, note: 'Pump must be running. Retest before next step.', hours: h } }
+  const minMatch = t.match(/(?:wait|allow)[^.]*?(\d+)\s*minutes?/i)
+  if (minMatch) return { duration: `${minMatch[1]} minutes`, note: 'Keep pump running.', hours: parseInt(minMatch[1]) / 60 }
+  const dayMatch = t.match(/(?:wait|allow)[^.]*?(\d+)[–\-]?(\d+)?\s*days?/i)
+  if (dayMatch) { const range = dayMatch[2] ? `${dayMatch[1]}–${dayMatch[2]}` : dayMatch[1]; return { duration: `${range} day${range === '1' ? '' : 's'}`, note: 'Do not add more chemicals until retested.', hours: parseInt(dayMatch[2] ?? dayMatch[1]) * 24 } }
+  if (t.includes('before retest') || t.includes('before swimming') || t.includes('before next')) return { duration: '4–6 hours', note: 'Retest before proceeding.', hours: 6 }
+  return null
+}
+
 type ChemType = 'acid' | 'alkali' | 'chlorine' | 'mineral' | 'other'
 
 function classifyChemical(name: string): ChemType {
@@ -137,6 +151,7 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
   const completedCount = done.filter(Boolean).length
   const allDone = completedCount === steps.length && steps.length > 0
   const pct = steps.length > 0 ? Math.round((completedCount / steps.length) * 100) : 0
+  const totalWaitHours = steps.slice(0, -1).reduce((sum, step) => sum + (parseWaitTime(step.how_to_apply)?.hours ?? 0), 0)
 
   const sc = STATUS_COLORS[poolStatus]
   const date = new Date(createdAt)
@@ -230,10 +245,37 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
             )}
           </div>
 
+          {totalWaitHours > 0 && (
+            <div className="rounded-2xl px-4 py-2.5 mb-3 flex items-center gap-2.5" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.16)' }}>
+              <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#3B82F6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs font-semibold" style={{ color: '#3B82F6' }}>
+                Time plan: ~{totalWaitHours < 1 ? `${Math.round(totalWaitHours * 60)} min` : totalWaitHours >= 24 ? `${Math.round(totalWaitHours / 24)} day${totalWaitHours >= 48 ? 's' : ''}` : `${Math.round(totalWaitHours)} hr${totalWaitHours >= 2 ? 's' : ''}`} to complete all steps
+              </p>
+            </div>
+          )}
+
           <div className="space-y-2">
-            {steps.map((step, i) => (
-              <StepItem key={i} step={step} index={i} total={steps.length} done={done[i] ?? false} onToggle={() => toggle(i)} />
-            ))}
+            {steps.map((step, i) => {
+              const wait = i < steps.length - 1 ? parseWaitTime(step.how_to_apply) : null
+              return (
+                <div key={i}>
+                  <StepItem step={step} index={i} total={steps.length} done={done[i] ?? false} onToggle={() => toggle(i)} />
+                  {wait && (
+                    <div className="flex items-center gap-2.5 mt-2 mb-1 ml-11 px-3 py-2 rounded-xl" style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.06)' }}>
+                      <svg className="w-3.5 h-3.5 flex-shrink-0 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Wait {wait.duration}</p>
+                        <p className="text-[10px] text-slate-400">{wait.note}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
 
           {allDone && (

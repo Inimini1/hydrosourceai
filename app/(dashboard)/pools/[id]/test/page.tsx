@@ -494,6 +494,8 @@ export default function AddTestPage() {
       const noteParts: string[] = []
       if (a.diagnosis) noteParts.push(a.diagnosis)
       if (a.immediate_action_plan?.length) noteParts.push(`Action plan: ${a.immediate_action_plan.join(' · ')}`)
+      if (a.timeline) noteParts.push(`Expect: ${a.timeline}`)
+      if (a.next_test_days) noteParts.push(`Retest in ${a.next_test_days} day${a.next_test_days !== 1 ? 's' : ''}`)
       const notes = noteParts.join('. ') || 'AI water test treatment plan'
 
       const res = await fetch('/api/service-logs', {
@@ -861,23 +863,28 @@ export default function AddTestPage() {
                   ) : planSaved ? (
                     <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>Saved to Maintenance Log</>
+                    </svg>Saved as Checklist</>
                   ) : (
                     <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>Save Treatment Plan to Maintenance Log
+                    </svg>Turn Into a Step-by-Step Checklist
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1"
                       style={{ background: 'rgba(13,148,136,0.12)', color: '#0d9488' }}>PRO</span>
                     </>
                   )}
                 </button>
+                {!planSaved && (
+                  <p className="text-[11px] text-slate-400 text-center mt-1.5 px-2">
+                    Get a tappable checklist with dosing amounts and wait times between steps.
+                  </p>
+                )}
                 {planSaved && (
                   <Link
                     href={`/pools/${id}/maintenance`}
                     className="block w-full text-center mt-1.5 py-1.5 text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors"
                   >
-                    View maintenance log →
+                    Open your checklist →
                   </Link>
                 )}
               </div>
