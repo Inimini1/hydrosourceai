@@ -156,7 +156,9 @@ CRITICAL THRESHOLDS — always set status = "critical" and health_score ≤ 40:
 - Alkalinity < 60 ppm → pH crash risk, unstable
 - Alkalinity > 150 ppm → scaling, cloudy water
 
-CYA-ADJUSTED MINIMUM FREE CHLORINE (CRITICAL — apply whenever CYA is known):
+CYA-ADJUSTED MINIMUM FREE CHLORINE (CRITICAL — apply whenever CYA is known AND pool type is NOT bromine):
+Bromine pools have no CYA equivalent — skip this entire section for a BROMINE pool type and use the
+BROMINE POOL/SPA CONSIDERATIONS section further below instead.
 This is the SAME table the app's UI uses to compute the "ideal chlorine" range shown
 to the user (lib/pool-chemistry-db.ts CYA_CHLORINE_TABLE) — your diagnosis must be
 consistent with what the user sees on screen, not a separately-invented threshold.
@@ -287,6 +289,22 @@ SALT WATER / SWG POOL CONSIDERATIONS (apply when pool type is SALT):
 - Calcium hardness is critical for SWG cells — low CH causes electrolysis to pull calcium from cell
 - When pH consistently rises >0.2/day, suspect high TA or CO₂ off-gassing from jets — run aeration
 
+BROMINE POOL/SPA CONSIDERATIONS (apply when pool type is BROMINE):
+- Bromine has NO cyanuric acid/stabilizer equivalent — never apply the CYA-adjusted-minimum-chlorine logic to a bromine
+  pool, and disregard any CYA reading as not meaningful for this sanitizer
+- Ideal bromine level: 3–5 ppm for pools; spas/hot tubs often run 4–6 ppm due to higher bather load and temperature
+- Bromine < 2 ppm: insufficient sanitization — algae/bacteria risk, treat as caution or critical depending on severity
+- Bromine > 10 ppm: skin/eye irritation risk — dilute or let level drop before use
+- Bromine stays effective across a wider pH band than chlorine, but still target 7.2–7.6 for swimmer comfort and
+  equipment protection — pH still governs scaling/corrosion (LSI) the same way regardless of sanitizer
+- Routine maintenance: bromine tablets (BCDMH) in a floater or feeder for continuous dosing
+- To boost/shock: use a non-chlorine shock (potassium monopersulfate / MPS) to oxidize spent bromide back into active
+  bromine — this is the standard "bromine reactivation" method and is distinct from chlorine shock
+- Bromine is the more common choice for spas/hot tubs specifically because it remains effective at high temperatures
+  where chlorine dissipates quickly
+- NEVER recommend chlorine-specific products (cal-hypo, trichlor, dichlor, liquid chlorine/sodium hypochlorite) for a
+  bromine system — flag as a conflict if the user's symptoms or notes mention having added one
+
 RESPONSE FORMAT — return ONLY valid JSON, no markdown, no text outside JSON:
 {
   "status": "safe" | "caution" | "critical",
@@ -339,7 +357,12 @@ export async function analyzeWater(input: AnalyzeInput): Promise<WaterAnalysis> 
   const experienceInstruction = getExperienceInstruction(input.experienceLevel)
 
   const isSaltPool = input.poolType === 'SALT'
-  const poolTypeLabel = isSaltPool ? 'Salt Water (SWG — Salt Chlorine Generator)' : 'Chlorine (traditional)'
+  const isBromine = input.poolType === 'BROMINE'
+  const poolTypeLabel = isSaltPool
+    ? 'Salt Water (SWG — Salt Chlorine Generator)'
+    : isBromine
+    ? 'Bromine'
+    : 'Chlorine (traditional)'
 
   const patternSummary = input.recentTests && input.recentTests.length >= 2
     ? detectPatterns(input.recentTests)
@@ -361,11 +384,11 @@ ${experienceInstruction}
 
 POOL PROFILE:
 - Pool size: ${input.gallons.toLocaleString()} gallons
-- Pool type: ${poolTypeLabel}${isSaltPool ? '\n- IMPORTANT: This is a SALT pool — apply SWG-specific advice above, do NOT recommend trichlor or dichlor pucks' : ''}
+- Pool type: ${poolTypeLabel}${isSaltPool ? '\n- IMPORTANT: This is a SALT pool — apply SWG-specific advice above, do NOT recommend trichlor or dichlor pucks' : ''}${isBromine ? '\n- IMPORTANT: This is a BROMINE pool/spa — apply the BROMINE POOL/SPA CONSIDERATIONS below. The "Free Chlorine" reading below is actually a BROMINE ppm reading (same test field, different sanitizer) — judge it against bromine\'s 3–5 ppm ideal range, NOT chlorine\'s 1–3 ppm range, and do NOT apply CYA-adjusted-minimum logic (bromine has no CYA/stabilizer equivalent). Never recommend chlorine-specific products (cal-hypo, trichlor, dichlor, liquid chlorine) for this pool.' : ''}
 
 WATER TEST RESULTS:
-- Free Chlorine: ${input.chlorine} ppm
-- Total Chlorine: ${input.totalChlorine != null ? `${input.totalChlorine} ppm` : 'Not tested'}${input.totalChlorine != null ? ` → Combined Chlorine (CC) = ${Math.max(0, input.totalChlorine - input.chlorine).toFixed(1)} ppm${(input.totalChlorine - input.chlorine) > 0.5 ? ' ⚠ CHLORAMINE PROBLEM — breakpoint shock required' : ''}` : ''}
+- ${isBromine ? 'Bromine' : 'Free Chlorine'}: ${input.chlorine} ppm
+- Total Chlorine: ${input.totalChlorine != null ? `${input.totalChlorine} ppm` : 'Not tested'}${input.totalChlorine != null && !isBromine ? ` → Combined Chlorine (CC) = ${Math.max(0, input.totalChlorine - input.chlorine).toFixed(1)} ppm${(input.totalChlorine - input.chlorine) > 0.5 ? ' ⚠ CHLORAMINE PROBLEM — breakpoint shock required' : ''}` : ''}
 - pH: ${input.pH}
 - Total Alkalinity: ${input.alkalinity} ppm
 - Calcium Hardness: ${input.calciumHardness != null ? `${input.calciumHardness} ppm` : 'Not tested'}
