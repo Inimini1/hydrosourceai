@@ -37,6 +37,16 @@ const nextConfig = {
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },
+  experimental: {
+    // pdfkit loads its AFM font files from node_modules at runtime via fs, not
+    // via a static import, so Vercel's serverless output-file tracing doesn't
+    // detect them and leaves them out of the deployed function bundle. Without
+    // this, PDF generation throws "ENOENT ... Helvetica.afm" in production
+    // only — it works locally because the files are still on disk there.
+    outputFileTracingIncludes: {
+      '/api/reports/send': ['./node_modules/pdfkit/js/data/**/*'],
+    },
+  },
 }
 
 module.exports = withSentryConfig(nextConfig, {
