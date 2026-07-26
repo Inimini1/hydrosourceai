@@ -38,11 +38,16 @@ const nextConfig = {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },
   experimental: {
-    // pdfkit loads its AFM font files from node_modules at runtime via fs, not
-    // via a static import, so Vercel's serverless output-file tracing doesn't
-    // detect them and leaves them out of the deployed function bundle. Without
-    // this, PDF generation throws "ENOENT ... Helvetica.afm" in production
-    // only — it works locally because the files are still on disk there.
+    // pdfkit resolves its AFM font files relative to its own __dirname at
+    // runtime. When webpack bundles pdfkit into the route's compiled chunk
+    // (the default), it rewrites __dirname to point at the bundle's own
+    // output directory instead of pdfkit's real location under
+    // node_modules/pdfkit/js — so it looks for "data/Helvetica.afm" in the
+    // wrong place and throws ENOENT, in production only. Keeping pdfkit
+    // external stops webpack from bundling/rewriting it, so its __dirname
+    // stays correct and it finds the files this outputFileTracingIncludes
+    // entry ensures are actually present in the deployed function.
+    serverComponentsExternalPackages: ['pdfkit'],
     outputFileTracingIncludes: {
       '/api/reports/send': ['./node_modules/pdfkit/js/data/**/*'],
     },
