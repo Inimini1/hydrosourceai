@@ -4,6 +4,7 @@ import { sendWaterReportEmail } from '@/lib/email'
 import { canSendEmailReports } from '@/lib/subscription'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { cyaAdjustedMinChlorine } from '@/lib/pool-chemistry-db'
+import PDFDocument from 'pdfkit'
 
 export const runtime = 'nodejs'
 
@@ -98,8 +99,6 @@ interface TestData {
 }
 
 async function generateReportPdf(test: TestData, a: Record<string, unknown>): Promise<Buffer> {
-  const PDFDocument = require('pdfkit') as typeof import('pdfkit')
-
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4', bufferPages: true })
     const chunks: Buffer[] = []
