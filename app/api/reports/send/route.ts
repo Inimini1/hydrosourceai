@@ -205,7 +205,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     const clMax = isBromine ? 5 : Math.max(3, clMin + 1)
 
     const readings: Array<{ label: string; ideal: string; val: number; unit: string; min: number; max: number; critMin?: number; critMax?: number }> = [
-      { label: isBromine ? 'Bromine' : 'Free Chlorine', ideal: `${clMin}–${clMax} ppm${!isBromine && test.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`, val: test.chlorine, unit: ' ppm', min: clMin, max: clMax, critMin: isBromine ? 2 : Math.min(0.5, clMin * 0.5), critMax: isBromine ? 10 : Math.max(5, clMax * 1.5) },
+      { label: isBromine ? 'Bromine' : 'Free Chlorine', ideal: `${clMin}–${clMax} ppm${!isBromine && test.cyanuricAcid != null ? ' (CYA-adj.)' : ''}`, val: test.chlorine, unit: ' ppm', min: clMin, max: clMax, critMin: isBromine ? 2 : Math.min(0.5, clMin * 0.5), critMax: 10 },
       { label: 'pH',            ideal: '7.2–7.6',    val: test.pH,                unit: '',     min: 7.2, max: 7.6, critMin: 7.0, critMax: 8.0 },
       { label: 'Alkalinity',    ideal: '80–120 ppm', val: test.alkalinity,        unit: ' ppm', min: 80,  max: 120, critMin: 60,  critMax: 150 },
       ...(test.calciumHardness != null ? [{ label: 'Ca. Hardness', ideal: '200–400 ppm', val: test.calciumHardness, unit: ' ppm', min: 200, max: 400 }] : []),

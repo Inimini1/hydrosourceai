@@ -15,6 +15,7 @@ import {
   SEASONAL_FACTORS,
   CHLORINE_DEMAND_FACTORS,
   LSI_REFERENCE,
+  cyaAdjustedMinChlorine,
 } from './pool-chemistry-db'
 import {
   VISUAL_DIAGNOSTIC_PATTERNS,
@@ -68,7 +69,7 @@ export function buildPoolContext(input: AnalyzeInput): string {
     const entry = CYA_CHLORINE_TABLE.reduce((closest, row) =>
       Math.abs(row.cya_ppm - cya) < Math.abs(closest.cya_ppm - cya) ? row : closest
     )
-    const effectiveCL = (cya * 0.075).toFixed(1)
+    const effectiveCL = cyaAdjustedMinChlorine(cya).toFixed(1)
     lines.push('── CYA / CHLORINE EFFECTIVENESS ─────────────────────────────')
     lines.push(`Pool CYA: ${cya} ppm`)
     lines.push(`Minimum effective free chlorine at CYA=${cya}: ${effectiveCL} ppm`)
@@ -227,7 +228,7 @@ export function buildPoolContext(input: AnalyzeInput): string {
   lines.push('── PARAMETER EFFECTS REFERENCE ──────────────────────────────')
   const paramsToDetail: Array<[string, number, number, number]> = [
     ['free_chlorine', input.chlorine, 1, 3],
-    ['pH', input.pH, 7.4, 7.6],
+    ['pH', input.pH, 7.2, 7.6],
     ['total_alkalinity', input.alkalinity, 80, 120],
   ]
   if (input.calciumHardness != null) paramsToDetail.push(['calcium_hardness', input.calciumHardness, 200, 400])
@@ -358,7 +359,7 @@ export function buildPoolContext(input: AnalyzeInput): string {
     if (cond.includes('< 0.5') && input.chlorine < 0.5) return true
     if (cond.includes('> 10') && input.chlorine > 10) return true
     if (cond.includes('pH < 7.0') && input.pH < 7.0) return true
-    if (cond.includes('pH > 8.5') && input.pH > 8.5) return true
+    if (cond.includes('pH > 8.0') && input.pH > 8.0) return true
     if (cond.includes('Green') && symptomText.includes('green')) return true
     return false
   })
@@ -382,7 +383,7 @@ export function buildPoolContext(input: AnalyzeInput): string {
   // ── 9. ADJUSTMENT SEQUENCE REMINDER ──────────────────────────────────────
   const outOfRange = [
     input.alkalinity < 80 || input.alkalinity > 120,
-    input.pH < 7.4 || input.pH > 7.6,
+    input.pH < 7.2 || input.pH > 7.6,
     input.chlorine < 1 || input.chlorine > 5,
   ]
   if (outOfRange.some(Boolean)) {
