@@ -10,13 +10,18 @@ export async function DELETE(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
   const { password } = body
 
-  if (password) {
-    const { error: verifyError } = await supabase.auth.signInWithPassword({
-      email: user.email!,
-      password,
-    })
-    if (verifyError) return NextResponse.json({ error: 'Incorrect password.' }, { status: 400 })
+  // Password re-verification is mandatory, not optional — without this, a
+  // hijacked session (stolen cookie, XSS) could delete the account without
+  // ever proving the caller knows the password, since an empty/omitted
+  // field would otherwise silently skip the check entirely.
+  if (!password) {
+    return NextResponse.json({ error: 'Password confirmation is required.' }, { status: 400 })
   }
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email!,
+    password,
+  })
+  if (verifyError) return NextResponse.json({ error: 'Incorrect password.' }, { status: 400 })
 
   const admin = createAdminClient()
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id)

@@ -7,6 +7,20 @@ interface EmailAttachment {
   content: string // base64-encoded
 }
 
+/** Escapes user-supplied text before interpolating into an HTML email body.
+ *  Feedback messages, names, and page URLs all originate from public,
+ *  unauthenticated form submissions — without this, an attacker could inject
+ *  tracking pixels, phishing links, or broken layout into emails opened in
+ *  the founder's inbox. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 async function send(to: string, subject: string, html: string, attachments?: EmailAttachment[]) {
   if (!process.env.RESEND_API_KEY) {
     console.log(`\n[HydroSource Email — dev mode]\nTo: ${to}\nSubject: ${subject}\n`)
@@ -111,7 +125,7 @@ export async function sendWaterReportEmail(
         <span style="font-size:24px">📊</span>
       </div>
       <h2 style="color:#0F172A;margin:0 0 8px;font-size:22px">Water Quality Report</h2>
-      <p style="color:#64748B;margin:0;font-size:14px">${poolName} · ${dateStr}</p>
+      <p style="color:#64748B;margin:0;font-size:14px">${escapeHtml(poolName)} · ${dateStr}</p>
     </div>
     <p style="color:#475569;margin:0 0 20px;line-height:1.7;font-size:14px">
       Your HydroSource water analysis report is attached as a PDF. It includes your full diagnosis, immediate action plan, chemical dosing guide, and treatment recommendations.
@@ -143,7 +157,7 @@ export async function sendBetaWelcomeEmail(to: string, name: string, signupUrl: 
         <span style="font-size:24px">🧪</span>
       </div>
       <h2 style="color:#0F172A;margin:0 0 8px;font-size:22px">You're in — Beta Access Granted</h2>
-      <p style="color:#64748B;margin:0;font-size:14px">Welcome to the HydroSource private beta, ${name.split(' ')[0]}.</p>
+      <p style="color:#64748B;margin:0;font-size:14px">Welcome to the HydroSource private beta, ${escapeHtml(name.split(' ')[0])}.</p>
     </div>
     <p style="color:#475569;margin:0 0 20px;line-height:1.7;font-size:14px">
       Your beta access includes all Pro features completely free. Use the button below to create your account — this link is unique to you and expires with your beta access.
@@ -177,9 +191,9 @@ export async function sendBetaNotificationToOwner(
     <p style="color:#64748B;margin:0 0 20px;font-size:14px">A new user has applied for beta access through your invite form.</p>
     <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin-bottom:20px">
       ${[
-        ['Name', name],
-        ['Company / Org', company || 'Individual'],
-        ['Email', email],
+        ['Name', escapeHtml(name)],
+        ['Company / Org', escapeHtml(company || 'Individual')],
+        ['Email', escapeHtml(email)],
         ['Beta Expires', expiresStr],
       ].map(([label, value], i) => `
         <div style="display:flex;padding:12px 16px;${i > 0 ? 'border-top:1px solid #E2E8F0;' : ''}background:${i % 2 === 0 ? '#F8FAFC' : '#FFFFFF'}">
@@ -205,9 +219,9 @@ export async function sendFeedbackNotificationEmail(
     <h2 style="color:#0F172A;margin:0 0 8px">New Beta Feedback</h2>
     <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin:20px 0">
       ${[
-        ['From', fromEmail ?? 'Anonymous'],
-        ['Category', category],
-        ['Page', pageUrl ?? 'unknown'],
+        ['From', escapeHtml(fromEmail ?? 'Anonymous')],
+        ['Category', escapeHtml(category)],
+        ['Page', escapeHtml(pageUrl ?? 'unknown')],
       ].map(([label, value], i) => `
         <div style="display:flex;padding:12px 16px;${i > 0 ? 'border-top:1px solid #E2E8F0;' : ''}background:${i % 2 === 0 ? '#F8FAFC' : '#FFFFFF'}">
           <span style="color:#64748B;font-size:13px;font-weight:600;min-width:100px">${label}</span>
@@ -216,7 +230,7 @@ export async function sendFeedbackNotificationEmail(
       `).join('')}
     </div>
     <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px;margin-bottom:16px">
-      <p style="color:#166534;margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap">${message}</p>
+      <p style="color:#166534;margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap">${escapeHtml(message)}</p>
     </div>
     <p style="color:#94A3B8;font-size:12px;margin:0;text-align:center">
       Reply to this email to respond directly to the user.
