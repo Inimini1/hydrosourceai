@@ -153,7 +153,6 @@ export default function BillingPage() {
               { label: 'Maintenance log & treatment checklists', included: sub?.features.maintenanceLog ?? false },
               { label: 'PDF report export', included: sub?.features.pdfReports ?? false },
               { label: 'Email report delivery', included: sub?.features.emailReports ?? false },
-              { label: 'Team members', included: sub?.features.teamMembers ?? false },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2.5 text-sm">
                 {item.included ? (
