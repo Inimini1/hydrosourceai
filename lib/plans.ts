@@ -214,21 +214,20 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
       pdfReports: true,
       emailReports: true,
       maintenanceLog: true,
-      teamMembers: true,
-      brandedReports: true,
-      rbac: true,
+      teamMembers: false,
+      brandedReports: false,
+      rbac: false,
       apiAccess: false,
       trial: true,
       trialDays: 14,
     },
+    // Multi-technician accounts, RBAC, and branded-report logos are not built
+    // yet — do not re-add those claims here until they actually ship.
     highlights: [
       'Up to 300 pool profiles',
-      'Multiple technician accounts',
-      'Shared records & team collaboration',
-      'Role-based access control',
-      'Branded reports with company logo',
+      'Unlimited analyses & treatment logs',
       'Maintenance log with treatment checklists',
-      'Technician activity tracking',
+      'Email delivery to clients',
       '14-day free trial — no card required',
     ],
     cta: 'Start Free Trial',
@@ -250,20 +249,23 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
       pdfReports: true,
       emailReports: true,
       maintenanceLog: true,
-      teamMembers: true,
-      brandedReports: true,
-      rbac: true,
-      apiAccess: true,
+      teamMembers: false,
+      brandedReports: false,
+      rbac: false,
+      apiAccess: false,
       trial: false,
       trialDays: 0,
     },
+    // API access, team accounts, and RBAC are not built yet — this tier is
+    // sold as a bespoke/contact-sales engagement (custom onboarding, a
+    // dedicated contact, negotiated reporting), not a self-serve feature set.
+    // Do not re-add "API access" here until it's a real, working API.
     highlights: [
       'Unlimited pool profiles',
       'Custom onboarding & training',
-      'API access for custom integrations',
       'Dedicated account manager',
       'Custom reporting & branding',
-      'SLA & priority support',
+      'Priority support',
     ],
     cta: 'Contact Sales',
     accentColor: '#F59E0B',
@@ -359,8 +361,8 @@ export const COMPARISON_FEATURES: {
   { label: 'PDF reports',                key: 'pdfReports',         format: 'boolean'},
   { label: 'Email report delivery',      key: 'emailReports',       format: 'boolean'},
   { label: 'Maintenance log & checklists',key:'maintenanceLog',     format: 'boolean'},
-  { label: 'Team members',               key: 'teamMembers',        format: 'boolean'},
-  { label: 'Branded reports',            key: 'brandedReports',     format: 'boolean'},
-  { label: 'Role-based access',          key: 'rbac',               format: 'boolean'},
-  { label: 'API access',                 key: 'apiAccess',          format: 'boolean'},
 ]
+// Team members, branded reports, RBAC, and API access were removed from this
+// table — none of those are built yet, and a comparison row where every plan
+// shows the same "not included" is worse than no row at all. Add them back
+// only once the underlying feature is real.
