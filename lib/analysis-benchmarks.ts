@@ -72,7 +72,7 @@ export const BENCHMARK_SCENARIOS: BenchmarkScenario[] = [
   {
     id: 'sc-03',
     name: 'CYA-adjusted chlorine failure (FC=2, CYA=60)',
-    rationale: 'With CYA=60, minimum FC must be 5 ppm. FC=2 is effectively uncovered — must flag critical or caution',
+    rationale: 'With CYA=60, minimum FC must be 4.5 ppm. FC=2 is effectively uncovered — must flag critical or caution',
     input: { ...BASE, chlorine: 2, pH: 7.4, alkalinity: 100, cyanuricAcid: 60 },
     assertions: [
       { field: 'status',    expect: 'critical', description: 'CYA=60 requires FC≥5 — FC=2 is critically low on adjusted scale' },

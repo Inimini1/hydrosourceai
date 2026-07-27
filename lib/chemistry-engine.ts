@@ -13,7 +13,7 @@
  * All amounts are calculated precisely for the given pool volume.
  */
 
-import { LSI_REFERENCE } from './pool-chemistry-db'
+import { LSI_REFERENCE, cyaAdjustedMinChlorine } from './pool-chemistry-db'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INTERNAL HELPERS
@@ -570,8 +570,9 @@ export interface WaterBalanceReport {
   fcCYARatio: number | null
 
   /**
-   * Minimum effective free chlorine for the current CYA level.
-   * Formula: minFC = CYA × 0.075 (PHTA / TFP standard).
+   * Minimum effective free chlorine for the current CYA level, from the same
+   * CYA_CHLORINE_TABLE interpolation used by the UI and AI prompt — kept as a
+   * single source of truth rather than a separately re-derived percentage.
    * null if CYA not provided.
    */
   minEffectiveFC: number | null
@@ -621,7 +622,7 @@ export function calculateWaterBalance(input: WaterBalanceInput): WaterBalanceRep
     : null
 
   const minEffectiveFC = (input.cyanuricAcid != null && input.cyanuricAcid > 0)
-    ? parseFloat((input.cyanuricAcid * 0.075).toFixed(2))
+    ? cyaAdjustedMinChlorine(input.cyanuricAcid)
     : null
 
   return {

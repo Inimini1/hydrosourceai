@@ -96,7 +96,7 @@ function HealthRing({ score, color }: { score: number; color: string }) {
 
 // ── Readings ideal ranges ────────────────────────────────────────────────────
 const RANGES: Record<string, { label: string; unit: string; ideal: string; min: number; max: number; critMin?: number; critMax?: number }> = {
-  chlorine:        { label: 'Free Chlorine', unit: 'ppm', ideal: '1–3',      min: 1,   max: 3,   critMin: 0.5, critMax: 5 },
+  chlorine:        { label: 'Free Chlorine', unit: 'ppm', ideal: '1–3',      min: 1,   max: 3,   critMin: 0.5, critMax: 10 },
   pH:              { label: 'pH',            unit: '',    ideal: '7.2–7.6',   min: 7.2, max: 7.6, critMin: 7.0, critMax: 8.0 },
   alkalinity:      { label: 'Alkalinity',    unit: 'ppm', ideal: '80–120',    min: 80,  max: 120, critMin: 60,  critMax: 150 },
   calciumHardness: { label: 'Ca. Hardness',  unit: 'ppm', ideal: '200–400',   min: 200, max: 400 },

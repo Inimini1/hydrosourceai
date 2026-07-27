@@ -473,7 +473,7 @@ export const BATHER_SAFETY = {
     { condition: 'Free Chlorine < 0.5 ppm', reason: 'Inadequate sanitization — pathogens including E. coli and Giardia survive', risk: 'Illness' },
     { condition: 'Free Chlorine > 10 ppm', reason: 'Chemical burn risk to skin, eyes, and respiratory tract', risk: 'Injury' },
     { condition: 'pH < 7.0', reason: 'Severely acidic — causes eye burns, skin irritation, and corrodes equipment rapidly', risk: 'Injury' },
-    { condition: 'pH > 8.5', reason: 'Chlorine essentially non-functional — unsanitized water', risk: 'Illness' },
+    { condition: 'pH > 8.0', reason: 'Chlorine ~80% ineffective — inadequately sanitized water', risk: 'Illness' },
     { condition: 'Green or dark water', reason: 'Active algae bloom — potential bacterial contamination', risk: 'Illness' },
     { condition: 'Visible foam or strong chemical odor', reason: 'Indicates chloramine buildup or chemical imbalance', risk: 'Respiratory irritation' },
   ],
