@@ -1,10 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
-
-const FOUNDER_EMAIL = 'to.iniyan@gmail.com'
 
 type FeedbackStatus = 'new' | 'reviewed' | 'actioned' | 'closed'
 type Category = 'bug' | 'feature' | 'ux' | 'pricing' | 'general'
@@ -44,20 +42,41 @@ function timeAgo(iso: string) {
 }
 
 export default function FounderFeedbackPage() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
+  const { loading: authLoading } = useAuth()
   const [items, setItems]             = useState<FeedbackItem[]>([])
   const [filter, setFilter]           = useState<FeedbackStatus | 'all'>('all')
   const [fetching, setFetching]       = useState(true)
+  const [accessDenied, setAccessDenied] = useState(false)
   const [expanded, setExpanded]       = useState<string | null>(null)
   const [note, setNote]               = useState('')
   const [saving, setSaving]           = useState(false)
+  const [copiedId, setCopiedId]       = useState<string | null>(null)
 
+  function copyFeedback(item: FeedbackItem) {
+    const text = [
+      `From: ${item.user_email ?? 'Anonymous'}`,
+      `Category: ${item.category}`,
+      item.page_url ? `Page: ${item.page_url}` : null,
+      `Date: ${new Date(item.created_at).toLocaleString()}`,
+      '',
+      item.message,
+    ].filter(Boolean).join('\n')
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(item.id)
+      setTimeout(() => setCopiedId((id) => id === item.id ? null : id), 2000)
+    })
+  }
+
+  // Access is enforced server-side against FOUNDER_EMAIL (GET /api/feedback
+  // returns 403 for anyone else) — that's the single source of truth, so this
+  // page doesn't duplicate the founder's email as a second client-side check.
   const fetchFeedback = useCallback(async () => {
     setFetching(true)
     const qs = filter !== 'all' ? `?status=${filter}` : ''
     const res = await fetch(`/api/feedback${qs}`)
-    if (res.ok) {
+    if (res.status === 403) {
+      setAccessDenied(true)
+    } else if (res.ok) {
       const data = await res.json()
       setItems(data.feedback ?? [])
     }
@@ -65,14 +84,8 @@ export default function FounderFeedbackPage() {
   }, [filter])
 
   useEffect(() => {
-    if (!authLoading && user?.email !== FOUNDER_EMAIL) {
-      router.replace('/')
-    }
-  }, [user, authLoading, router])
-
-  useEffect(() => {
-    if (user?.email === FOUNDER_EMAIL) fetchFeedback()
-  }, [user, fetchFeedback])
+    if (!authLoading) fetchFeedback()
+  }, [authLoading, fetchFeedback])
 
   async function updateStatus(id: string, status: FeedbackStatus) {
     setSaving(true)
@@ -96,8 +109,18 @@ export default function FounderFeedbackPage() {
     setSaving(false)
   }
 
-  if (authLoading || user?.email !== FOUNDER_EMAIL) {
+  if (authLoading || (fetching && !accessDenied)) {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">Loading…</div>
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4 text-center gap-3">
+        <p className="text-slate-700 font-semibold">This page is restricted to the founder account.</p>
+        <p className="text-sm text-slate-400">Sign in with the account set as FOUNDER_EMAIL to view feedback.</p>
+        <Link href="/dashboard" className="text-sm font-semibold text-teal-600 hover:text-teal-700">← Back to dashboard</Link>
+      </div>
+    )
   }
 
   const counts = items.reduce((acc, i) => { acc[i.status] = (acc[i.status] ?? 0) + 1; return acc }, {} as Record<string, number>)
@@ -194,7 +217,7 @@ export default function FounderFeedbackPage() {
                     <p className="text-xs mb-3 text-slate-400">Page: {item.page_url}</p>
                   )}
 
-                  {/* Status buttons */}
+                  {/* Status buttons + copy */}
                   <div className="flex gap-2 flex-wrap mb-4">
                     {(['new','reviewed','actioned','closed'] as FeedbackStatus[]).map((s) => (
                       <button key={s} onClick={() => updateStatus(item.id, s)} disabled={saving}
@@ -207,6 +230,28 @@ export default function FounderFeedbackPage() {
                         {s}
                       </button>
                     ))}
+                    <button onClick={() => copyFeedback(item)}
+                      className="ml-auto px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
+                      style={{
+                        background: copiedId === item.id ? 'rgba(0,201,177,0.12)' : 'rgba(0,0,0,0.04)',
+                        color: copiedId === item.id ? '#00A99A' : '#64748b',
+                      }}>
+                      {copiedId === item.id ? (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Copy
+                        </>
+                      )}
+                    </button>
                   </div>
 
                   {/* Founder note */}

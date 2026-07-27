@@ -46,8 +46,17 @@ export default function AccountPage() {
   const [pwError, setPwError] = useState('')
   const [pwSuccess, setPwSuccess] = useState(false)
 
+  const [isFounder, setIsFounder] = useState(false)
+
   useEffect(() => {
     fetch('/api/usage').then((r) => r.json()).then((d) => setUsage(d)).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    // The feedback inbox is gated server-side by FOUNDER_EMAIL — probing with a
+    // cheap GET is the single source of truth for whether to show the link,
+    // instead of duplicating that email as a second, driftable constant here.
+    fetch('/api/feedback?limit=1').then((r) => setIsFounder(r.ok)).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -301,6 +310,30 @@ export default function AccountPage() {
             </button>
           </form>
         </div>
+
+        {/* Founder tools — only visible to the account whose email matches FOUNDER_EMAIL */}
+        {isFounder && (
+          <Link
+            href="/admin/feedback"
+            className="card-light p-5 rounded-3xl flex items-center justify-between gap-3 transition-all hover:bg-slate-50"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(0,111,255,0.10)' }}>
+                <svg className="w-5 h-5" style={{ color: '#006FFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4v-4z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-800">Feedback Inbox</p>
+                <p className="text-xs text-slate-400 mt-0.5">View and manage user feedback</p>
+              </div>
+            </div>
+            <svg className="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        )}
 
         {/* Danger zone */}
         <div className="rounded-3xl border p-5"
