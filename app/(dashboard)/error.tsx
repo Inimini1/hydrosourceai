@@ -16,9 +16,9 @@ export default function DashboardError({
     console.error(error)
   }, [error])
 
-  const subject = encodeURIComponent('HydroSource — Page Error')
+  const subject = encodeURIComponent('HydroSource AI — Page Error')
   const body = encodeURIComponent(
-    `Hi support,\n\nI hit an error on HydroSource.\n\nError: ${error.message ?? 'Unknown error'}\nDigest: ${error.digest ?? 'N/A'}\nPage: ${typeof window !== 'undefined' ? window.location.pathname : 'unknown'}\n\nPlease help!\n`
+    `Hi support,\n\nI hit an error on HydroSource AI.\n\nError: ${error.message ?? 'Unknown error'}\nDigest: ${error.digest ?? 'N/A'}\nPage: ${typeof window !== 'undefined' ? window.location.pathname : 'unknown'}\n\nPlease help!\n`
   )
 
   return (

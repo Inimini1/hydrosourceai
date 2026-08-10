@@ -582,7 +582,7 @@ export default function AddTestPage() {
             </button>
             <div>
               <h1 className="font-display text-xl font-bold text-slate-900">Water Analysis</h1>
-              <p className="text-xs text-slate-400 uppercase tracking-wider">HydroSource Diagnostic Report</p>
+              <p className="text-xs text-slate-400 uppercase tracking-wider">HydroSource AI Diagnostic Report</p>
             </div>
           </div>
 

@@ -88,7 +88,7 @@ function LoginContent() {
     <div className="w-full max-w-sm animate-in">
       <div className="text-center mb-8">
         <h1 className="font-display text-3xl font-bold text-slate-900 mb-2">Welcome back</h1>
-        <p className="text-slate-500 text-sm">Sign in to your HydroSource account</p>
+        <p className="text-slate-500 text-sm">Sign in to your HydroSource AI account</p>
       </div>
 
       <div className="card-glass p-7 rounded-3xl space-y-4">

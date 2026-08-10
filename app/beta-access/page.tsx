@@ -84,7 +84,7 @@ export default function BetaAccessPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2.5 mb-6">
             <PoolLensIcon size={40} variant="light" />
-            <span className="font-display font-bold text-slate-900 text-xl tracking-tight">HydroSource</span>
+            <span className="font-display font-bold text-slate-900 text-xl tracking-tight">HydroSource AI</span>
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 mb-4 text-xs font-bold tracking-wider"
             style={{ background: 'rgba(0,201,177,0.08)', border: '1px solid rgba(0,201,177,0.25)', color: '#00A99A' }}>
@@ -176,7 +176,7 @@ export default function BetaAccessPage() {
                 )}
               </button>
               <span className="text-slate-600 text-xs leading-relaxed">
-                I understand that this application and the HydroSource beta domain are <span className="text-slate-800 font-semibold">strictly confidential</span>. I will not share this URL, my access link, or any account credentials with anyone outside my organization. I understand that doing so may result in immediate revocation of access without notice.
+                I understand that this application and the HydroSource AI beta domain are <span className="text-slate-800 font-semibold">strictly confidential</span>. I will not share this URL, my access link, or any account credentials with anyone outside my organization. I understand that doing so may result in immediate revocation of access without notice.
               </span>
             </label>
           </div>

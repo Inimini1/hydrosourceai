@@ -131,7 +131,7 @@ export default function FounderFeedbackPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Founder Inbox</h1>
         <p className="text-sm text-slate-500">
-          HydroSource user feedback — {items.length} total
+          HydroSource AI user feedback — {items.length} total
         </p>
         {/* Stats row */}
         <div className="flex gap-3 mt-4 flex-wrap">

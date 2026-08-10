@@ -91,7 +91,7 @@ export default async function LandingPage() {
                 </linearGradient>
               </defs>
             </svg>
-            <span className="font-display font-bold text-[17px] tracking-tight wordmark-gradient">HydroSource</span>
+            <span className="font-display font-bold text-[17px] tracking-tight wordmark-gradient">HydroSource AI</span>
           </div>
           <div className="flex items-center gap-1.5">
             <a href="mailto:hydrosource.ai@appscloud365.com"
@@ -466,7 +466,7 @@ export default async function LandingPage() {
                 </defs>
               </svg>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-xs text-slate-400">
-                <span className="wordmark-gradient font-semibold text-sm">HydroSource</span>
+                <span className="wordmark-gradient font-semibold text-sm">HydroSource AI</span>
                 <span className="hidden sm:inline text-slate-300">·</span>
                 <span>© {new Date().getFullYear()} All rights reserved.</span>
               </div>

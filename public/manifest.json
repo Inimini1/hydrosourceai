@@ -1,7 +1,7 @@
 {
-  "name": "HydroSource",
+  "name": "HydroSource AI",
   "short_name": "HydroSource",
-  "description": "AI-powered pool water chemistry analysis and service tracking",
+  "description": "Pool water chemistry analysis and service tracking",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",

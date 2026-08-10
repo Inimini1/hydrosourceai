@@ -1,4 +1,4 @@
-const FROM    = process.env.EMAIL_FROM    ?? 'HydroSource <noreply@hydrosource.appscloud365.com>'
+const FROM    = process.env.EMAIL_FROM    ?? 'HydroSource AI <noreply@hydrosource.appscloud365.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
 const SUPPORT = process.env.SUPPORT_EMAIL ?? 'hydrosource.ai@appscloud365.com'
 
@@ -87,7 +87,7 @@ function baseTemplate(content: string) {
       ${content}
     </div>
     <p style="text-align:center;color:#94A3B8;font-size:12px;margin-top:24px">
-      © ${new Date().getFullYear()} HydroSource · You're receiving this because you signed up at <a href="${APP_URL}" style="color:#94A3B8">${APP_URL.replace('https://', '')}</a>
+      © ${new Date().getFullYear()} HydroSource AI · You're receiving this because you signed up at <a href="${APP_URL}" style="color:#94A3B8">${APP_URL.replace('https://', '')}</a>
     </p>
   </div>
 </body>
@@ -107,7 +107,7 @@ export async function sendVerificationEmail(email: string, verifyUrl: string) {
       Link expires in 24 hours. If you didn't create an account, you can safely ignore this.
     </p>
   `)
-  await send(email, 'Verify your HydroSource email', html)
+  await send(email, 'Verify your HydroSource AI email', html)
 }
 
 export async function sendWaterReportEmail(
@@ -117,7 +117,7 @@ export async function sendWaterReportEmail(
   pdfBuffer: Buffer
 ) {
   const dateStr = testDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-  const filename = `HydroSource-report-${poolName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${testDate.toISOString().split('T')[0]}.pdf`
+  const filename = `HydroSource-AI-report-${poolName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${testDate.toISOString().split('T')[0]}.pdf`
 
   const html = baseTemplate(`
     <div style="text-align:center;margin-bottom:28px">
@@ -128,7 +128,7 @@ export async function sendWaterReportEmail(
       <p style="color:#64748B;margin:0;font-size:14px">${escapeHtml(poolName)} · ${dateStr}</p>
     </div>
     <p style="color:#475569;margin:0 0 20px;line-height:1.7;font-size:14px">
-      Your HydroSource water analysis report is attached as a PDF. It includes your full diagnosis, immediate action plan, chemical dosing guide, and treatment recommendations.
+      Your HydroSource AI water analysis report is attached as a PDF. It includes your full diagnosis, immediate action plan, chemical dosing guide, and treatment recommendations.
     </p>
     <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:14px 16px;margin-bottom:24px">
       <p style="color:#166534;margin:0;font-size:13px;font-weight:600">📎 Attachment: ${filename}</p>
@@ -140,7 +140,7 @@ export async function sendWaterReportEmail(
 
   await send(
     to,
-    `HydroSource — ${poolName} Water Report (${dateStr})`,
+    `HydroSource AI — ${poolName} Water Report (${dateStr})`,
     html,
     [{ filename, content: pdfBuffer.toString('base64') }]
   )
@@ -157,7 +157,7 @@ export async function sendBetaWelcomeEmail(to: string, name: string, signupUrl: 
         <span style="font-size:24px">🧪</span>
       </div>
       <h2 style="color:#0F172A;margin:0 0 8px;font-size:22px">You're in — Beta Access Granted</h2>
-      <p style="color:#64748B;margin:0;font-size:14px">Welcome to the HydroSource private beta, ${escapeHtml(name.split(' ')[0])}.</p>
+      <p style="color:#64748B;margin:0;font-size:14px">Welcome to the HydroSource AI private beta, ${escapeHtml(name.split(' ')[0])}.</p>
     </div>
     <p style="color:#475569;margin:0 0 20px;line-height:1.7;font-size:14px">
       Your beta access includes all Pro features completely free. Use the button below to create your account — this link is unique to you and expires with your beta access.
@@ -170,13 +170,13 @@ export async function sendBetaWelcomeEmail(to: string, name: string, signupUrl: 
     </div>
     <div style="background:#FFF1F2;border:1px solid #FECDD3;border-radius:12px;padding:14px 16px;margin-bottom:20px">
       <p style="color:#991B1B;margin:0;font-size:13px;font-weight:700">🔒 Confidentiality Reminder</p>
-      <p style="color:#9F1239;margin:6px 0 0;font-size:12px;line-height:1.6">This link and the HydroSource domain are confidential to you and your organization. Please do not share the URL, this email, or any access credentials with anyone outside your organization. Violation may result in immediate access revocation.</p>
+      <p style="color:#9F1239;margin:6px 0 0;font-size:12px;line-height:1.6">This link and the HydroSource AI domain are confidential to you and your organization. Please do not share the URL, this email, or any access credentials with anyone outside your organization. Violation may result in immediate access revocation.</p>
     </div>
     <p style="color:#94A3B8;font-size:12px;margin:0;text-align:center">
       Questions? Contact us at <a href="mailto:${SUPPORT}" style="color:#006FFF">${SUPPORT}</a>
     </p>
   `)
-  await send(to, 'HydroSource Beta Access — Create Your Account', html)
+  await send(to, 'HydroSource AI Beta Access — Create Your Account', html)
 }
 
 export async function sendBetaNotificationToOwner(
@@ -252,5 +252,5 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
       If you didn't request this, you can safely ignore this email.
     </p>
   `)
-  await send(email, 'Reset your HydroSource password', html)
+  await send(email, 'Reset your HydroSource AI password', html)
 }

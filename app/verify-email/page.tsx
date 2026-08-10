@@ -42,7 +42,7 @@ function VerifyContent() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center gap-2">
             <HydroSourceLogo size={40} variant="light" />
-            <span className="font-bold text-2xl text-slate-900">HydroSource</span>
+            <span className="font-bold text-2xl text-slate-900">HydroSource AI</span>
           </Link>
         </div>
 

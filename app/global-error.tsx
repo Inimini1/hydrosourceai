@@ -15,9 +15,9 @@ export default function GlobalError({
     console.error('Global error:', error)
   }, [error])
 
-  const subject = encodeURIComponent('HydroSource — Critical App Error')
+  const subject = encodeURIComponent('HydroSource AI — Critical App Error')
   const body = encodeURIComponent(
-    `Hi support,\n\nHydroSource crashed completely for me.\n\nError: ${error.message ?? 'Unknown'}\nDigest: ${error.digest ?? 'N/A'}\n\nPlease help!\n`
+    `Hi support,\n\nHydroSource AI crashed completely for me.\n\nError: ${error.message ?? 'Unknown'}\nDigest: ${error.digest ?? 'N/A'}\n\nPlease help!\n`
   )
 
   return (
@@ -42,7 +42,7 @@ export default function GlobalError({
             Critical Error
           </p>
           <h1 style={{ color: '#0f172a', fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
-            HydroSource ran into a problem
+            HydroSource AI ran into a problem
           </h1>
           <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
             Something unexpected went wrong at the app level. Your pool data is stored safely — this is just a display issue.

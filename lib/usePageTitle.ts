@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 
-const BASE = 'HydroSource'
+const BASE = 'HydroSource AI'
 
 export function usePageTitle(title: string) {
   useEffect(() => {
