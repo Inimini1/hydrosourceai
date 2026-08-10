@@ -11,15 +11,18 @@ export default async function LandingPage() {
     {
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-          <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
-          <path d="M12 12l3-3m0 0l3 3m-3-3v6" />
+          <path d="M4 7h16M4 7l1.5 12a2 2 0 002 1.8h9a2 2 0 002-1.8L20 7M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
         </svg>
       ),
       iconBg: 'rgba(0,201,177,0.10)',
       iconBorder: 'rgba(0,201,177,0.20)',
       iconColor: '#00A99A',
-      title: 'AI Water Analysis',
-      desc: 'Enter your readings — chlorine, pH, alkalinity, calcium hardness — and get an instant Gemini AI diagnosis with exact dosing instructions. No chemistry degree needed.',
+      title: 'Scan Your Test Strip',
+      bullets: [
+        'Snap a photo. Get instant readings.',
+        'Exact product and amount for your pool size.',
+        'No manual color-matching guesswork.',
+      ],
     },
     {
       icon: (
@@ -31,7 +34,11 @@ export default async function LandingPage() {
       iconBorder: 'rgba(0,111,255,0.15)',
       iconColor: '#006FFF',
       title: 'Full Service History',
-      desc: 'Every chemical added, every visit logged, every reading tracked. Your complete pool history in a searchable timeline — invaluable for troubleshooting and selling the house.',
+      bullets: [
+        'Every test, logged automatically.',
+        'Every chemical added, tracked.',
+        'One searchable timeline, always up to date.',
+      ],
     },
     {
       icon: (
@@ -43,22 +50,25 @@ export default async function LandingPage() {
       iconBorder: 'rgba(245,158,11,0.15)',
       iconColor: '#D97706',
       title: 'Safety Alerts',
-      desc: 'Critical readings trigger real-time in-app notifications. Know the moment chlorine drops dangerously low or pH goes out of range — before anyone gets in the water.',
+      bullets: [
+        'Instant alert when chlorine drops too low.',
+        'Instant alert when pH swings out of range.',
+        'Know before anyone swims.',
+      ],
     },
   ]
 
   const steps = [
-    { n: '01', title: 'Test your water', body: 'Use any standard test kit or test strips. Record the numbers you see.' },
-    { n: '02', title: 'Enter your readings', body: 'Input chlorine, pH, alkalinity, and more into HydroSource in seconds.' },
-    { n: '03', title: 'Get your fix plan', body: 'Gemini AI analyzes your readings and gives you exact products and quantities to add.' },
+    { n: '01', title: 'Test your water', body: 'Use any standard test kit or test strips. Record what you see.' },
+    { n: '02', title: 'Enter your readings', body: 'Chlorine, pH, alkalinity, and more. Takes seconds.' },
+    { n: '03', title: 'Get your fix plan', body: 'Exact products and quantities, calculated for your pool size.' },
   ]
 
   const tickerItems = [
-    'Powered by Google Gemini AI',
     'Free during beta',
     'Real-time safety alerts',
     'No credit card needed',
-    'AI water diagnosis',
+    'Instant water diagnosis',
     'Full service history',
     'Encrypted & private',
     'iOS & Android coming soon',
@@ -135,35 +145,29 @@ export default async function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
                 Now in Beta
               </span>
-              {/* Google Gemini attribution — text only per Google API terms (no official logo) */}
-              <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide"
-                style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', color: '#64748b' }}>
-                <span className="flex items-center gap-0.5">
-                  <span className="w-2 h-2 rounded-full" style={{ background: '#4285F4' }} />
-                  <span className="w-2 h-2 rounded-full" style={{ background: '#EA4335' }} />
-                  <span className="w-2 h-2 rounded-full" style={{ background: '#FBBC04' }} />
-                  <span className="w-2 h-2 rounded-full" style={{ background: '#34A853' }} />
-                </span>
-                AI powered by Google Gemini
-              </span>
             </div>
 
             <h1 className="font-display font-bold text-slate-900 leading-[1.04] mb-6 tracking-tight animate-in-delay-1"
               style={{ fontSize: 'clamp(2.6rem, 5.5vw, 4.2rem)' }}>
               Your pool chemistry,{' '}
-              <span className="gradient-text-vivid">perfected by AI.</span>
+              <span className="gradient-text-vivid">perfected.</span>
             </h1>
 
-            <p className="text-lg text-slate-500 mb-8 max-w-[520px] leading-relaxed animate-in-delay-2" style={{ fontWeight: 400 }}>
-              Know exactly what to add, when to add it, and why.
-              No guessing. No algae. No expensive pool store visits.
-              Just crystal-clear water, every time.
-            </p>
+            <ul className="mb-8 max-w-[480px] animate-in-delay-2 space-y-2.5">
+              {['Know exactly what to add.', 'Know exactly when to add it.', 'Crystal-clear water, every time.'].map((line) => (
+                <li key={line} className="flex items-center gap-2.5 text-lg text-slate-600" style={{ fontWeight: 450 }}>
+                  <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#00A99A' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                  {line}
+                </li>
+              ))}
+            </ul>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6 animate-in-delay-3">
               <Link href="/signup"
                 className="btn-shimmer inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-sm cursor-pointer">
-                Start Free — No Card Needed
+                Start Free, No Card Needed
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -253,13 +257,13 @@ export default async function LandingPage() {
                 ))}
               </div>
 
-              {/* AI treatment plan */}
+              {/* Treatment plan */}
               <div className="rounded-xl p-3 mb-3" style={{ background: 'rgba(0,111,255,0.04)', border: '1px solid rgba(0,111,255,0.14)' }}>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Treatment Plan</p>
                 <div className="space-y-1.5">
                   {[
                     'Raise chlorine with liquid chlorine (10%): 52 fl oz for 20,000 gal',
-                    'Reduce CYA via 20% partial drain — no chemical fix exists',
+                    'Reduce CYA with a 20% partial drain. No chemical fix exists.',
                     'Retest in 24 hrs after chlorine addition',
                   ].map((step, i) => (
                     <div key={i} className="flex items-start gap-2">
@@ -271,16 +275,7 @@ export default async function LandingPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <span className="flex items-center gap-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4285F4' }} />
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EA4335' }} />
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FBBC04' }} />
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#34A853' }} />
-                  </span>
-                  <p className="text-[9px] text-slate-400 tracking-wide">AI powered by Google Gemini</p>
-                </div>
+              <div className="flex items-center justify-end">
                 <p className="text-[9px] text-slate-300 uppercase tracking-wider">Illustrative example</p>
               </div>
 
@@ -293,7 +288,7 @@ export default async function LandingPage() {
               style={{ animationDelay: '1.6s', animationDuration: '6s', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.10)' }}>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#00C9B1' }} />
-                <p className="text-[10px] font-semibold" style={{ color: '#00A99A' }}>Instant diagnosis — no pool store trip</p>
+                <p className="text-[10px] font-semibold" style={{ color: '#00A99A' }}>Instant diagnosis, no pool store trip</p>
               </div>
             </div>
           </div>
@@ -313,7 +308,7 @@ export default async function LandingPage() {
               <span className="gradient-text-vivid">who take water seriously</span>
             </h2>
             <p className="text-slate-500 max-w-lg mx-auto leading-relaxed">
-              One app replaces the guesswork, the forum searches, and the expensive pool store visits.
+              One app. No guesswork, no forum searches, no pool store trips.
             </p>
           </div>
 
@@ -326,7 +321,14 @@ export default async function LandingPage() {
                   {f.icon}
                 </div>
                 <h3 className="font-display font-semibold text-slate-900 text-lg mb-3">{f.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
+                <ul className="space-y-1.5">
+                  {f.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-slate-500 text-sm leading-relaxed">
+                      <span className="w-1 h-1 rounded-full flex-shrink-0 mt-2" style={{ background: f.iconColor }} />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -364,19 +366,16 @@ export default async function LandingPage() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
-      {/* ── Pricing ──────────────────────────────────────────────── */}
+      {/* ── Pricing teaser ───────────────────────────────────────── */}
       <section className="py-24 px-5 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-mono uppercase tracking-[0.15em] mb-4" style={{ color: '#00A99A' }}>Pricing</p>
-            <h2 className="font-display font-bold text-slate-900 tracking-tight mb-3" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
-              Simple, honest pricing
-            </h2>
-            <p className="text-slate-500">Free to use during beta. Pro features coming soon.</p>
-          </div>
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-xs font-mono uppercase tracking-[0.15em] mb-4" style={{ color: '#00A99A' }}>Pricing</p>
+          <h2 className="font-display font-bold text-slate-900 tracking-tight mb-3" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
+            Simple, honest pricing
+          </h2>
+          <p className="text-slate-500 mb-8">Free during beta. Plans for pool owners and pool professionals.</p>
 
-          {/* Guarantee banner */}
-          <div className="max-w-2xl mx-auto mb-8 rounded-2xl px-5 py-4 flex items-center gap-4"
+          <div className="max-w-xl mx-auto mb-8 rounded-2xl px-5 py-4 flex items-center gap-4 text-left"
             style={{ background: 'rgba(0,201,177,0.05)', border: '1px solid rgba(0,201,177,0.15)' }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'rgba(0,201,177,0.10)' }}>
@@ -386,81 +385,17 @@ export default async function LandingPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-slate-900">Performance guarantee</p>
-              <p className="text-xs text-slate-500 mt-0.5">If a paid subscription produces a demonstrably incorrect analysis or fails to deliver actionable guidance, we will issue a full refund for that billing period. Contact <a href="mailto:hydrosource.ai@appscloud365.com" className="text-teal-600 hover:text-teal-700 underline underline-offset-2 transition-colors">hydrosource.ai@appscloud365.com</a> with your account details and we will review within 48 hours.</p>
+              <p className="text-xs text-slate-500 mt-0.5">Not satisfied with a paid plan? Contact <a href="mailto:hydrosource.ai@appscloud365.com" className="text-teal-600 hover:text-teal-700 underline underline-offset-2 transition-colors">hydrosource.ai@appscloud365.com</a> and we will review within 48 hours.</p>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
-            {/* Free */}
-            <div className="rounded-3xl p-7 bg-white" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <p className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Free</p>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="font-display text-4xl font-bold text-slate-900">$0</span>
-              </div>
-              <p className="text-slate-400 text-sm mb-6">Free during beta</p>
-              <ul className="space-y-3 mb-8">
-                {['5 water tests / month', '1 pool', 'AI water analysis', 'Service history log', 'In-app safety alerts'].map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-slate-600">
-                    <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#00A99A' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 13l4 4L19 7" />
-                    </svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/signup"
-                className="block text-center py-3 rounded-2xl font-semibold text-sm transition-all duration-200 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
-                Get started free
-              </Link>
-            </div>
-
-            {/* Pro — Coming Soon */}
-            <div className="rounded-3xl p-7 relative overflow-hidden"
-              style={{ background: 'linear-gradient(145deg, rgba(0,201,177,0.05), rgba(0,111,255,0.04))', border: '2px solid rgba(0,201,177,0.25)', boxShadow: '0 4px 24px rgba(0,201,177,0.08)' }}>
-              <div className="absolute top-0 right-0 w-48 h-48 opacity-30 blur-3xl pointer-events-none"
-                style={{ background: 'radial-gradient(circle, #00C9B1, transparent)', transform: 'translate(30%, -30%)' }} />
-
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Pro</p>
-                  <div className="flex items-end gap-1 mb-1">
-                    <span className="font-display text-4xl font-bold text-slate-900">$9</span>
-                    <span className="font-display text-xl font-bold text-slate-400 pb-1">.99</span>
-                  </div>
-                  <p className="text-slate-400 text-sm">per month</p>
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg"
-                  style={{ background: 'rgba(0,201,177,0.10)', color: '#00A99A', border: '1px solid rgba(0,201,177,0.25)' }}>
-                  Coming soon
-                </span>
-              </div>
-
-              <ul className="space-y-3 mb-8 mt-5">
-                {[
-                  'Unlimited water tests',
-                  'Multiple pools',
-                  'Full service history',
-                  'AI analysis & recommendations',
-                  'In-app notifications',
-                  'Email support',
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-slate-700">
-                    <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#00C9B1' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 13l4 4L19 7" />
-                    </svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link href="/signup"
-                className="btn-shimmer block text-center py-3 rounded-2xl text-sm cursor-pointer relative z-10">
-                Sign Up — Get Early Access
-              </Link>
-              <p className="text-center text-[11px] text-slate-400 mt-3">Pro billing not yet active — sign up free</p>
-            </div>
-          </div>
+          <Link href="/pricing"
+            className="btn-shimmer inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-sm cursor-pointer">
+            See Plans & Pricing
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
         </div>
       </section>
 
@@ -484,7 +419,7 @@ export default async function LandingPage() {
           </p>
           <Link href="/signup"
             className="btn-shimmer inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-sm cursor-pointer">
-            Get Started Free — No Card Needed
+            Get Started Free, No Card Needed
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
               <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -513,7 +448,7 @@ export default async function LandingPage() {
               </div>
             </div>
             <p className="text-xs text-slate-400 text-center sm:text-right">
-              We respond within 48 hours · Satisfaction guarantee on all paid plans
+              We respond within 48 hours. Satisfaction guarantee on all paid plans.
             </p>
           </div>
 
@@ -537,16 +472,6 @@ export default async function LandingPage() {
               </div>
             </div>
             <div className="flex items-center gap-5 text-xs text-slate-400">
-              {/* Google Gemini attribution per API terms */}
-              <span className="flex items-center gap-1.5">
-                <span className="flex items-center gap-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4285F4' }} />
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EA4335' }} />
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FBBC04' }} />
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#34A853' }} />
-                </span>
-                AI by Google Gemini
-              </span>
               <Link href="/legal/terms" className="hover:text-slate-600 transition-colors cursor-pointer">Terms</Link>
               <Link href="/legal/privacy" className="hover:text-slate-600 transition-colors cursor-pointer">Privacy</Link>
             </div>
