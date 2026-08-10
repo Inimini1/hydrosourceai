@@ -541,8 +541,10 @@ READING METHOD — two separate steps, do not skip either:
    disagree substantially, that pad is genuinely ambiguous — say so in low_confidence_params.
 
 INSTRUCTIONS:
-- Correct for image lighting before reporting hex: if the photo is warm/yellow-tinted, shift your reported color slightly
-  cooler; if blue-tinted, shift warmer — report the corrected color, not the raw photographed pixel color
+- Report the pad's color exactly as photographed — do NOT attempt to color-correct or compensate for warm/cool lighting.
+  Any manual lighting adjustment is itself a guess and introduces error; preserving the strip's actual photographed color
+  intensity, uncorrected, is what keeps the downstream calibration match accurate. If the lighting looks off, flag the
+  pad in low_confidence_params instead of trying to correct for it yourself.
 - Wet strips shift color slightly — if the image looks wet/shiny, note this in low_confidence_params for affected pads
 - If a pad is physically absent from this strip model, return null for both its hex and numeric fields
 - Never guess wildly — return null only if the pad is genuinely unreadable (out of frame, obscured, or missing)
@@ -552,7 +554,7 @@ SCIENTIFIC VALIDATION:
 - If chlorine reads 0 and the strip shows typical pad positions, verify the pad is not just faded/overexposed
 - CYA pads are notoriously difficult to read accurately — flag low confidence rather than guessing precisely
 - If the image is blurry, very dark, heavily shadowed, or the strip pads are folded/obscured, set photo_quality to "poor"
-- If lighting is good and pads are clearly visible, set photo_quality to "good"
+- If lighting is even and pads are clearly visible, set photo_quality to "good"
 
 Return ONLY valid JSON, no markdown, no other text:
 {
