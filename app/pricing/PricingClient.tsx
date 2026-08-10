@@ -262,6 +262,7 @@ export default function PricingClient() {
   const welcomePro = searchParams.get('welcome') === 'pro'
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
   const [loading, setLoading] = useState<string | null>(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   useEffect(() => {
     posthog.capture('pricing_page_viewed', { billing_cycle: cycle, from_onboarding: welcomePro })
@@ -270,6 +271,7 @@ export default function PricingClient() {
 
   async function handleSelectPlan(planType: PlanType, billingCycle: BillingCycle) {
     setLoading(`${planType}:${billingCycle}`)
+    setCheckoutError(null)
     const plan = PLAN_DEFINITIONS[planType]
     posthog.capture('upgrade_initiated', {
       plan: planType,
@@ -297,9 +299,15 @@ export default function PricingClient() {
           posthog.capture('trial_started', { plan: planType, billing_cycle: billingCycle })
         }
         window.location.href = data.url
+        return
       }
+      // No url and not beta mode — the checkout request failed. Surfacing
+      // nothing here (the previous behavior) makes a real config problem,
+      // like a missing Stripe price ID, look identical to the button doing
+      // nothing at all.
+      setCheckoutError(data.error ?? `Could not start checkout for ${plan.name}. Please try again or contact support.`)
     } catch {
-      // noop
+      setCheckoutError('Connection error. Please try again.')
     } finally {
       setLoading(null)
     }
@@ -385,6 +393,15 @@ export default function PricingClient() {
             ))}
           </div>
         </div>
+
+        {checkoutError && (
+          <div
+            className="max-w-2xl mx-auto mb-6 px-5 py-3.5 rounded-2xl text-sm font-medium text-center"
+            style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', color: '#DC2626' }}
+          >
+            {checkoutError}
+          </div>
+        )}
 
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
