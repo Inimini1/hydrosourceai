@@ -1,4 +1,10 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy — HydroSource AI',
+  description: 'How HydroSource AI collects, uses, and protects your data, including test strip photos and water chemistry readings.',
+}
 
 export default function PrivacyPage() {
   return (
@@ -159,9 +165,12 @@ export default function PrivacyPage() {
 
         </div>
 
-        <div className="mt-12 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+        <div className="mt-12 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 flex-wrap gap-3">
           <span>HydroSource AI · Last updated April 25, 2026</span>
-          <Link href="/legal/terms" className="text-teal-600 hover:text-teal-700 transition-colors">Terms of Service →</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/legal/accessibility" className="text-teal-600 hover:text-teal-700 transition-colors">Accessibility</Link>
+            <Link href="/legal/terms" className="text-teal-600 hover:text-teal-700 transition-colors">Terms of Service →</Link>
+          </div>
         </div>
 
       </div>

@@ -30,9 +30,10 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         {children}
       </div>
 
-      <div className="relative z-10 pb-6 flex justify-center gap-6 text-xs text-slate-400">
+      <div className="relative z-10 pb-6 flex flex-wrap justify-center gap-6 text-xs text-slate-400">
         <Link href="/legal/terms" className="hover:text-slate-600 transition-colors">Terms of Service</Link>
         <Link href="/legal/privacy" className="hover:text-slate-600 transition-colors">Privacy Policy</Link>
+        <Link href="/legal/accessibility" className="hover:text-slate-600 transition-colors">Accessibility</Link>
       </div>
     </div>
   )
