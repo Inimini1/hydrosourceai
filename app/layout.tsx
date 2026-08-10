@@ -19,17 +19,17 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'HydroSource — AI Pool Chemistry Analysis',
-  description: 'AI-powered water chemistry analysis and treatment plans for pool professionals. Scan test strips, get instant dosing guidance, and track service history.',
+  title: 'HydroSource: Pool Chemistry Analysis',
+  description: 'Water chemistry analysis and treatment plans for pool professionals. Scan test strips, get instant dosing guidance, and track service history.',
   manifest: '/manifest.json',
   icons: {
     icon: '/icon.svg',
     apple: '/icon.svg',
   },
-  keywords: ['pool chemistry', 'pool management', 'water testing', 'pool professional', 'AI pool analysis', 'test strip scanner'],
+  keywords: ['pool chemistry', 'pool management', 'water testing', 'pool professional', 'pool analysis', 'test strip scanner'],
   openGraph: {
-    title: 'HydroSource — AI Pool Chemistry Analysis',
-    description: 'Scan test strips, get instant AI dosing guidance, and track service history. Built for pool professionals.',
+    title: 'HydroSource: Pool Chemistry Analysis',
+    description: 'Scan test strips, get instant dosing guidance, and track service history. Built for pool professionals.',
     url: 'https://hydrosource.appscloud365.com',
     siteName: 'HydroSource',
     type: 'website',
@@ -38,14 +38,14 @@ export const metadata: Metadata = {
         url: 'https://hydrosource.appscloud365.com/og.png',
         width: 1200,
         height: 630,
-        alt: 'HydroSource — AI Pool Chemistry Analysis',
+        alt: 'HydroSource: Pool Chemistry Analysis',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HydroSource — AI Pool Chemistry Analysis',
-    description: 'Scan test strips, get instant AI dosing guidance, and track service history.',
+    title: 'HydroSource: Pool Chemistry Analysis',
+    description: 'Scan test strips, get instant dosing guidance, and track service history.',
     images: ['https://hydrosource.appscloud365.com/og.png'],
   },
   metadataBase: new URL('https://hydrosource.appscloud365.com'),

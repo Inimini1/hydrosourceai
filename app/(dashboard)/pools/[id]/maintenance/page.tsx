@@ -62,7 +62,7 @@ function EmptyMaintenance({ poolId }: { poolId: string }) {
       </div>
       <p className="font-display font-bold text-slate-900 text-lg mb-2">No maintenance logs yet</p>
       <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
-        Run a water test to get AI treatment recommendations, then save them as a maintenance log entry.
+        Run a water test to get treatment recommendations, then save them as a maintenance log entry.
       </p>
       <Link
         href={`/pools/${poolId}/test`}
@@ -97,7 +97,7 @@ function UpgradeGate() {
       </div>
       <p className="font-display font-bold text-slate-900 text-lg mb-2">Maintenance Log</p>
       <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto mb-2">
-        Save AI treatment plans as interactive checklists your team can check off on-site.
+        Save treatment plans as interactive checklists your team can check off on-site.
       </p>
       <p className="text-xs font-semibold mb-6" style={{ color: '#36aaf6' }}>
         Available on Pool Pro and Pool Team plans
@@ -322,7 +322,7 @@ export default function MaintenancePage() {
           {logsWithPlan.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI Treatment Plans</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Treatment Plans</p>
                 <div className="flex-1 h-px bg-slate-200" />
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -373,7 +373,7 @@ export default function MaintenancePage() {
           >
             <div className="flex-1">
               <p className="text-sm font-semibold text-slate-700">Run a new test</p>
-              <p className="text-xs text-slate-400 mt-0.5">Get AI treatment recommendations to add to this log</p>
+              <p className="text-xs text-slate-400 mt-0.5">Get treatment recommendations to add to this log</p>
             </div>
             <Link
               href={`/pools/${id}/test`}

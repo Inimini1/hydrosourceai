@@ -24,7 +24,7 @@ export function getReminderState(
     return {
       daysSince: -1,
       label: 'No tests yet',
-      sublabel: 'Run your first water test to get an AI analysis.',
+      sublabel: 'Run your first water test to get an instant analysis.',
       urgency: 'urgent',
       color: '#EF4444',
       bg: 'rgba(239,68,68,0.07)',
@@ -51,7 +51,7 @@ export function getReminderState(
     return {
       daysSince,
       label: `Test due — ${daysSince}d since last test`,
-      sublabel: 'Your AI-recommended window is now. Test to stay ahead of imbalance.',
+      sublabel: 'Your recommended test window is now. Test to stay ahead of imbalance.',
       urgency: 'due-soon',
       color: '#F59E0B',
       bg: 'rgba(245,158,11,0.07)',

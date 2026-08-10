@@ -241,7 +241,7 @@ export default function PoolDetailPage() {
             </div>
             <div>
               <p className="font-semibold text-slate-800 text-sm">Test Water</p>
-              <p className="text-slate-400 text-xs mt-0.5">Get AI analysis</p>
+              <p className="text-slate-400 text-xs mt-0.5">Get instant analysis</p>
             </div>
           </Link>
 

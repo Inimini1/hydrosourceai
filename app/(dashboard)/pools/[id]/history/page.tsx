@@ -281,7 +281,7 @@ function TreatmentPlanCard({ test }: { test: WaterTest }) {
             </svg>
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-sm font-semibold text-slate-800">AI Treatment Plan</p>
+            <p className="text-sm font-semibold text-slate-800">Treatment Plan</p>
             <p className="text-xs text-slate-400 mt-0.5 truncate">
               {analysis.treatment_summary ?? analysis.diagnosis ?? 'Based on your last test'}
             </p>

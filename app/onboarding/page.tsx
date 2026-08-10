@@ -137,7 +137,6 @@ export default function OnboardingPage() {
       <div className="px-6 pt-8 pb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="font-bold text-slate-900 text-lg">HydroSource</span>
-          <span className="font-bold text-lg" style={{ color: '#00C9B1' }}>AI</span>
           <span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full"
             style={{ background: 'rgba(0,201,177,0.10)', color: '#00A99A', border: '1px solid rgba(0,201,177,0.25)' }}>
             BETA

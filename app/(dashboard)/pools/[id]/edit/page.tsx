@@ -100,7 +100,7 @@ export default function EditPoolPage() {
         </Link>
         <div>
           <h1 className="font-display font-bold text-slate-900 text-xl">Edit Pool</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Changes affect all future AI analysis</p>
+          <p className="text-xs text-slate-400 mt-0.5">Changes affect all future analysis</p>
         </div>
       </div>
 

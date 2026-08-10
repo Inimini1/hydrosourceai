@@ -13,9 +13,9 @@ interface Props {
 }
 
 const DEFAULTS: Record<EmptyScene, { title: string; description: string }> = {
-  'no-pools':   { title: 'Add your first pool',   description: 'Set up a pool to start testing water chemistry with AI-powered guidance.' },
+  'no-pools':   { title: 'Add your first pool',   description: 'Set up a pool to start testing water chemistry with instant guidance.' },
   'no-alerts':  { title: "You're all clear",       description: 'No alerts right now — your pools are looking balanced.' },
-  'no-tests':   { title: 'No tests yet',           description: 'Run your first water test to get AI analysis and exact chemical dosing.' },
+  'no-tests':   { title: 'No tests yet',           description: 'Run your first water test to get instant analysis and exact chemical dosing.' },
   'no-history': { title: 'No history yet',         description: 'Test history and trend charts will appear here once you run your first analysis.' },
 }
 
