@@ -105,7 +105,7 @@ export default function SignupPage() {
           </div>
         )}
         <h1 className="font-display text-3xl font-bold text-slate-900 mb-2">Create your account</h1>
-        <p className="text-slate-500 text-sm">{betaToken ? '7-day full access — no payment needed' : 'Start managing your pool with AI — free forever'}</p>
+        <p className="text-slate-500 text-sm">{betaToken ? '7-day full access — no payment needed' : 'Start managing your pool, free forever'}</p>
       </div>
 
       <div className="card-glass p-7 rounded-3xl space-y-4">
@@ -125,7 +125,7 @@ export default function SignupPage() {
           <Link href="/legal/terms" target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-1">Terms of Service</Link>
           {' '}and{' '}
           <Link href="/legal/privacy" target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-1">Privacy Policy</Link>
-          , including the AI recommendations disclaimer.
+          , including the recommendations disclaimer.
         </p>
 
         {/* OAuth buttons */}

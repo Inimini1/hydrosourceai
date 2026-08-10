@@ -211,7 +211,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What is the maintenance log?',
-    a: 'After each water test, Pool Pro and Team subscribers can save the AI treatment plan as an actionable checklist. Each checklist lives under the pool profile so technicians can check off steps as they treat the pool — creating a complete service history.',
+    a: 'After each water test, Pool Pro and Team subscribers can save the treatment plan as an actionable checklist. Each checklist lives under the pool profile so technicians can check off steps as they treat the pool — creating a complete service history.',
   },
   {
     q: 'Can I try the software before choosing a plan?',
@@ -322,7 +322,7 @@ export default function PricingClient() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
         <Link href="/" className="font-display font-black text-slate-900 text-lg tracking-tight">
-          Hydro<span style={{ color: '#00C9B1' }}>Source</span> AI
+          Hydro<span style={{ color: '#00C9B1' }}>Source</span>
         </Link>
         <div className="flex items-center gap-4">
           <Link href="/login" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Sign in</Link>

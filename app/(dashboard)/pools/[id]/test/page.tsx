@@ -496,7 +496,7 @@ export default function AddTestPage() {
       if (a.immediate_action_plan?.length) noteParts.push(`Action plan: ${a.immediate_action_plan.join(' · ')}`)
       if (a.timeline) noteParts.push(`Expect: ${a.timeline}`)
       if (a.next_test_days) noteParts.push(`Retest in ${a.next_test_days} day${a.next_test_days !== 1 ? 's' : ''}`)
-      const notes = noteParts.join('. ') || 'AI water test treatment plan'
+      const notes = noteParts.join('. ') || 'Water test treatment plan'
 
       const res = await fetch('/api/service-logs', {
         method: 'POST',
@@ -614,7 +614,7 @@ export default function AddTestPage() {
               </div>
               <p className="text-base font-semibold text-slate-800 leading-relaxed px-2">{a.diagnosis}</p>
               <p className="text-xs text-slate-400 mt-2">
-                AI Confidence:{' '}
+                Confidence:{' '}
                 <span style={{ color: { low: '#dc2626', medium: '#d97706', high: '#0d9488' }[a.confidence] }}
                   className="font-bold uppercase tracking-wide">{a.confidence}</span>
               </p>
@@ -926,7 +926,7 @@ export default function AddTestPage() {
                 </div>
 
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Your full AI diagnosis, action plan, and chemical dosing guide will be compiled into a professional PDF and sent to the email below.
+                  Your full diagnosis, action plan, and chemical dosing guide will be compiled into a professional PDF and sent to the email below.
                 </p>
 
                 {!reportSentOk ? (
@@ -996,7 +996,7 @@ export default function AddTestPage() {
                 )}
 
                 <p className="text-[10px] text-slate-300 text-center">
-                  Reports include AI guidance disclaimer and are not regulatory advice.
+                  Reports include a guidance disclaimer and are not regulatory advice.
                 </p>
               </div>
             </div>
@@ -1021,7 +1021,7 @@ export default function AddTestPage() {
         </Link>
         <div>
           <h1 className="font-display font-bold text-slate-900 text-xl">Water Test</h1>
-          <p className="text-xs font-semibold mt-0.5" style={{ color: '#00C9B1' }}>AI-powered analysis</p>
+          <p className="text-xs font-semibold mt-0.5" style={{ color: '#00C9B1' }}>Instant water diagnosis</p>
         </div>
       </div>
 
@@ -1151,7 +1151,7 @@ export default function AddTestPage() {
               <button onClick={handleScanStrip} disabled={scanning}
                 className="btn-teal w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2.5 disabled:opacity-50">
                 {scanning ? (
-                  <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Reading strip with AI…</>
+                  <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Reading strip…</>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1163,7 +1163,7 @@ export default function AddTestPage() {
                 )}
               </button>
             )}
-            <p className="text-center text-slate-400 text-xs">AI extracts readings automatically — review them before analyzing</p>
+            <p className="text-center text-slate-400 text-xs">Readings extracted automatically. Review before analyzing.</p>
           </div>
         )}
 
@@ -1264,7 +1264,7 @@ export default function AddTestPage() {
                 <img src={imagePreview} alt="Strip" className="w-12 h-12 rounded-xl object-cover" />
                 <div>
                   <p className="text-sm font-semibold text-slate-700">Test strip photo attached</p>
-                  <p className="text-xs text-slate-400">AI will use this image in the analysis</p>
+                  <p className="text-xs text-slate-400">This image will be used in the analysis</p>
                 </div>
               </div>
             )}
