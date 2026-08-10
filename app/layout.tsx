@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'HydroSource: Pool Chemistry Analysis',
+  title: 'HydroSource AI: Pool Chemistry Analysis',
   description: 'Water chemistry analysis and treatment plans for pool professionals. Scan test strips, get instant dosing guidance, and track service history.',
   manifest: '/manifest.json',
   icons: {
@@ -28,23 +28,23 @@ export const metadata: Metadata = {
   },
   keywords: ['pool chemistry', 'pool management', 'water testing', 'pool professional', 'pool analysis', 'test strip scanner'],
   openGraph: {
-    title: 'HydroSource: Pool Chemistry Analysis',
+    title: 'HydroSource AI: Pool Chemistry Analysis',
     description: 'Scan test strips, get instant dosing guidance, and track service history. Built for pool professionals.',
     url: 'https://hydrosource.appscloud365.com',
-    siteName: 'HydroSource',
+    siteName: 'HydroSource AI',
     type: 'website',
     images: [
       {
         url: 'https://hydrosource.appscloud365.com/og.png',
         width: 1200,
         height: 630,
-        alt: 'HydroSource: Pool Chemistry Analysis',
+        alt: 'HydroSource AI: Pool Chemistry Analysis',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HydroSource: Pool Chemistry Analysis',
+    title: 'HydroSource AI: Pool Chemistry Analysis',
     description: 'Scan test strips, get instant dosing guidance, and track service history.',
     images: ['https://hydrosource.appscloud365.com/og.png'],
   },

@@ -134,7 +134,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     // ── HEADER ──────────────────────────────────────────────────────────────
     doc.rect(0, 0, PW, 72).fill(BLUE)
     doc.fillColor('white').font('Helvetica-Bold').fontSize(22)
-       .text('HydroSource', M, 20, { lineBreak: false })
+       .text('HydroSource AI', M, 20, { lineBreak: false })
     doc.fillColor('rgba(255,255,255,0.55)').font('Helvetica').fontSize(11)
        .text('Water Quality Report', M, 46, { lineBreak: false })
     doc.fillColor('rgba(255,255,255,0.4)').font('Helvetica').fontSize(8.5)
@@ -335,7 +335,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
       doc.moveTo(0, PH - 26).lineTo(PW, PH - 26).strokeColor(BORDER).lineWidth(0.5).stroke()
       doc.fillColor(SLATE).font('Helvetica').fontSize(7.5)
          .text(
-           `HydroSource  ·  ${(process.env.NEXT_PUBLIC_APP_URL ?? 'hydrosource.appscloud365.com').replace('https://', '')}  ·  Page ${i - range.start + 1} of ${range.count}  ·  General guidance only — not regulatory advice`,
+           `HydroSource AI  ·  ${(process.env.NEXT_PUBLIC_APP_URL ?? 'hydrosource.appscloud365.com').replace('https://', '')}  ·  Page ${i - range.start + 1} of ${range.count}  ·  General guidance only — not regulatory advice`,
            M, PH - 17,
            { width: PW - M * 2, align: 'center', lineBreak: false }
          )

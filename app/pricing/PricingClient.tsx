@@ -322,7 +322,7 @@ export default function PricingClient() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
         <Link href="/" className="font-display font-black text-slate-900 text-lg tracking-tight">
-          Hydro<span style={{ color: '#00C9B1' }}>Source</span>
+          Hydro<span style={{ color: '#00C9B1' }}>Source</span> AI
         </Link>
         <div className="flex items-center gap-4">
           <Link href="/login" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Sign in</Link>

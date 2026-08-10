@@ -22,7 +22,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       <div className="relative z-10 p-5">
         <Link href="/" className="inline-flex items-center gap-2.5 group">
           <HydroSourceLogo size={36} variant="light" />
-          <span className="font-display font-bold text-slate-900 tracking-tight group-hover:opacity-70 transition-opacity">HydroSource</span>
+          <span className="font-display font-bold text-slate-900 tracking-tight group-hover:opacity-70 transition-opacity">HydroSource AI</span>
         </Link>
       </div>
 

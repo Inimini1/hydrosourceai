@@ -10,7 +10,7 @@ export default function TermsPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            HydroSource
+            HydroSource AI
           </Link>
           <h1 className="font-display text-4xl font-black text-slate-900 mt-6 mb-3">Terms of Service</h1>
           <p className="text-slate-400 text-sm">Effective April 25, 2026 · <a href="mailto:hydrosource.ai@appscloud365.com" className="hover:text-slate-600 transition-colors">hydrosource.ai@appscloud365.com</a></p>
@@ -24,7 +24,7 @@ export default function TermsPage() {
             </svg>
             <div>
               <p className="text-amber-600 font-bold text-sm mb-1">Important Safety Notice</p>
-              <p className="text-slate-600 text-sm leading-relaxed">HydroSource provides informational recommendations only. Always verify chemical levels with a certified test kit before making adjustments. Consult a licensed pool professional for persistent issues. Do not allow swimming in water flagged as Critical until manually verified and corrected.</p>
+              <p className="text-slate-600 text-sm leading-relaxed">HydroSource AI provides informational recommendations only. Always verify chemical levels with a certified test kit before making adjustments. Consult a licensed pool professional for persistent issues. Do not allow swimming in water flagged as Critical until manually verified and corrected.</p>
             </div>
           </div>
         </div>
@@ -33,7 +33,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-slate-900 font-bold text-lg mb-3">1. Acceptance</h2>
-            <p>By creating an account or using HydroSource, you agree to these Terms. If you do not agree, do not use the service. These Terms form a legally binding agreement between you and HydroSource.</p>
+            <p>By creating an account or using HydroSource AI, you agree to these Terms. If you do not agree, do not use the service. These Terms form a legally binding agreement between you and HydroSource AI.</p>
           </section>
 
           <section>
@@ -160,7 +160,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-          <span>HydroSource · Last updated April 25, 2026</span>
+          <span>HydroSource AI · Last updated April 25, 2026</span>
           <Link href="/legal/privacy" className="text-teal-600 hover:text-teal-700 transition-colors">Privacy Policy →</Link>
         </div>
 

@@ -16,7 +16,7 @@ export default function TopBar() {
       <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5 group">
           <HydroSourceLogo size={32} variant="dark" />
-          <span className="font-display font-bold text-white tracking-tight group-hover:opacity-80 transition-opacity">HydroSource</span>
+          <span className="font-display font-bold text-white tracking-tight group-hover:opacity-80 transition-opacity">HydroSource AI</span>
           <span className="text-[10px] font-bold bg-teal-500/20 text-teal-400 border border-teal-500/30 px-2 py-0.5 rounded-full tracking-wider">BETA</span>
         </Link>
 

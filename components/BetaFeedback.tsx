@@ -162,7 +162,7 @@ export function BetaFeedback() {
                 </div>
                 <h3 className="font-bold text-slate-900 text-base mb-2">Thank you!</h3>
                 <p className="text-sm mb-5 text-slate-500">
-                  Your feedback goes straight to the founder. We&apos;ll use it to make HydroSource better.
+                  Your feedback goes straight to the founder. We&apos;ll use it to make HydroSource AI better.
                 </p>
                 <button
                   onClick={() => setOpen(false)}
