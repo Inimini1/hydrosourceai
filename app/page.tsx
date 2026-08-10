@@ -74,8 +74,27 @@ export default async function LandingPage() {
     'iOS & Android coming soon',
   ]
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'HydroSource AI',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    description: 'Pool water chemistry analysis and treatment plans for pool owners and professionals.',
+    url: 'https://hydrosource.appscloud365.com',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  }
+
   return (
     <div className="min-h-screen bg-white overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── Nav ─────────────────────────────────────────────────── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -474,6 +493,7 @@ export default async function LandingPage() {
             <div className="flex items-center gap-5 text-xs text-slate-400">
               <Link href="/legal/terms" className="hover:text-slate-600 transition-colors cursor-pointer">Terms</Link>
               <Link href="/legal/privacy" className="hover:text-slate-600 transition-colors cursor-pointer">Privacy</Link>
+              <Link href="/legal/accessibility" className="hover:text-slate-600 transition-colors cursor-pointer">Accessibility</Link>
             </div>
           </div>
         </div>
