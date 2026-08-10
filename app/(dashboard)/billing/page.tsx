@@ -56,6 +56,7 @@ export default function BillingPage() {
   const [sub, setSub] = useState<SubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
 
@@ -68,6 +69,7 @@ export default function BillingPage() {
 
   async function handleCheckout(planType: PlanType, billingCycle: BillingCycle) {
     setCheckoutLoading(`${planType}:${billingCycle}`)
+    setCheckoutError(null)
     try {
       const res = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
@@ -75,7 +77,20 @@ export default function BillingPage() {
         body: JSON.stringify({ planType, billingCycle }),
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
+      if (data.betaMode) {
+        setCheckoutError('You already have full Pool Pro access during the beta — no need to upgrade or pay yet.')
+        return
+      }
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+      // No url and not beta mode — the checkout request failed (e.g. a
+      // missing Stripe price ID for this plan). Staying silent here made a
+      // real config problem look identical to the button doing nothing.
+      setCheckoutError(data.error ?? 'Could not start checkout. Please try again or contact support.')
+    } catch {
+      setCheckoutError('Connection error. Please try again.')
     } finally {
       setCheckoutLoading(null)
     }
@@ -217,6 +232,15 @@ export default function BillingPage() {
           >
             Add payment method →
           </button>
+        </div>
+      )}
+
+      {checkoutError && (
+        <div
+          className="px-4 py-3 rounded-2xl text-sm font-medium"
+          style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', color: '#DC2626' }}
+        >
+          {checkoutError}
         </div>
       )}
 
