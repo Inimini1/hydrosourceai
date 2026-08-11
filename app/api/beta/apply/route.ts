@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { sendBetaWelcomeEmail, sendBetaNotificationToOwner } from '@/lib/email'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 
 const BETA_DURATION_DAYS = 7
 
@@ -27,6 +28,12 @@ export async function POST(req: NextRequest) {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 })
+    }
+
+    const turnstileToken = typeof body.turnstileToken === 'string' ? body.turnstileToken : undefined
+    const isHuman = await verifyTurnstileToken(turnstileToken, ip)
+    if (!isHuman) {
+      return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 400 })
     }
 
     const admin = createAdminClient()

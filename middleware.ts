@@ -20,6 +20,12 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // Shrinks the session cookie's lifetime from @supabase/ssr's 400-day
+      // default to 30 days, so a stolen cookie has a bounded shelf life.
+      // Legitimate users are unaffected — Supabase reissues the cookie on
+      // every active visit, and after 30 days of inactivity they just see
+      // a normal login prompt.
+      cookieOptions: { maxAge: 60 * 60 * 24 * 30 },
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll(cookiesToSet) {
