@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { usePageTitle } from '@/lib/usePageTitle'
+import { Turnstile, isTurnstileEnabled } from '@/components/Turnstile'
 
 function OAuthButton({ provider, label, icon }: { provider: string; label: string; icon: React.ReactNode }) {
   const [loading, setLoading] = useState(false)
@@ -53,6 +54,7 @@ export default function SignupPage() {
   const [agreedPrivacy, setAgreedPrivacy] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
 
   const pwStrength = PW_RULES.filter((r) => r.test(password)).length
   const pwColor = pwStrength <= 2 ? '#FF3B5C' : pwStrength <= 3 ? '#FFB830' : '#00C17A'
@@ -71,7 +73,7 @@ export default function SignupPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role, ...(betaToken ? { betaToken } : {}) }),
+        body: JSON.stringify({ email, password, role, turnstileToken, ...(betaToken ? { betaToken } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -266,8 +268,10 @@ export default function SignupPage() {
             ))}
           </div>
 
+          <Turnstile onVerify={setTurnstileToken} />
+
           <div className="pt-1">
-            <button type="submit" disabled={loading || pwStrength < 5 || !agreedTerms || !agreedPrivacy}
+            <button type="submit" disabled={loading || pwStrength < 5 || !agreedTerms || !agreedPrivacy || (isTurnstileEnabled && !turnstileToken)}
               className="btn-teal w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? (
                 <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Creating account…</>

@@ -3,13 +3,13 @@ const { withSentryConfig } = require('@sentry/nextjs')
 
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
   "font-src 'self'",
-  "connect-src 'self' https://api.stripe.com https://generativelanguage.googleapis.com https://*.sentry.io https://us.i.posthog.com https://us.posthog.com https://*.supabase.co wss://*.supabase.co",
+  "connect-src 'self' https://api.stripe.com https://generativelanguage.googleapis.com https://*.sentry.io https://us.i.posthog.com https://us.posthog.com https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
-  "frame-src https://js.stripe.com https://hooks.stripe.com",
+  "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
 ]

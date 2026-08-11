@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { PoolLensIcon } from '@/components/brand'
+import { Turnstile, isTurnstileEnabled } from '@/components/Turnstile'
 
 export default function BetaAccessPage() {
   const [name, setName] = useState('')
@@ -11,6 +12,7 @@ export default function BetaAccessPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -34,7 +36,7 @@ export default function BetaAccessPage() {
       const res = await fetch('/api/beta/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), company: company.trim() || undefined, email: email.trim().toLowerCase() }),
+        body: JSON.stringify({ name: name.trim(), company: company.trim() || undefined, email: email.trim().toLowerCase(), turnstileToken }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -188,9 +190,11 @@ export default function BetaAccessPage() {
             </div>
           )}
 
+          <Turnstile onVerify={setTurnstileToken} />
+
           <button
             type="submit"
-            disabled={loading || !name.trim() || !email.trim() || !agreed}
+            disabled={loading || !name.trim() || !email.trim() || !agreed || (isTurnstileEnabled && !turnstileToken)}
             className="w-full py-4 rounded-2xl font-bold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-white"
             style={{ background: 'linear-gradient(135deg,#00C9B1,#006FFF)' }}
           >

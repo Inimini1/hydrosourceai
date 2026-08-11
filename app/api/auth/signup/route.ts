@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 
 export async function POST(req: NextRequest) {
   // Rate limit signups by IP: 5 per hour to slow account-creation abuse
@@ -32,6 +33,12 @@ export async function POST(req: NextRequest) {
     }
     if (!['OWNER', 'PROFESSIONAL'].includes(role)) {
       return NextResponse.json({ error: 'Invalid role.' }, { status: 400 })
+    }
+
+    const turnstileToken = typeof body.turnstileToken === 'string' ? body.turnstileToken : undefined
+    const isHuman = await verifyTurnstileToken(turnstileToken, ip)
+    if (!isHuman) {
+      return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 400 })
     }
 
     const admin = createAdminClient()
