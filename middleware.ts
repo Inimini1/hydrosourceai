@@ -57,6 +57,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // MFA gate — a user who enrolled a TOTP factor must complete the
+  // challenge before reaching anything else. Users who never enrolled 2FA
+  // are completely unaffected: nextLevel stays 'aal1' for them, so this
+  // block is a no-op. Fails open (skips the gate) if the AAL check itself
+  // errors, since a transient Supabase hiccup locking every user out of
+  // the whole app is a far worse outcome than a rare MFA bypass window.
+  if (pathname !== '/login/mfa') {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aal && aal.nextLevel === 'aal2' && aal.currentLevel !== aal.nextLevel) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'MFA verification required.' }, { status: 401 })
+      }
+      const url = request.nextUrl.clone()
+      url.pathname = '/login/mfa'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // Redirect logged-in users away from auth pages
   if (user && (pathname === '/login' || pathname === '/signup')) {
     const url = request.nextUrl.clone()

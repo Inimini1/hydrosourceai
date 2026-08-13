@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
 import { usePageTitle } from '@/lib/usePageTitle'
+import { createClient } from '@/lib/supabase/client'
 
 interface Usage {
   testsThisMonth: number
@@ -47,6 +48,84 @@ export default function AccountPage() {
   const [pwSuccess, setPwSuccess] = useState(false)
 
   const [isFounder, setIsFounder] = useState(false)
+
+  const [mfaFactors, setMfaFactors] = useState<{ id: string; status: string }[]>([])
+  const [mfaEnrolling, setMfaEnrolling] = useState(false)
+  const [mfaQrCode, setMfaQrCode] = useState('')
+  const [mfaSecret, setMfaSecret] = useState('')
+  const [mfaFactorId, setMfaFactorId] = useState('')
+  const [mfaCode, setMfaCode] = useState('')
+  const [mfaError, setMfaError] = useState('')
+  const [mfaLoading, setMfaLoading] = useState(false)
+  const mfaEnabled = mfaFactors.some((f) => f.status === 'verified')
+
+  async function loadMfaFactors() {
+    const supabase = createClient()
+    const { data } = await supabase.auth.mfa.listFactors()
+    setMfaFactors(data?.totp ?? [])
+  }
+
+  useEffect(() => {
+    loadMfaFactors()
+  }, [])
+
+  async function handleStartMfaEnroll() {
+    setMfaError('')
+    setMfaLoading(true)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' })
+      if (error || !data) { setMfaError('Could not start setup. Please try again.'); return }
+      setMfaFactorId(data.id)
+      setMfaQrCode(data.totp.qr_code)
+      setMfaSecret(data.totp.secret)
+      setMfaEnrolling(true)
+    } finally {
+      setMfaLoading(false)
+    }
+  }
+
+  async function handleVerifyMfaEnroll(e: FormEvent) {
+    e.preventDefault()
+    setMfaError('')
+    setMfaLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: mfaFactorId, code: mfaCode.trim() })
+      if (error) { setMfaError('That code is incorrect. Please try again.'); return }
+      setMfaEnrolling(false)
+      setMfaCode('')
+      setMfaQrCode('')
+      setMfaSecret('')
+      await loadMfaFactors()
+    } finally {
+      setMfaLoading(false)
+    }
+  }
+
+  async function handleCancelMfaEnroll() {
+    const supabase = createClient()
+    if (mfaFactorId) await supabase.auth.mfa.unenroll({ factorId: mfaFactorId })
+    setMfaEnrolling(false)
+    setMfaCode('')
+    setMfaQrCode('')
+    setMfaSecret('')
+    setMfaFactorId('')
+    setMfaError('')
+  }
+
+  async function handleDisableMfa(factorId: string) {
+    setMfaError('')
+    setMfaLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.mfa.unenroll({ factorId })
+      if (error) { setMfaError('Could not disable two-factor authentication. Please try again.'); return }
+      await loadMfaFactors()
+    } finally {
+      setMfaLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetch('/api/usage').then((r) => r.json()).then((d) => setUsage(d)).catch(() => {})
@@ -309,6 +388,82 @@ export default function AccountPage() {
               ) : 'Update password'}
             </button>
           </form>
+        </div>
+
+        {/* Two-factor authentication */}
+        <div className="card-light p-5 rounded-3xl">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Two-factor authentication</p>
+
+          {mfaError && (
+            <div className="mb-4 p-3.5 rounded-2xl text-sm font-medium"
+              style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.18)', color: '#EF4444' }}>
+              {mfaError}
+            </div>
+          )}
+
+          {mfaEnrolling ? (
+            <div className="space-y-4">
+              <p className="text-sm text-slate-500">Scan this code with an authenticator app (like Google Authenticator or Authy), then enter the 6-digit code it shows.</p>
+              {mfaQrCode && (
+                <div className="flex justify-center p-4 bg-white rounded-2xl border border-slate-100"
+                  dangerouslySetInnerHTML={{ __html: mfaQrCode }} />
+              )}
+              {mfaSecret && (
+                <p className="text-xs text-slate-400 text-center break-all">Can&apos;t scan? Enter this code manually: <span className="font-mono text-slate-600">{mfaSecret}</span></p>
+              )}
+              <form onSubmit={handleVerifyMfaEnroll} className="space-y-3">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="123456"
+                  className="input-light text-center tracking-[0.3em] text-lg"
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <button type="button" onClick={handleCancelMfaEnroll}
+                    className="flex-1 py-3 rounded-2xl text-sm font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all">
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={mfaLoading || mfaCode.length !== 6}
+                    className="btn-teal flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {mfaLoading ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : 'Verify & enable'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : mfaEnabled ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <svg className="w-5 h-5" style={{ color: '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm font-medium text-slate-700">Enabled</p>
+              </div>
+              <button
+                onClick={() => { const f = mfaFactors.find((x) => x.status === 'verified'); if (f) handleDisableMfa(f.id) }}
+                disabled={mfaLoading}
+                className="text-sm font-semibold text-red-400 hover:text-red-500 transition-colors disabled:opacity-50"
+              >
+                Disable
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-500">Add an extra layer of security with an authenticator app.</p>
+              <button
+                onClick={handleStartMfaEnroll}
+                disabled={mfaLoading}
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 transition-all disabled:opacity-50"
+                style={{ background: '#00C9B1' }}
+              >
+                {mfaLoading ? 'Loading…' : 'Enable'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Founder tools — only visible to the account whose email matches FOUNDER_EMAIL */}
