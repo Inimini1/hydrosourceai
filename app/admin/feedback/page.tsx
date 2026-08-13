@@ -25,7 +25,7 @@ const STATUS_BG: Record<FeedbackStatus, string> = {
   closed:   'rgba(0,0,0,0.06)',
 }
 const STATUS_TEXT: Record<FeedbackStatus, string> = {
-  new: '#2563EB', reviewed: '#B45309', actioned: '#00A99A', closed: '#64748b',
+  new: '#2563EB', reviewed: '#B45309', actioned: '#182659', closed: '#64748b',
 }
 const CAT_EMOJI: Record<Category, string> = {
   bug: '🐛', feature: '💡', ux: '🤔', pricing: '💰', general: '💬',
@@ -118,7 +118,7 @@ export default function FounderFeedbackPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4 text-center gap-3">
         <p className="text-slate-700 font-semibold">This page is restricted to the founder account.</p>
         <p className="text-sm text-slate-400">Sign in with the account set as FOUNDER_EMAIL to view feedback.</p>
-        <Link href="/dashboard" className="text-sm font-semibold text-teal-600 hover:text-teal-700">← Back to dashboard</Link>
+        <Link href="/dashboard" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">← Back to dashboard</Link>
       </div>
     )
   }
@@ -150,7 +150,7 @@ export default function FounderFeedbackPage() {
           <button key={f} onClick={() => setFilter(f)}
             className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
             style={{
-              background: filter === f ? '#00C9B1' : 'rgba(0,0,0,0.06)',
+              background: filter === f ? '#533afd' : 'rgba(0,0,0,0.06)',
               color: filter === f ? 'white' : '#64748b',
             }}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -234,7 +234,7 @@ export default function FounderFeedbackPage() {
                       className="ml-auto px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
                       style={{
                         background: copiedId === item.id ? 'rgba(0,201,177,0.12)' : 'rgba(0,0,0,0.04)',
-                        color: copiedId === item.id ? '#00A99A' : '#64748b',
+                        color: copiedId === item.id ? '#182659' : '#64748b',
                       }}>
                       {copiedId === item.id ? (
                         <>
@@ -265,7 +265,7 @@ export default function FounderFeedbackPage() {
                   />
                   <button onClick={() => saveNote(item.id)} disabled={saving}
                     className="px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
-                    style={{ background: 'rgba(0,201,177,0.10)', color: '#00A99A' }}>
+                    style={{ background: 'rgba(0,201,177,0.10)', color: '#182659' }}>
                     {saving ? 'Saving…' : 'Save note'}
                   </button>
                 </div>

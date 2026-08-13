@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <div className="max-w-2xl mx-auto px-5 py-16">
 
         <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-teal-600 text-sm font-semibold hover:text-teal-700 transition-colors mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-indigo-600 text-sm font-semibold hover:text-indigo-700 transition-colors mb-8">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
                 'Comply with legal obligations',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style={{ background: '#00C9B1' }} />
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style={{ background: '#533afd' }} />
                   {item}
                 </li>
               ))}
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
                 'Stripe webhook signature verification',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#00A99A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#182659' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                   {item}
@@ -120,7 +120,7 @@ export default function PrivacyPage() {
               ].map((c, i) => (
                 <div key={c.name} className="grid grid-cols-3 gap-2 px-4 py-3 text-xs border-b border-slate-50 last:border-0"
                   style={{ background: i % 2 === 0 ? '#f8fafc' : '#ffffff' }}>
-                  <code className="text-teal-600 font-mono">{c.name}</code>
+                  <code className="text-indigo-600 font-mono">{c.name}</code>
                   <span className="text-slate-500">{c.purpose}</span>
                   <span className="text-slate-400">{c.duration}</span>
                 </div>
@@ -157,8 +157,8 @@ export default function PrivacyPage() {
             <h2 className="text-slate-900 font-bold text-lg mb-3">9. Contact</h2>
             <p className="mb-2">Questions about this Privacy Policy or your data? Reach us:</p>
             <ul className="space-y-1.5">
-              <li>Email: <a href="mailto:hydrosource.ai@appscloud365.com" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a></li>
-              <li>Phone: <a href="tel:+12144277224" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">+1 (214) 427-7224</a></li>
+              <li>Email: <a href="mailto:hydrosource.ai@appscloud365.com" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a></li>
+              <li>Phone: <a href="tel:+12144277224" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">+1 (214) 427-7224</a></li>
             </ul>
             <p className="mt-3 text-slate-400 text-xs">We will respond to all data requests within 30 days.</p>
           </section>
@@ -168,8 +168,8 @@ export default function PrivacyPage() {
         <div className="mt-12 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 flex-wrap gap-3">
           <span>HydroSource AI · Last updated April 25, 2026</span>
           <div className="flex items-center gap-4">
-            <Link href="/legal/accessibility" className="text-teal-600 hover:text-teal-700 transition-colors">Accessibility</Link>
-            <Link href="/legal/terms" className="text-teal-600 hover:text-teal-700 transition-colors">Terms of Service →</Link>
+            <Link href="/legal/accessibility" className="text-indigo-600 hover:text-indigo-700 transition-colors">Accessibility</Link>
+            <Link href="/legal/terms" className="text-indigo-600 hover:text-indigo-700 transition-colors">Terms of Service →</Link>
           </div>
         </div>
 

@@ -10,14 +10,6 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen auth-mesh overflow-hidden">
-      {/* Subtle background accents */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-30 blur-3xl"
-          style={{ background: 'radial-gradient(circle, rgba(0,201,177,0.12) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full opacity-20 blur-3xl"
-          style={{ background: 'radial-gradient(circle, rgba(0,111,255,0.08) 0%, transparent 70%)' }} />
-      </div>
-
       {/* Nav */}
       <div className="relative z-10 p-5">
         <Link href="/" className="inline-flex items-center gap-2.5 group">
