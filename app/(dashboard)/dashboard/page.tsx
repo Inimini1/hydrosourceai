@@ -8,11 +8,6 @@ import { useAuth } from '@/components/AuthProvider'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
 import { usePageTitle } from '@/lib/usePageTitle'
-import { WaterMoodDrop, type WaterStatus } from '@/components/brand/WaterMoodDrop'
-
-function toWaterStatus(status: string | undefined): WaterStatus {
-  return status === 'safe' || status === 'caution' || status === 'critical' ? status : 'caution'
-}
 
 const staggerContainer = {
   hidden: {},
@@ -79,7 +74,7 @@ function HealthRing({ score, size = 120 }: { score: number; size?: number }) {
   const [displayed, setDisplayed] = useState(0)
   const r = size * 0.42
   const c = 2 * Math.PI * r
-  const color = score >= 75 ? '#00C9B1' : score >= 50 ? '#F59E0B' : '#EF4444'
+  const color = score >= 75 ? '#27a644' : score >= 50 ? '#d97706' : '#dc2626'
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 300)
@@ -104,24 +99,21 @@ function HealthRing({ score, size = 120 }: { score: number; size?: number }) {
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
       <svg className="w-full h-full -rotate-90" viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth={size * 0.075} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(6,27,49,0.08)" strokeWidth={size * 0.06} />
         <circle
           cx={size / 2} cy={size / 2} r={r}
           fill="none"
           stroke={color}
-          strokeWidth={size * 0.075}
+          strokeWidth={size * 0.06}
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={offset}
-          style={{
-            transition: 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)',
-            filter: `drop-shadow(0 0 8px ${color}80)`,
-          }}
+          style={{ transition: 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)' }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center select-none">
-        <span className="font-display font-black text-slate-900 leading-none" style={{ fontSize: size * 0.27 }}>{displayed}</span>
-        <span className="font-semibold text-slate-400 mt-0.5" style={{ fontSize: size * 0.10 }}>/ 100</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center select-none" style={{ fontFeatureSettings: '"tnum" on' }}>
+        <span className="font-light leading-none" style={{ fontSize: size * 0.27, color: '#061b31', letterSpacing: '-0.02em' }}>{displayed}</span>
+        <span className="mt-0.5" style={{ fontSize: size * 0.10, color: '#64748d' }}>/ 100</span>
       </div>
     </div>
   )
@@ -353,7 +345,6 @@ export default function DashboardPage() {
   const lastTest = primary.waterTests[0]
   const analysis = lastTest ? parseAnalysis(lastTest.aiAnalysis) : {}
   const score = Math.round(Math.max(0, Math.min(100, analysis.health_score ?? 0)))
-  const scoreColor = score >= 75 ? '#00C9B1' : score >= 50 ? '#F59E0B' : '#EF4444'
 
   // Trend data (oldest→newest for sparklines)
   const tests = [...primary.waterTests].reverse()
@@ -377,8 +368,7 @@ export default function DashboardPage() {
   const poolStatus = lastTest?.status ?? 'safe'
   const statusDotColor = { safe: '#10B981', caution: '#F59E0B', critical: '#EF4444' }[poolStatus] ?? '#94A3B8'
 
-  const scoreGlowColor = score >= 75 ? 'rgba(13,148,136,0.20)' : score >= 50 ? 'rgba(217,119,6,0.15)' : 'rgba(220,38,38,0.18)'
-  const scoreTextColor = score >= 75 ? '#0d9488' : score >= 50 ? '#d97706' : '#dc2626'
+  const scoreTextColor = score >= 75 ? '#27a644' : score >= 50 ? '#d97706' : '#dc2626'
   const heroStatusLabel = score >= 75 ? 'Optimal Status' : score >= 50 ? 'Needs Attention' : 'Action Required'
 
   return (
@@ -393,52 +383,34 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/notifications"
-            className="w-10 h-10 rounded-2xl flex items-center justify-center transition-colors"
-            style={{ background: 'rgba(13,148,136,0.06)', border: '1px solid rgba(13,148,136,0.15)' }}>
+            className="w-10 h-10 rounded-md flex items-center justify-center transition-colors"
+            style={{ background: '#ffffff', border: '1px solid rgba(6,27,49,0.08)' }}>
             <svg className="w-5 h-5" style={{ color: '#475569' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
             </svg>
           </Link>
           <Link href="/pools/new"
-            className="w-10 h-10 rounded-2xl flex items-center justify-center transition-colors"
-            style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.18)' }}>
-            <svg className="w-5 h-5" style={{ color: '#0d9488' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            className="w-10 h-10 rounded-md flex items-center justify-center transition-colors"
+            style={{ background: 'rgba(83,58,253,0.08)', border: '1px solid rgba(83,58,253,0.18)' }}>
+            <svg className="w-5 h-5" style={{ color: '#533afd' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </Link>
         </div>
       </div>
 
-      {/* ── Hero: 3D Droplet Health Score ─────────────────────────── */}
+      {/* ── Hero: Health Score Ring ──────────────────────────────── */}
       <div className="relative flex flex-col items-center justify-center py-8 px-4 min-h-[320px]">
-        {/* Ripple rings */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[240px] h-[240px] rounded-full absolute ripple-ring-1" />
-          <div className="w-[360px] h-[360px] rounded-full absolute ripple-ring-2" />
-        </div>
-
         {lastTest ? (
           <>
-            {/* Mascot mood drop — face reflects water status, floats continuously */}
             <motion.div
               className="relative z-10 flex flex-col items-center justify-center select-none"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1, y: [0, -11, -5, 0] }}
-              transition={{
-                opacity: { duration: 0.5, delay: 0.1 },
-                scale:   { type: 'spring', stiffness: 300, damping: 28, delay: 0.1 },
-                y: { duration: 4.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'loop', delay: 0.6 },
-              }}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <WaterMoodDrop status={toWaterStatus(poolStatus)} size={172} />
-              <div
-                className="absolute -bottom-3 right-1 flex items-baseline gap-0.5 px-3 py-1 rounded-full bg-white"
-                style={{ border: `2px solid ${scoreTextColor}`, boxShadow: `0 4px 14px ${scoreGlowColor}` }}
-              >
-                <span className="font-display font-black leading-none" style={{ fontSize: 18, color: scoreTextColor }}>{score}</span>
-                <span className="font-mono text-[9px] tracking-[0.08em] uppercase" style={{ color: '#94a3b8' }}>/100</span>
-              </div>
+              <HealthRing score={score} size={172} />
             </motion.div>
 
             {/* Status label */}
@@ -448,25 +420,21 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
             >
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] mb-1.5"
-                style={{ color: '#0d9488' }}>System Health</span>
-              <h2 className="font-display font-bold text-[26px] leading-tight text-center"
-                style={{ color: '#0f172a' }}>{heroStatusLabel}</h2>
+              <span className="text-xs uppercase mb-1.5" style={{ color: '#64748d', letterSpacing: '0.06em' }}>System Health</span>
+              <h2 className="font-light text-[26px] leading-tight text-center" style={{ color: '#061b31', letterSpacing: '-0.02em' }}>{heroStatusLabel}</h2>
               {analysis.diagnosis && (
                 <p className="text-sm text-center mt-2 max-w-[280px] leading-relaxed"
-                  style={{ color: '#475569' }}>{analysis.diagnosis}</p>
+                  style={{ color: '#50617a' }}>{analysis.diagnosis}</p>
               )}
-              <p className="font-mono text-[10px] tracking-wider mt-2"
-                style={{ color: '#94a3b8' }}>
-                LAST TESTED {timeAgo(lastTest.createdAt).toUpperCase()}
+              <p className="text-xs mt-2" style={{ color: '#8a94a6' }}>
+                Last tested {timeAgo(lastTest.createdAt)}
               </p>
             </motion.div>
           </>
         ) : (
           <div className="flex flex-col items-center z-10 py-6">
-            <WaterMoodDrop status="caution" size={140} className="opacity-50" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] mt-6"
-              style={{ color: '#94a3b8' }}>NO TEST DATA YET</p>
+            <HealthRing score={0} size={140} />
+            <p className="text-xs uppercase mt-6" style={{ color: '#8a94a6', letterSpacing: '0.06em' }}>No test data yet</p>
           </div>
         )}
       </div>
@@ -484,31 +452,27 @@ export default function DashboardPage() {
             const val = lastTest.pH
             const ok = val >= 7.2 && val <= 7.6
             const err = val < 7.0 || val > 8.0
-            const color = err ? '#dc2626' : ok ? '#0d9488' : '#d97706'
+            const color = err ? '#dc2626' : ok ? '#27a644' : '#d97706'
             const label = err ? 'Out of Range' : ok ? 'Optimal Range' : 'Monitor'
             return (
               <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
                 className="bento-glass rounded-xl p-5 flex flex-col justify-between min-h-[148px] relative overflow-hidden group"
-                style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
                 <div className="flex justify-between items-start">
                   <span className="label-mono">pH Level</span>
                   <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                    style={{ borderColor: color, boxShadow: `0 0 12px ${color}40` }}>
+                    style={{ borderColor: color }}>
                     <svg className="w-3.5 h-3.5" style={{ color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                     </svg>
                   </div>
                 </div>
                 <div>
-                  <div className="font-display font-bold leading-none" style={{ fontSize: 40, color: '#0f172a' }}>
+                  <div className="font-bold leading-none" style={{ fontSize: 40, color: '#061b31', fontFeatureSettings: '"tnum" on' }}>
                     {val.toFixed(1)}
                   </div>
                   <p className="font-mono text-[10px] tracking-wider mt-1" style={{ color }}>{label}</p>
                 </div>
-                <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full blur-2xl pointer-events-none"
-                  style={{ background: `${color}12` }} />
-                <div className="absolute bottom-0 left-0 right-0 h-1/2 pointer-events-none opacity-10"
-                  style={{ background: `linear-gradient(to top, ${color}, transparent)` }} />
               </motion.div>
             )
           })()}
@@ -518,16 +482,16 @@ export default function DashboardPage() {
             const val = lastTest.chlorine
             const ok = val >= 1 && val <= 3
             const err = val < 0.5 || val > 5
-            const color = err ? '#dc2626' : ok ? '#0d9488' : '#d97706'
+            const color = err ? '#dc2626' : ok ? '#27a644' : '#d97706'
             const label = err ? 'Critical' : ok ? 'Optimal Range' : 'Adjust Soon'
             return (
               <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
                 className="bento-glass rounded-xl p-5 flex flex-col justify-between min-h-[148px] relative overflow-hidden group"
-                style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
                 <div className="flex justify-between items-start">
                   <span className="label-mono">Free Chlorine</span>
                   <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                    style={{ borderColor: color, boxShadow: `0 0 12px ${color}40` }}>
+                    style={{ borderColor: color }}>
                     <svg className="w-3.5 h-3.5" style={{ color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
@@ -535,17 +499,13 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="flex items-baseline gap-1">
-                    <span className="font-display font-bold leading-none" style={{ fontSize: 40, color: '#0f172a' }}>
+                    <span className="font-bold leading-none" style={{ fontSize: 40, color: '#061b31', fontFeatureSettings: '"tnum" on' }}>
                       {val % 1 === 0 ? val : val.toFixed(1)}
                     </span>
-                    <span className="font-mono text-[11px]" style={{ color: '#94a3b8' }}>ppm</span>
+                    <span className="font-mono text-[11px]" style={{ color: '#8a94a6' }}>ppm</span>
                   </div>
                   <p className="font-mono text-[10px] tracking-wider mt-1" style={{ color }}>{label}</p>
                 </div>
-                <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full blur-2xl pointer-events-none"
-                  style={{ background: `${color}12` }} />
-                <div className="absolute bottom-0 left-0 right-0 h-1/2 pointer-events-none opacity-10"
-                  style={{ background: `linear-gradient(to top, ${color}, transparent)` }} />
               </motion.div>
             )
           })()}
@@ -554,15 +514,15 @@ export default function DashboardPage() {
           {(() => {
             const val = lastTest.alkalinity
             const ok = val >= 80 && val <= 120
-            const color = ok ? '#0d9488' : '#d97706'
+            const color = ok ? '#27a644' : '#d97706'
             return (
               <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
                 className="bento-glass rounded-xl p-5 flex flex-col justify-between min-h-[120px] relative overflow-hidden"
-                style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+                style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
                 <span className="label-mono">Total Alkalinity</span>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="font-display font-bold text-3xl leading-none" style={{ color: '#0f172a' }}>{val}</span>
-                  <span className="font-mono text-[11px]" style={{ color: '#94a3b8' }}>ppm</span>
+                  <span className="font-bold text-3xl leading-none" style={{ color: '#061b31', fontFeatureSettings: '"tnum" on' }}>{val}</span>
+                  <span className="font-mono text-[11px]" style={{ color: '#8a94a6' }}>ppm</span>
                 </div>
                 <p className="font-mono text-[10px] tracking-wider mt-1" style={{ color }}>{ok ? 'Balanced' : 'Check Level'}</p>
               </motion.div>
@@ -572,11 +532,11 @@ export default function DashboardPage() {
           {/* Status Summary */}
           <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
             className="bento-glass rounded-xl p-5 flex flex-col justify-between min-h-[120px] relative overflow-hidden"
-            style={{ border: `1px solid ${scoreTextColor}22` }}>
+            style={{ border: `1px solid ${scoreTextColor}30` }}>
             <span className="label-mono">Water Status</span>
             <div className="mt-2">
               <div className="w-9 h-9 rounded-full border-2 flex items-center justify-center mb-2"
-                style={{ borderColor: scoreTextColor, boxShadow: `0 0 12px ${scoreTextColor}40` }}>
+                style={{ borderColor: scoreTextColor }}>
                 <svg className="w-4 h-4" style={{ color: scoreTextColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {score >= 75
                     ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -586,12 +546,10 @@ export default function DashboardPage() {
                   }
                 </svg>
               </div>
-              <p className="font-display font-bold text-xl leading-tight" style={{ color: '#0f172a' }}>
-                {score >= 75 ? 'Safe to\nSwim' : score >= 50 ? 'Monitor\nClosely' : 'Take\nAction'}
+              <p className="font-bold text-xl leading-tight" style={{ color: '#061b31' }}>
+                {score >= 75 ? 'Safe to Swim' : score >= 50 ? 'Monitor Closely' : 'Take Action'}
               </p>
             </div>
-            <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full blur-2xl pointer-events-none"
-              style={{ background: `${scoreTextColor}10` }} />
           </motion.div>
         </motion.div>
       )}
@@ -599,33 +557,33 @@ export default function DashboardPage() {
       {/* ── Quick Actions ──────────────────────────────────────────── */}
       <div className="px-4 mt-bento_gap grid grid-cols-2 gap-bento_gap animate-in-delay-2">
         <Link href={`/pools/${primary.id}/test`}
-          className="btn-glass flex items-center gap-3 px-4 py-4 rounded-xl text-left"
+          className="btn-glass flex items-center gap-3 px-4 py-4 text-left"
           style={{ textDecoration: 'none' }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(0,242,255,0.12)' }}>
-            <svg className="w-4 h-4" style={{ color: '#0d9488' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.15)' }}>
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 01-6.23-.693L4.2 15.3m15.6 0l-1.2 3.6a2.25 2.25 0 01-2.16 1.65H7.56a2.25 2.25 0 01-2.16-1.65L4.2 15.3" />
             </svg>
           </div>
           <div>
-            <p className="font-display font-semibold text-sm" style={{ color: '#0f172a' }}>Test Water</p>
-            <p className="font-mono text-[10px] tracking-wider mt-0.5" style={{ color: '#94a3b8' }}>~90 SECONDS</p>
+            <p className="font-semibold text-sm text-white">Test Water</p>
+            <p className="text-[10px] tracking-wider mt-0.5 text-white/70">~90 SECONDS</p>
           </div>
         </Link>
 
         <Link href={`/pools/${primary.id}/history`}
-          className="bento-glass flex items-center gap-3 px-4 py-4 rounded-xl transition-colors hover:bg-white/5"
-          style={{ border: '1px solid rgba(0,0,0,0.07)', textDecoration: 'none' }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(13,148,136,0.06)' }}>
-            <svg className="w-4 h-4" style={{ color: '#475569' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          className="bento-glass flex items-center gap-3 px-4 py-4 rounded-xl transition-colors"
+          style={{ border: '1px solid rgba(6,27,49,0.08)', textDecoration: 'none' }}>
+          <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(83,58,253,0.06)' }}>
+            <svg className="w-4 h-4" style={{ color: '#50617a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
             </svg>
           </div>
           <div>
-            <p className="font-display font-semibold text-sm" style={{ color: '#0f172a' }}>History</p>
-            <p className="font-mono text-[10px] tracking-wider mt-0.5" style={{ color: '#94a3b8' }}>VIEW TRENDS</p>
+            <p className="font-semibold text-sm" style={{ color: '#061b31' }}>History</p>
+            <p className="text-[10px] tracking-wider mt-0.5" style={{ color: '#8a94a6' }}>VIEW TRENDS</p>
           </div>
         </Link>
       </div>
@@ -634,21 +592,21 @@ export default function DashboardPage() {
       {lastTest && pHValues.length >= 2 && (
         <div className="px-4 mt-bento_gap animate-in-delay-2">
           <div className="glass-panel rounded-xl p-5"
-            style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+            style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
             <div className="flex items-center justify-between mb-4">
-              <span className="font-display font-semibold text-sm" style={{ color: '#0f172a' }}>30-Day Trends</span>
+              <span className="font-semibold text-sm" style={{ color: '#061b31' }}>30-Day Trends</span>
               <Link href={`/pools/${primary.id}/history`}
-                className="font-mono text-[10px] tracking-wider uppercase"
-                style={{ color: '#0d9488' }}>View All →</Link>
+                className="text-xs"
+                style={{ color: '#533afd' }}>View all →</Link>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <TrendCard
                 label="pH Level" unit="" value={pHValues[pHValues.length - 1]} ideal="7.2–7.6"
-                values={pHValues} color="#0d9488" trend={pHTrend} trendLabel={pHLabel}
+                values={pHValues} color="#533afd" trend={pHTrend} trendLabel={pHLabel}
               />
               <TrendCard
                 label="Chlorine" unit="ppm" value={clValues[clValues.length - 1]} ideal="1–3"
-                values={clValues} color="#0d9488" trend={clTrend} trendLabel={clLabel}
+                values={clValues} color="#533afd" trend={clTrend} trendLabel={clLabel}
               />
             </div>
           </div>
@@ -659,21 +617,21 @@ export default function DashboardPage() {
       {alerts.length > 0 && (
         <div className="px-4 mt-bento_gap animate-in-delay-3">
           <div className="glass-panel rounded-xl p-5 space-y-3"
-            style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+            style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
             <div className="flex items-center gap-2 mb-1">
               <span className="label-mono">Preventative Alerts</span>
-              <span className="font-mono text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(13,148,136,0.10)', color: '#0d9488' }}>
+              <span className="text-[10px] px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(83,58,253,0.10)', color: '#533afd' }}>
                 {alerts.length}
               </span>
             </div>
             {alerts.map((alert, i) => {
               const level = alertLevel(alert)
               const isM = level === 'medium'
-              const color = isM ? '#d97706' : '#0d9488'
+              const color = isM ? '#d97706' : '#27a644'
               return (
                 <div key={i} className="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0">
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
                     style={{ background: `${color}18` }}>
                     <svg className="w-3.5 h-3.5" style={{ color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -681,7 +639,7 @@ export default function DashboardPage() {
                              : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"} />
                     </svg>
                   </div>
-                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#475569' }}>{alert}</p>
+                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#50617a' }}>{alert}</p>
                 </div>
               )
             })}
@@ -693,41 +651,40 @@ export default function DashboardPage() {
       {others.length > 0 && (
         <div className="px-4 mt-bento_gap animate-in-delay-4">
           <div className="glass-panel rounded-xl p-5"
-            style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+            style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
             <div className="flex justify-between items-center mb-4">
-              <span className="font-display font-semibold text-sm" style={{ color: '#0f172a' }}>Fleet Overview</span>
-              <Link href="/pools" className="font-mono text-[10px] tracking-wider uppercase"
-                style={{ color: '#0d9488' }}>VIEW ALL →</Link>
+              <span className="font-semibold text-sm" style={{ color: '#061b31' }}>Fleet Overview</span>
+              <Link href="/pools" className="text-xs"
+                style={{ color: '#533afd' }}>View all →</Link>
             </div>
             <div className="space-y-3">
               {others.map((p) => {
                 const lt = p.waterTests[0]
                 const pStatus = lt?.status ?? 'none'
                 const isOnline = pStatus !== 'none'
-                const pillColor = pStatus === 'critical' ? '#dc2626' : pStatus === 'caution' ? '#d97706' : '#0d9488'
+                const pillColor = pStatus === 'critical' ? '#dc2626' : pStatus === 'caution' ? '#d97706' : '#27a644'
                 return (
                   <Link key={p.id} href={`/pools/${p.id}`}
                     className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors rounded"
                     style={{ textDecoration: 'none' }}>
                     <div className="w-2 rounded-full flex-shrink-0"
-                      style={{ height: 36, background: isOnline ? pillColor : '#30353b',
-                        boxShadow: isOnline ? `0 0 8px ${pillColor}50` : 'none' }} />
+                      style={{ height: 36, background: isOnline ? pillColor : '#d0d6e0' }} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-display font-semibold text-sm truncate" style={{ color: '#0f172a' }}>{p.poolName}</p>
-                      <p className="font-mono text-[10px] tracking-wider mt-0.5" style={{ color: '#94a3b8' }}>
-                        {p.gallons.toLocaleString()} GAL
+                      <p className="font-semibold text-sm truncate" style={{ color: '#061b31' }}>{p.poolName}</p>
+                      <p className="text-[10px] tracking-wider mt-0.5" style={{ color: '#8a94a6' }}>
+                        {p.gallons.toLocaleString()} gal
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
                       {lt ? (
-                        <span className="font-mono text-[10px] tracking-wider" style={{ color: pillColor }}>
+                        <span className="text-[10px] tracking-wider font-medium" style={{ color: pillColor }}>
                           {pStatus === 'safe' ? 'BALANCED' : pStatus === 'caution' ? 'MONITOR' : 'ACTION'}
                         </span>
                       ) : (
-                        <span className="font-mono text-[10px] tracking-wider" style={{ color: '#94a3b8' }}>NO DATA</span>
+                        <span className="text-[10px] tracking-wider" style={{ color: '#8a94a6' }}>NO DATA</span>
                       )}
                     </div>
-                    <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#3a494b' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#c3c9d4' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </Link>
@@ -741,8 +698,8 @@ export default function DashboardPage() {
       {/* ── Add another pool ───────────────────────────────────────── */}
       <div className="px-4 mt-bento_gap animate-in-delay-4">
         <Link href="/pools/new"
-          className="flex items-center justify-center gap-2.5 py-4 rounded-xl font-mono text-[11px] tracking-wider uppercase transition-all duration-200 hover:bg-white/5"
-          style={{ border: '1px dashed rgba(58,73,75,0.60)', color: '#94a3b8', textDecoration: 'none' }}>
+          className="flex items-center justify-center gap-2.5 py-4 rounded-xl text-[11px] tracking-wider uppercase transition-all duration-200 hover:bg-slate-50"
+          style={{ border: '1px dashed rgba(6,27,49,0.18)', color: '#8a94a6', textDecoration: 'none' }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>

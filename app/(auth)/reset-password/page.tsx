@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
         <ResetForm />
       </Suspense>
       <p className="text-center text-sm text-slate-400 mt-6">
-        <Link href="/login" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
+        <Link href="/login" className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
           ← Back to sign in
         </Link>
       </p>
