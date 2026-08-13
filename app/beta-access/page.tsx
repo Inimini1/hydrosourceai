@@ -56,8 +56,8 @@ export default function BetaAccessPage() {
       <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center"
-            style={{ background: 'rgba(83,58,253,0.10)', border: '1px solid rgba(83,58,253,0.25)' }}>
-            <svg className="w-10 h-10" style={{ color: '#182659' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            style={{ background: 'rgba(0,201,177,0.10)', border: '1px solid rgba(0,201,177,0.25)' }}>
+            <svg className="w-10 h-10" style={{ color: '#00A99A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -89,7 +89,7 @@ export default function BetaAccessPage() {
             <span className="font-display font-bold text-slate-900 text-xl tracking-tight">HydroSource AI</span>
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 mb-4 text-xs font-bold tracking-wider"
-            style={{ background: 'rgba(83,58,253,0.08)', border: '1px solid rgba(83,58,253,0.25)', color: '#182659' }}>
+            style={{ background: 'rgba(0,201,177,0.08)', border: '1px solid rgba(0,201,177,0.25)', color: '#00A99A' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
             PRIVATE BETA
           </div>
@@ -114,7 +114,7 @@ export default function BetaAccessPage() {
           {/* Q1: Full Name */}
           <div>
             <label className="block text-slate-700 text-sm font-semibold mb-2">
-              1. Full Name <span style={{ color: '#182659' }}>*</span>
+              1. Full Name <span style={{ color: '#00A99A' }}>*</span>
             </label>
             <input
               type="text"
@@ -145,7 +145,7 @@ export default function BetaAccessPage() {
           {/* Q3: Email */}
           <div>
             <label className="block text-slate-700 text-sm font-semibold mb-2">
-              3. Email Address <span style={{ color: '#182659' }}>*</span>
+              3. Email Address <span style={{ color: '#00A99A' }}>*</span>
             </label>
             <input
               type="email"
@@ -167,8 +167,8 @@ export default function BetaAccessPage() {
                 onClick={() => setAgreed(!agreed)}
                 className="flex-shrink-0 mt-0.5 w-5 h-5 rounded flex items-center justify-center transition-all duration-200"
                 style={{
-                  background: agreed ? '#533afd' : 'transparent',
-                  border: `2px solid ${agreed ? '#533afd' : 'rgba(0,0,0,0.25)'}`,
+                  background: agreed ? '#00C9B1' : 'transparent',
+                  border: `2px solid ${agreed ? '#00C9B1' : 'rgba(0,0,0,0.25)'}`,
                 }}
               >
                 {agreed && (
@@ -196,7 +196,7 @@ export default function BetaAccessPage() {
             type="submit"
             disabled={loading || !name.trim() || !email.trim() || !agreed || (isTurnstileEnabled && !turnstileToken)}
             className="w-full py-4 rounded-2xl font-bold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-white"
-            style={{ background: 'linear-gradient(135deg,#533afd,#182659)' }}
+            style={{ background: 'linear-gradient(135deg,#00C9B1,#00A99A)' }}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

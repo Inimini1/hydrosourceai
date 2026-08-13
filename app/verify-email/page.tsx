@@ -50,8 +50,8 @@ function VerifyContent() {
           {success && (
             <>
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-                style={{ background: 'rgba(83,58,253,0.10)' }}>
-                <svg className="w-8 h-8" fill="none" stroke="#533afd" viewBox="0 0 24 24">
+                style={{ background: 'rgba(0,201,177,0.10)' }}>
+                <svg className="w-8 h-8" fill="none" stroke="#00C9B1" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -62,7 +62,7 @@ function VerifyContent() {
               <Link
                 href="/dashboard"
                 className="block w-full py-3.5 rounded-2xl font-semibold text-sm text-white text-center transition-all duration-200"
-                style={{ background: 'linear-gradient(135deg, #533afd, #182659)' }}
+                style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)' }}
               >
                 Go to dashboard →
               </Link>
@@ -98,7 +98,7 @@ function VerifyContent() {
                     type="submit"
                     disabled={resendLoading}
                     className="w-full py-3.5 rounded-2xl font-semibold text-sm text-white disabled:opacity-50"
-                    style={{ background: 'linear-gradient(135deg, #533afd, #182659)' }}
+                    style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)' }}
                   >
                     {resendLoading ? 'Sending…' : 'Resend verification email'}
                   </button>
@@ -106,7 +106,7 @@ function VerifyContent() {
               )}
 
               {resendSent && (
-                <p className="text-sm font-semibold" style={{ color: '#182659' }}>
+                <p className="text-sm font-semibold" style={{ color: '#00A99A' }}>
                   Check your inbox — a new link has been sent.
                 </p>
               )}
@@ -115,7 +115,7 @@ function VerifyContent() {
                 <Link
                   href="/dashboard"
                   className="block w-full py-3.5 rounded-2xl font-semibold text-sm text-white text-center"
-                  style={{ background: 'linear-gradient(135deg, #533afd, #182659)' }}
+                  style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)' }}
                 >
                   Go to dashboard →
                 </Link>
@@ -126,8 +126,8 @@ function VerifyContent() {
           {!success && !error && (
             <>
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-                style={{ background: 'rgba(115,137,255,0.08)' }}>
-                <svg className="w-8 h-8" fill="none" stroke="#7389ff" viewBox="0 0 24 24">
+                style={{ background: 'rgba(0,111,255,0.08)' }}>
+                <svg className="w-8 h-8" fill="none" stroke="#006FFF" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -135,7 +135,7 @@ function VerifyContent() {
               <p className="text-sm text-slate-500 mb-6">
                 We sent a verification link to your email address. Click it to activate your account.
               </p>
-              <Link href="/onboarding" className="text-sm font-semibold" style={{ color: '#182659' }}>
+              <Link href="/onboarding" className="text-sm font-semibold" style={{ color: '#00A99A' }}>
                 Continue to setup →
               </Link>
             </>

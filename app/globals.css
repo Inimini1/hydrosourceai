@@ -17,13 +17,14 @@
     --type-display: clamp(1.75rem, 5vw + 0.5rem, 3.25rem);
 
     /* ── Design system tokens (light theme) ──
-       Brand accent (Stripe indigo) + status colors + Linear-derived
-       density/precision constants (hairline borders, tight radii). */
-    --pool-primary: #533afd;
-    --teal:         #533afd;
-    --teal-dark:    #182659;
+       Original teal/blue brand accent + status colors, with
+       Linear-derived density/precision structure (hairline borders,
+       tight radii, no glow/heavy shadow). */
+    --pool-primary: #00C9B1;
+    --teal:         #00C9B1;
+    --teal-dark:    #00A99A;
     --pool-dark:    #0a0f14;
-    --safe:         #27a644;
+    --safe:         #0d9488;
     --caution:      #d97706;
     --critical:     #dc2626;
     --page-bg:      #f8fafd;
@@ -166,24 +167,24 @@
     @apply w-full px-4 py-3 rounded-md text-sm font-normal text-slate-800
            focus:outline-none transition-all duration-150 bg-white;
     border: 1px solid rgba(6,27,49,0.10);
-    caret-color: #533afd;
+    caret-color: #00C9B1;
   }
   .input-glass::placeholder { @apply text-slate-400; }
   .input-glass:focus {
-    border-color: #533afd;
-    box-shadow: 0 0 0 3px rgba(83,58,253,0.12);
+    border-color: #00C9B1;
+    box-shadow: 0 0 0 3px rgba(0,201,177,0.12);
   }
 
   /* ── CTA button ───────────────────────────────────────────── */
   .btn-glass {
     @apply w-full py-3 px-4 rounded-md font-normal text-sm
            border transition-all duration-150 active:scale-[0.98];
-    background: #533afd;
+    background: #00C9B1;
     color: #ffffff;
     border-color: transparent;
   }
   .btn-glass:hover {
-    background: #7389ff;
+    background: #00A99A;
   }
 
   .dark-page { @apply bg-[#0a0f14] text-[#dee3ea]; }
@@ -197,21 +198,21 @@
   .btn-primary {
     @apply relative overflow-hidden text-white font-normal rounded-md
            transition-all duration-150 active:scale-[0.98];
-    background: #533afd;
+    background: #00C9B1;
   }
-  .btn-primary:hover { background: #7389ff; }
+  .btn-primary:hover { background: #00A99A; }
 
   /* Light input — matches card-light forms */
   .input-dark {
     @apply w-full px-4 py-3 rounded-md text-sm font-normal text-slate-800
            focus:outline-none transition-all duration-150 bg-white;
     border: 1px solid rgba(6,27,49,0.10);
-    caret-color: #533afd;
+    caret-color: #00C9B1;
   }
   .input-dark::placeholder { @apply text-slate-400; }
   .input-dark:focus {
-    border-color: #533afd;
-    box-shadow: 0 0 0 3px rgba(83,58,253,0.12);
+    border-color: #00C9B1;
+    box-shadow: 0 0 0 3px rgba(0,201,177,0.12);
   }
 
   /* ── Light theme (dashboard) — Linear-derived precision: hairline
@@ -224,31 +225,31 @@
   .btn-teal {
     @apply relative text-white font-normal rounded-md
            transition-all duration-150 active:scale-[0.98];
-    background: #533afd;
+    background: #00C9B1;
   }
-  .btn-teal:hover { background: #7389ff; }
+  .btn-teal:hover { background: #00A99A; }
 
   .input-light {
     @apply w-full px-4 py-3 rounded-md text-sm font-normal text-slate-800
            focus:outline-none transition-all duration-150 bg-white;
     border: 1px solid rgba(6,27,49,0.10);
-    caret-color: #533afd;
+    caret-color: #00C9B1;
   }
   .input-light::placeholder { @apply text-slate-400; }
   .input-light:focus {
-    border-color: #533afd;
-    box-shadow: 0 0 0 3px rgba(83,58,253,0.12);
+    border-color: #00C9B1;
+    box-shadow: 0 0 0 3px rgba(0,201,177,0.12);
   }
 
   .gradient-text {
     @apply text-transparent;
     background: none;
-    -webkit-text-fill-color: #533afd;
-    color: #533afd;
+    -webkit-text-fill-color: #00C9B1;
+    color: #00C9B1;
   }
 
   .safe-card {
-    background: rgba(39,166,68,0.05);
+    background: rgba(16,185,129,0.08);
     @apply border border-emerald-500/20;
   }
   .caution-card {
@@ -392,7 +393,7 @@
 
 /* ── Selection ─────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(83,58,253,0.15);
-  color: #533afd;
+  background: rgba(0,201,177,0.15);
+  color: #00C9B1;
 }
 

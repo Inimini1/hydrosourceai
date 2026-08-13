@@ -15,7 +15,7 @@ interface Usage {
 }
 
 const AVATAR_COLORS = [
-  { hex: '#533afd', label: 'Teal' },
+  { hex: '#00C9B1', label: 'Teal' },
   { hex: '#006FFF', label: 'Ocean blue' },
   { hex: '#8B5CF6', label: 'Purple' },
   { hex: '#EC4899', label: 'Pink' },
@@ -31,7 +31,7 @@ export default function AccountPage() {
   const [usage, setUsage] = useState<Usage | null>(null)
 
   const [displayName, setDisplayName] = useState('')
-  const [avatarColor, setAvatarColor] = useState('#533afd')
+  const [avatarColor, setAvatarColor] = useState('#00C9B1')
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
 
@@ -141,7 +141,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName ?? '')
-      setAvatarColor(user.avatarColor ?? '#533afd')
+      setAvatarColor(user.avatarColor ?? '#00C9B1')
     }
   }, [user])
 
@@ -206,7 +206,7 @@ export default function AccountPage() {
   }
 
   const initials = (displayName || user?.email || 'U')[0].toUpperCase()
-  const color = avatarColor || '#533afd'
+  const color = avatarColor || '#00C9B1'
 
   return (
     <div className="pb-6 animate-in">
@@ -237,7 +237,7 @@ export default function AccountPage() {
                   {user?.role === 'PROFESSIONAL' ? 'Pool professional' : 'Pool owner'}
                 </span>
                 <span className="text-slate-200">·</span>
-                <span className={`text-xs font-semibold ${user?.subscriptionStatus === 'PRO' ? 'text-indigo-500' : 'text-slate-400'}`}>
+                <span className={`text-xs font-semibold ${user?.subscriptionStatus === 'PRO' ? 'text-teal-500' : 'text-slate-400'}`}>
                   {user?.subscriptionStatus === 'PRO' ? '⭐ Pro' : 'Free plan'}
                 </span>
               </div>
@@ -325,7 +325,7 @@ export default function AccountPage() {
                     className="h-2 rounded-full transition-all duration-500"
                     style={{
                       width: `${Math.min(100, (usage.testsThisMonth / (usage.limit ?? 5)) * 100)}%`,
-                      background: usage.testsThisMonth >= (usage.limit ?? 5) ? '#EF4444' : '#533afd',
+                      background: usage.testsThisMonth >= (usage.limit ?? 5) ? '#EF4444' : '#00C9B1',
                     }}
                   />
                 </div>
@@ -458,7 +458,7 @@ export default function AccountPage() {
                 onClick={handleStartMfaEnroll}
                 disabled={mfaLoading}
                 className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 transition-all disabled:opacity-50"
-                style={{ background: '#533afd' }}
+                style={{ background: '#00C9B1' }}
               >
                 {mfaLoading ? 'Loading…' : 'Enable'}
               </button>

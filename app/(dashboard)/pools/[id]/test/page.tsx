@@ -821,7 +821,7 @@ export default function AddTestPage() {
               </button>
               <Link href={`/pools/${id}`}
                 className="flex-1 text-center py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center text-white"
-                style={{ background: 'linear-gradient(135deg, #533afd, #182659)', boxShadow: 'none' }}>
+                style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)', boxShadow: 'none' }}>
                 Done
               </Link>
             </div>
@@ -882,7 +882,7 @@ export default function AddTestPage() {
                 {planSaved && (
                   <Link
                     href={`/pools/${id}/maintenance`}
-                    className="block w-full text-center mt-1.5 py-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
+                    className="block w-full text-center mt-1.5 py-1.5 text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors"
                   >
                     Open your checklist →
                   </Link>
@@ -1021,7 +1021,7 @@ export default function AddTestPage() {
         </Link>
         <div>
           <h1 className="font-display font-bold text-slate-900 text-xl">Water Test</h1>
-          <p className="text-xs font-semibold mt-0.5" style={{ color: '#533afd' }}>Instant water diagnosis</p>
+          <p className="text-xs font-semibold mt-0.5" style={{ color: '#00C9B1' }}>Instant water diagnosis</p>
         </div>
       </div>
 
@@ -1036,7 +1036,7 @@ export default function AddTestPage() {
             <button key={t.key} onClick={() => setTab(t.key as 'manual' | 'photo')}
               className="flex-1 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-200"
               style={tab === t.key
-                ? { background: '#533afd', color: 'white', boxShadow: '0 2px 8px rgba(83,58,253,0.28)' }
+                ? { background: '#00C9B1', color: 'white', boxShadow: '0 2px 8px rgba(0,201,177,0.28)' }
                 : { color: '#94A3B8' }}>
               {t.icon} {t.label}
             </button>
@@ -1053,11 +1053,11 @@ export default function AddTestPage() {
         {scanResult && (
           <div className="p-4 rounded-2xl text-sm font-medium flex items-center gap-3"
             style={scanResult.includes('✓')
-              ? { background: 'rgba(83,58,253,0.08)', border: '1px solid rgba(83,58,253,0.2)', color: '#533afd' }
+              ? { background: 'rgba(0,201,177,0.08)', border: '1px solid rgba(0,201,177,0.2)', color: '#00C9B1' }
               : { background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#F59E0B' }}>
             <PoolDropIcon
               urgency={scanResult.includes('✓') ? 'fresh' : 'due-soon'}
-              color={scanResult.includes('✓') ? '#533afd' : '#F59E0B'}
+              color={scanResult.includes('✓') ? '#00C9B1' : '#F59E0B'}
               size={28}
             />
             <span>{scanResult.replace('✓ ', '')}</span>
@@ -1087,7 +1087,7 @@ export default function AddTestPage() {
                     onClick={() => setStripBrand(b.key)}
                     className="rounded-2xl px-3 py-2.5 text-left transition-all duration-200"
                     style={stripBrand === b.key
-                      ? { background: 'rgba(83,58,253,0.08)', border: '1.5px solid #533afd' }
+                      ? { background: 'rgba(0,201,177,0.08)', border: '1.5px solid #00C9B1' }
                       : { background: 'rgba(241,245,249,0.8)', border: '1.5px solid transparent' }}
                   >
                     <p className="text-xs font-semibold text-slate-700">{b.label}</p>
@@ -1117,7 +1117,7 @@ export default function AddTestPage() {
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleImageSelect(f) }}
-              className="card-light rounded-3xl p-8 text-center cursor-pointer border-2 border-dashed border-slate-200 hover:border-indigo-300 transition-all duration-200"
+              className="card-light rounded-3xl p-8 text-center cursor-pointer border-2 border-dashed border-slate-200 hover:border-teal-300 transition-all duration-200"
             >
               {imagePreview ? (
                 <div className="space-y-3">
@@ -1132,8 +1132,8 @@ export default function AddTestPage() {
               ) : (
                 <div>
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
-                    style={{ background: 'rgba(83,58,253,0.10)' }}>
-                    <svg className="w-8 h-8" style={{ color: '#533afd' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    style={{ background: 'rgba(0,201,177,0.10)' }}>
+                    <svg className="w-8 h-8" style={{ color: '#00C9B1' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                         d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1238,7 +1238,7 @@ export default function AddTestPage() {
                       onClick={() => toggleSymptom(chip.label)}
                       className="flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all duration-150"
                       style={active
-                        ? { background: '#533afd', color: 'white', boxShadow: '0 2px 8px rgba(83,58,253,0.25)' }
+                        ? { background: '#00C9B1', color: 'white', boxShadow: '0 2px 8px rgba(0,201,177,0.25)' }
                         : { background: '#F1F5F9', color: '#64748B' }}>
                       <span>{chip.emoji}</span>
                       {chip.label}

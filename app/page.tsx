@@ -78,9 +78,9 @@ export default async function LandingPage() {
   const SMOKE = '#839bc8'
   const FROST = '#e5edf5'
   const MIST = '#f8fafd'
-  const INDIGO = '#533afd'
-  const INDIGO_HOVER = '#7389ff'
-  const LAVENDER = '#b9b9f9'
+  const TEAL = '#00C9B1'
+  const CYAN = '#00f2ff'
+  const TEAL_BORDER = '#8be3d8'
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFeatureSettings: '"ss01" on, "tnum" on' }}>
@@ -96,8 +96,8 @@ export default async function LandingPage() {
             <svg width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
               <defs>
                 <linearGradient id="nav-drop-grad" x1="20%" y1="0%" x2="85%" y2="100%">
-                  <stop stopColor={INDIGO_HOVER} />
-                  <stop offset="1" stopColor="#182659" />
+                  <stop stopColor={CYAN} />
+                  <stop offset="1" stopColor={TEAL} />
                 </linearGradient>
               </defs>
               <path d="M50 14 C50 14 26 46 26 66 C26 83.12 36.66 96 50 96 C63.34 96 74 83.12 74 66 C74 46 50 14 50 14 Z" fill="url(#nav-drop-grad)" />
@@ -116,7 +116,7 @@ export default async function LandingPage() {
             </Link>
             <Link href="/signup"
               className="text-sm font-normal text-white transition-colors"
-              style={{ background: INDIGO, borderRadius: '4px', padding: '11px 20px' }}>
+              style={{ background: TEAL, borderRadius: '4px', padding: '11px 20px' }}>
               Get started
             </Link>
           </div>
@@ -136,7 +136,7 @@ export default async function LandingPage() {
             <h1 className="font-light mb-6"
               style={{ fontSize: 'clamp(2.4rem, 6vw, 3.5rem)', lineHeight: 1.08, letterSpacing: '-1.4px', color: INK }}>
               Your pool chemistry,{' '}
-              <span style={{ color: INDIGO }}>perfected.</span>
+              <span style={{ color: TEAL }}>perfected.</span>
             </h1>
 
             <p className="mb-10 max-w-[480px]" style={{ fontSize: '20px', lineHeight: 1.4, letterSpacing: '-0.2px', color: SLATE, fontWeight: 300 }}>
@@ -146,12 +146,12 @@ export default async function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-2 mb-8">
               <Link href="/signup"
                 className="inline-flex items-center justify-center text-white text-sm"
-                style={{ background: INDIGO, borderRadius: '4px', padding: '15.5px 24px' }}>
+                style={{ background: TEAL, borderRadius: '4px', padding: '15.5px 24px' }}>
                 Start free, no card needed
               </Link>
               <Link href="/login"
                 className="inline-flex items-center justify-center text-sm"
-                style={{ background: 'transparent', color: INDIGO, border: `1px solid ${LAVENDER}`, borderRadius: '4px', padding: '14.5px 24px' }}>
+                style={{ background: 'transparent', color: TEAL, border: `1px solid ${TEAL_BORDER}`, borderRadius: '4px', padding: '14.5px 24px' }}>
                 Already have an account
               </Link>
             </div>
@@ -159,7 +159,7 @@ export default async function LandingPage() {
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
               {trustPoints.map((label) => (
                 <span key={label} className="inline-flex items-center gap-2 text-sm" style={{ color: STEEL }}>
-                  <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: INDIGO }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: TEAL }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 13l4 4L19 7" />
                   </svg>
                   {label}
@@ -167,7 +167,7 @@ export default async function LandingPage() {
               ))}
             </div>
             <p className="text-sm mt-6" style={{ color: SLATE }}>
-              Questions? <a href="mailto:hydrosource.ai@appscloud365.com" style={{ color: INDIGO }}>hydrosource.ai@appscloud365.com</a>
+              Questions? <a href="mailto:hydrosource.ai@appscloud365.com" style={{ color: TEAL }}>hydrosource.ai@appscloud365.com</a>
             </p>
           </div>
 
@@ -209,7 +209,7 @@ export default async function LandingPage() {
                       </div>
                     </div>
                     <div className="relative h-1" style={{ background: FROST, borderRadius: '4px' }}>
-                      <div className="absolute h-full" style={{ left: `${r.idealL}%`, width: `${r.idealW}%`, background: 'rgba(83,58,253,0.18)', borderRadius: '4px' }} />
+                      <div className="absolute h-full" style={{ left: `${r.idealL}%`, width: `${r.idealW}%`, background: 'rgba(0,201,177,0.18)', borderRadius: '4px' }} />
                       <div className="absolute w-2.5 h-2.5 rounded-full border-2 -top-[3px] -translate-x-1/2"
                         style={{ left: `${r.pct}%`, background: r.color, borderColor: '#ffffff' }} />
                     </div>
@@ -217,7 +217,7 @@ export default async function LandingPage() {
                 ))}
               </div>
 
-              <div className="p-3" style={{ background: 'rgba(83,58,253,0.04)', border: '1px solid rgba(83,58,253,0.14)', borderRadius: '4px' }}>
+              <div className="p-3" style={{ background: 'rgba(0,201,177,0.04)', border: '1px solid rgba(0,201,177,0.14)', borderRadius: '4px' }}>
                 <p className="text-[9px] uppercase mb-2" style={{ color: SMOKE, letterSpacing: '0.08em' }}>Treatment plan</p>
                 <div className="space-y-1.5">
                   {[
@@ -227,7 +227,7 @@ export default async function LandingPage() {
                   ].map((step, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <span className="w-4 h-4 flex items-center justify-center text-[8px] font-medium flex-shrink-0 mt-0.5"
-                        style={{ background: 'rgba(83,58,253,0.10)', color: INDIGO, borderRadius: '4px' }}>{i + 1}</span>
+                        style={{ background: 'rgba(0,201,177,0.10)', color: TEAL, borderRadius: '4px' }}>{i + 1}</span>
                       <p className="text-[10px] leading-relaxed" style={{ color: STEEL }}>{step}</p>
                     </div>
                   ))}
@@ -254,7 +254,7 @@ export default async function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((f, i) => (
               <div key={i}>
-                <div className="mb-5" style={{ color: INDIGO }}>
+                <div className="mb-5" style={{ color: TEAL }}>
                   {f.icon}
                 </div>
                 <h3 className="text-lg font-normal mb-3" style={{ color: INK }}>{f.title}</h3>
@@ -284,7 +284,7 @@ export default async function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((s) => (
               <div key={s.n}>
-                <p className="text-sm mb-4" style={{ color: INDIGO, fontFeatureSettings: '"tnum" on' }}>{s.n}</p>
+                <p className="text-sm mb-4" style={{ color: TEAL, fontFeatureSettings: '"tnum" on' }}>{s.n}</p>
                 <h3 className="text-lg font-normal mb-2" style={{ color: INK }}>{s.title}</h3>
                 <p className="text-sm leading-relaxed" style={{ color: STEEL }}>{s.body}</p>
               </div>
@@ -307,18 +307,18 @@ export default async function LandingPage() {
           </p>
 
           <div className="mb-10 px-5 py-4 flex items-start gap-4" style={{ background: MIST, border: `1px solid ${FROST}`, borderRadius: '4px' }}>
-            <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: INDIGO }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: TEAL }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             <div>
               <p className="text-sm font-normal" style={{ color: INK }}>Performance guarantee</p>
-              <p className="text-sm mt-0.5" style={{ color: STEEL }}>Not satisfied with a paid plan? Contact <a href="mailto:hydrosource.ai@appscloud365.com" style={{ color: INDIGO }}>hydrosource.ai@appscloud365.com</a> and we will review within 48 hours.</p>
+              <p className="text-sm mt-0.5" style={{ color: STEEL }}>Not satisfied with a paid plan? Contact <a href="mailto:hydrosource.ai@appscloud365.com" style={{ color: TEAL }}>hydrosource.ai@appscloud365.com</a> and we will review within 48 hours.</p>
             </div>
           </div>
 
           <Link href="/pricing"
             className="inline-flex items-center justify-center text-white text-sm"
-            style={{ background: INDIGO, borderRadius: '4px', padding: '15.5px 24px' }}>
+            style={{ background: TEAL, borderRadius: '4px', padding: '15.5px 24px' }}>
             See plans & pricing
           </Link>
         </div>
@@ -338,7 +338,7 @@ export default async function LandingPage() {
           </p>
           <Link href="/signup"
             className="inline-flex items-center justify-center text-white text-sm"
-            style={{ background: INDIGO, borderRadius: '4px', padding: '15.5px 24px' }}>
+            style={{ background: TEAL, borderRadius: '4px', padding: '15.5px 24px' }}>
             Get started free, no card needed
           </Link>
         </div>
@@ -365,8 +365,8 @@ export default async function LandingPage() {
               <svg width="20" height="20" viewBox="0 0 100 100" aria-hidden="true">
                 <defs>
                   <linearGradient id="footer-drop-grad" x1="20%" y1="0%" x2="85%" y2="100%">
-                    <stop stopColor={INDIGO_HOVER} />
-                    <stop offset="1" stopColor="#182659" />
+                    <stop stopColor={CYAN} />
+                    <stop offset="1" stopColor={TEAL} />
                   </linearGradient>
                 </defs>
                 <path d="M50 14 C50 14 26 46 26 66 C26 83.12 36.66 96 50 96 C63.34 96 74 83.12 74 66 C74 46 50 14 50 14 Z" fill="url(#footer-drop-grad)" />

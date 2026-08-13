@@ -1,15 +1,18 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter_Tight, JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import ConsentBanner from '@/components/ConsentBanner'
 import { PostHogProvider } from '@/components/PostHogProvider'
 import { ToastProvider } from '@/components/Toaster'
 import { BetaFeedback } from '@/components/BetaFeedback'
 
-const interTight = Inter_Tight({
+// Inter is the web-font fallback. -apple-system/BlinkMacSystemFont (added in
+// tailwind.config.ts ahead of this variable) means Mac/iPhone/iPad users see
+// real SF Pro — Inter only renders for everyone else.
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-display',
-  weight: ['300', '400', '600', '700'],
+  weight: ['400', '500', '600', '700'],
 })
 
 const jetbrainsMono = JetBrains_Mono({
@@ -60,7 +63,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${interTight.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased bg-white">
         <PostHogProvider>
           <ToastProvider>

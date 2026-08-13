@@ -10,8 +10,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans:    ['var(--font-display)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        // -apple-system/BlinkMacSystemFont render real SF Pro on Mac/iPhone/iPad —
+        // Inter (the loaded web font) is the fallback for everyone else.
+        sans:    ['-apple-system', 'BlinkMacSystemFont', 'var(--font-display)', 'system-ui', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', 'var(--font-display)', 'system-ui', 'sans-serif'],
         mono:    ['var(--font-mono)', 'JetBrains Mono', 'monospace'],
       },
       colors: {

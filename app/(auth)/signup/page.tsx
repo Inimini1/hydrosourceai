@@ -124,9 +124,9 @@ export default function SignupPage() {
         {/* OAuth consent notice */}
         <p className="text-[10px] text-slate-400 text-center leading-relaxed">
           By continuing with any sign-up method, you agree to our{' '}
-          <Link href="/legal/terms" target="_blank" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-1">Terms of Service</Link>
+          <Link href="/legal/terms" target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-1">Terms of Service</Link>
           {' '}and{' '}
-          <Link href="/legal/privacy" target="_blank" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-1">Privacy Policy</Link>
+          <Link href="/legal/privacy" target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-1">Privacy Policy</Link>
           , including the recommendations disclaimer.
         </p>
 
@@ -173,7 +173,7 @@ export default function SignupPage() {
                 <button key={r} type="button" onClick={() => setRole(r)}
                   className={`py-3 rounded-2xl text-sm font-semibold border transition-all duration-200 ${
                     role === r
-                      ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm'
+                      ? 'bg-teal-500 text-white border-teal-500 shadow-sm'
                       : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}>
                   {r === 'OWNER' ? 'Pool Owner' : 'Pool Pro'}
@@ -249,7 +249,7 @@ export default function SignupPage() {
                   <div
                     className="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200"
                     style={checked
-                      ? { background: '#533afd', borderColor: '#533afd' }
+                      ? { background: '#00C9B1', borderColor: '#00C9B1' }
                       : { background: '#ffffff', borderColor: '#cbd5e1' }}>
                     {checked && (
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@ export default function SignupPage() {
                 </div>
                 <span className="text-xs text-slate-500 leading-relaxed">
                   {label}{' '}
-                  <Link href={link} target="_blank" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2 font-semibold">
+                  <Link href={link} target="_blank" className="text-teal-600 hover:text-teal-700 underline underline-offset-2 font-semibold">
                     {linkLabel}
                   </Link>
                 </span>
@@ -283,7 +283,7 @@ export default function SignupPage() {
 
       <p className="text-center text-sm text-slate-400 mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
+        <Link href="/login" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
           Sign in
         </Link>
       </p>
