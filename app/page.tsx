@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { HeroStagger, Reveal, FloatingPanel, PressableLink } from '@/components/marketing/Motion'
 
 export default async function LandingPage() {
   const supabase = createClient()
@@ -72,8 +73,9 @@ export default async function LandingPage() {
     },
   }
 
-  // Structure borrows Apple's centered-hero, full-bleed-wash, pill-button
-  // language — colors stay HydroSource's own teal/cyan, not Apple's blues.
+  // Structure + motion borrow Apple's centered-hero, full-bleed-wash,
+  // pill-button, floating-product-shot language — colors stay HydroSource's
+  // own teal/cyan, not Apple's blues.
   const INK = '#061b31'
   const SLATE = '#64748d'
   const STEEL = '#50617a'
@@ -119,18 +121,20 @@ export default async function LandingPage() {
             <Link href="/login" className="text-[13px] font-normal transition-colors" style={{ color: INK }}>
               Sign in
             </Link>
-            <Link href="/signup"
-              className="text-[13px] font-normal text-white transition-opacity hover:opacity-90"
-              style={{ background: TEAL, borderRadius: PILL, padding: '9px 18px' }}>
-              Get started
-            </Link>
+            <PressableLink className="inline-block">
+              <Link href="/signup"
+                className="inline-flex items-center justify-center text-[13px] font-normal text-white"
+                style={{ background: TEAL, borderRadius: PILL, padding: '9px 18px' }}>
+                Get started
+              </Link>
+            </PressableLink>
           </div>
         </div>
       </nav>
 
       {/* ── Hero — centered stack, product visual floating below ───── */}
-      <section className="px-6 text-center" style={{ background: CANVAS, paddingTop: '176px', paddingBottom: '96px' }}>
-        <div className="max-w-[880px] mx-auto">
+      <section className="px-6 text-center relative overflow-hidden" style={{ background: CANVAS, paddingTop: '176px', paddingBottom: '96px' }}>
+        <HeroStagger className="max-w-[880px] mx-auto relative z-10">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 mb-7 text-[12px] font-medium"
             style={{ border: `1px solid ${TEAL_BORDER}`, borderRadius: PILL, color: TEAL, background: '#ffffff' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: TEAL }} />
@@ -148,16 +152,20 @@ export default async function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-9">
-            <Link href="/signup"
-              className="inline-flex items-center justify-center text-white transition-opacity hover:opacity-90"
-              style={{ fontSize: '17px', background: TEAL, borderRadius: PILL, padding: '13px 28px' }}>
-              Start free, no card needed
-            </Link>
-            <Link href="/login"
-              className="inline-flex items-center justify-center transition-colors"
-              style={{ fontSize: '17px', background: 'transparent', color: TEAL, border: `1px solid ${TEAL_BORDER}`, borderRadius: PILL, padding: '12px 28px' }}>
-              Already have an account
-            </Link>
+            <PressableLink className="inline-block">
+              <Link href="/signup"
+                className="inline-flex items-center justify-center text-white"
+                style={{ fontSize: '17px', background: TEAL, borderRadius: PILL, padding: '13px 28px' }}>
+                Start free, no card needed
+              </Link>
+            </PressableLink>
+            <PressableLink className="inline-block">
+              <Link href="/login"
+                className="inline-flex items-center justify-center"
+                style={{ fontSize: '17px', background: 'transparent', color: TEAL, border: `1px solid ${TEAL_BORDER}`, borderRadius: PILL, padding: '12px 28px' }}>
+                Already have an account
+              </Link>
+            </PressableLink>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-4">
@@ -173,74 +181,80 @@ export default async function LandingPage() {
           <p className="text-[13px]" style={{ color: SLATE }}>
             Questions? <a href="mailto:hydrosource.ai@appscloud365.com" style={{ color: TEAL }}>hydrosource.ai@appscloud365.com</a>
           </p>
-        </div>
+        </HeroStagger>
+
+        {/* Ambient glow behind the product shot — soft, low-opacity, on-brand */}
+        <div className="absolute pointer-events-none" aria-hidden="true"
+          style={{ left: '50%', top: '58%', width: '900px', height: '520px', transform: 'translate(-50%, -50%)', background: `radial-gradient(ellipse at center, ${TEAL}26 0%, transparent 68%)`, filter: 'blur(60px)' }} />
 
         {/* Product visual — floating panel, the "device render" of the page */}
-        <div className="max-w-[720px] mx-auto mt-16 text-left">
-          <div className="p-6 bg-white"
-            style={{ border: `1px solid ${FROST}`, borderRadius: '14px', boxShadow: '0 30px 70px -20px rgba(6,27,49,0.22), 0 10px 24px -8px rgba(6,27,49,0.10)' }}>
+        <div className="max-w-[720px] mx-auto mt-16 text-left relative z-10">
+          <FloatingPanel>
+            <div className="p-6 bg-white"
+              style={{ border: `1px solid ${FROST}`, borderRadius: '14px', boxShadow: '0 30px 70px -20px rgba(6,27,49,0.22), 0 10px 24px -8px rgba(6,27,49,0.10)' }}>
 
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <p className="text-[10px] uppercase mb-0.5" style={{ color: SMOKE, letterSpacing: '0.08em' }}>Sample analysis</p>
-                <p className="text-base font-normal" style={{ color: INK }}>Water Analysis</p>
-              </div>
-              <div className="text-right">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium"
-                  style={{ background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.25)', color: '#b45309', borderRadius: PILL }}>
-                  Needs attention
-                </span>
-                <p className="text-[10px] mt-1" style={{ color: SLATE }}>Score: 62 / 100</p>
-              </div>
-            </div>
-
-            <div className="space-y-2 mb-5">
-              {[
-                { label: 'Free Chlorine', val: '0.8', unit: 'ppm', status: 'low', color: '#b45309', pct: 16, idealL: 20, idealW: 40 },
-                { label: 'pH', val: '7.4', unit: '', status: 'ok', color: INK, pct: 47, idealL: 37, idealW: 27 },
-                { label: 'Alkalinity', val: '105', unit: 'ppm', status: 'ok', color: INK, pct: 52, idealL: 32, idealW: 25 },
-                { label: 'CYA', val: '55', unit: 'ppm', status: 'high', color: '#b45309', pct: 73, idealL: 40, idealW: 27 },
-              ].map((r) => (
-                <div key={r.label} className="px-3 py-2.5" style={{ background: MIST, border: `1px solid ${FROST}`, borderRadius: '8px' }}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px]" style={{ color: SLATE }}>{r.label}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 uppercase" style={{ color: r.status === 'ok' ? SLATE : r.color, borderRadius: '4px' }}>
-                        {r.status === 'ok' ? 'In range' : r.status === 'low' ? 'Low' : 'High'}
-                      </span>
-                      <span className="text-sm font-normal" style={{ color: r.color }}>
-                        {r.val}<span className="text-[9px] ml-0.5" style={{ color: SLATE }}>{r.unit}</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="relative h-1" style={{ background: FROST, borderRadius: PILL }}>
-                    <div className="absolute h-full" style={{ left: `${r.idealL}%`, width: `${r.idealW}%`, background: 'rgba(0,201,177,0.18)', borderRadius: PILL }} />
-                    <div className="absolute w-2.5 h-2.5 rounded-full border-2 -top-[3px] -translate-x-1/2"
-                      style={{ left: `${r.pct}%`, background: r.color, borderColor: '#ffffff' }} />
-                  </div>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <p className="text-[10px] uppercase mb-0.5" style={{ color: SMOKE, letterSpacing: '0.08em' }}>Sample analysis</p>
+                  <p className="text-base font-normal" style={{ color: INK }}>Water Analysis</p>
                 </div>
-              ))}
-            </div>
+                <div className="text-right">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium"
+                    style={{ background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.25)', color: '#b45309', borderRadius: PILL }}>
+                    Needs attention
+                  </span>
+                  <p className="text-[10px] mt-1" style={{ color: SLATE }}>Score: 62 / 100</p>
+                </div>
+              </div>
 
-            <div className="p-3" style={{ background: 'rgba(0,201,177,0.04)', border: '1px solid rgba(0,201,177,0.14)', borderRadius: '8px' }}>
-              <p className="text-[9px] uppercase mb-2" style={{ color: SMOKE, letterSpacing: '0.08em' }}>Treatment plan</p>
-              <div className="space-y-1.5">
+              <div className="space-y-2 mb-5">
                 {[
-                  'Raise chlorine with liquid chlorine (10%): 52 fl oz for 20,000 gal',
-                  'Reduce CYA with a 20% partial drain. No chemical fix exists.',
-                  'Retest in 24 hrs after chlorine addition',
-                ].map((step, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className="w-4 h-4 flex items-center justify-center text-[8px] font-medium flex-shrink-0 mt-0.5"
-                      style={{ background: 'rgba(0,201,177,0.10)', color: TEAL, borderRadius: PILL }}>{i + 1}</span>
-                    <p className="text-[10px] leading-relaxed" style={{ color: STEEL }}>{step}</p>
+                  { label: 'Free Chlorine', val: '0.8', unit: 'ppm', status: 'low', color: '#b45309', pct: 16, idealL: 20, idealW: 40 },
+                  { label: 'pH', val: '7.4', unit: '', status: 'ok', color: INK, pct: 47, idealL: 37, idealW: 27 },
+                  { label: 'Alkalinity', val: '105', unit: 'ppm', status: 'ok', color: INK, pct: 52, idealL: 32, idealW: 25 },
+                  { label: 'CYA', val: '55', unit: 'ppm', status: 'high', color: '#b45309', pct: 73, idealL: 40, idealW: 27 },
+                ].map((r) => (
+                  <div key={r.label} className="px-3 py-2.5" style={{ background: MIST, border: `1px solid ${FROST}`, borderRadius: '8px' }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[11px]" style={{ color: SLATE }}>{r.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-medium px-1.5 py-0.5 uppercase" style={{ color: r.status === 'ok' ? SLATE : r.color, borderRadius: '4px' }}>
+                          {r.status === 'ok' ? 'In range' : r.status === 'low' ? 'Low' : 'High'}
+                        </span>
+                        <span className="text-sm font-normal" style={{ color: r.color }}>
+                          {r.val}<span className="text-[9px] ml-0.5" style={{ color: SLATE }}>{r.unit}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="relative h-1" style={{ background: FROST, borderRadius: PILL }}>
+                      <div className="absolute h-full" style={{ left: `${r.idealL}%`, width: `${r.idealW}%`, background: 'rgba(0,201,177,0.18)', borderRadius: PILL }} />
+                      <div className="absolute w-2.5 h-2.5 rounded-full border-2 -top-[3px] -translate-x-1/2"
+                        style={{ left: `${r.pct}%`, background: r.color, borderColor: '#ffffff' }} />
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
 
-            <p className="text-[9px] uppercase mt-3 text-right" style={{ color: SMOKE, letterSpacing: '0.06em' }}>Illustrative example</p>
-          </div>
+              <div className="p-3" style={{ background: 'rgba(0,201,177,0.04)', border: '1px solid rgba(0,201,177,0.14)', borderRadius: '8px' }}>
+                <p className="text-[9px] uppercase mb-2" style={{ color: SMOKE, letterSpacing: '0.08em' }}>Treatment plan</p>
+                <div className="space-y-1.5">
+                  {[
+                    'Raise chlorine with liquid chlorine (10%): 52 fl oz for 20,000 gal',
+                    'Reduce CYA with a 20% partial drain. No chemical fix exists.',
+                    'Retest in 24 hrs after chlorine addition',
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <span className="w-4 h-4 flex items-center justify-center text-[8px] font-medium flex-shrink-0 mt-0.5"
+                        style={{ background: 'rgba(0,201,177,0.10)', color: TEAL, borderRadius: PILL }}>{i + 1}</span>
+                      <p className="text-[10px] leading-relaxed" style={{ color: STEEL }}>{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-[9px] uppercase mt-3 text-right" style={{ color: SMOKE, letterSpacing: '0.06em' }}>Illustrative example</p>
+            </div>
+          </FloatingPanel>
           <p className="text-xs mt-4 text-center" style={{ color: SLATE }}>Instant diagnosis — no pool store trip</p>
         </div>
       </section>
@@ -248,14 +262,16 @@ export default async function LandingPage() {
       {/* ── Features ─────────────────────────────────────────────── */}
       <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px' }}>
         <div className="max-w-[1320px] mx-auto">
-          <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Everything you need</p>
-          <h2 className="font-semibold mb-16 mx-auto" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK, maxWidth: '640px' }}>
-            Built for pool owners who take water seriously
-          </h2>
+          <Reveal>
+            <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Everything you need</p>
+            <h2 className="font-semibold mb-16 mx-auto" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK, maxWidth: '640px' }}>
+              Built for pool owners who take water seriously
+            </h2>
+          </Reveal>
 
           <div className="grid md:grid-cols-3 gap-12 text-left">
             {features.map((f, i) => (
-              <div key={i}>
+              <Reveal key={i} delay={i * 0.1}>
                 <div className="mb-5" style={{ color: TEAL }}>
                   {f.icon}
                 </div>
@@ -267,7 +283,7 @@ export default async function LandingPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -276,18 +292,20 @@ export default async function LandingPage() {
       {/* ── How it works ─────────────────────────────────────────── */}
       <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px', background: CANVAS }}>
         <div className="max-w-[1320px] mx-auto">
-          <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Dead simple</p>
-          <h2 className="font-semibold mb-16 mx-auto" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK, maxWidth: '640px' }}>
-            From test to answer in three steps
-          </h2>
+          <Reveal>
+            <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Dead simple</p>
+            <h2 className="font-semibold mb-16 mx-auto" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK, maxWidth: '640px' }}>
+              From test to answer in three steps
+            </h2>
+          </Reveal>
 
           <div className="grid md:grid-cols-3 gap-12">
-            {steps.map((s) => (
-              <div key={s.n}>
+            {steps.map((s, i) => (
+              <Reveal key={s.n} delay={i * 0.1}>
                 <p className="text-[15px] mb-3" style={{ color: TEAL, fontWeight: 600, fontFeatureSettings: '"tnum" on' }}>{s.n}</p>
                 <h3 className="text-lg font-semibold mb-2" style={{ color: INK, letterSpacing: '-0.2px' }}>{s.title}</h3>
                 <p className="text-[15px] leading-relaxed" style={{ color: STEEL }}>{s.body}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -295,7 +313,7 @@ export default async function LandingPage() {
 
       {/* ── Pricing teaser ───────────────────────────────────────── */}
       <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px' }}>
-        <div className="max-w-[640px] mx-auto">
+        <Reveal className="max-w-[640px] mx-auto">
           <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Pricing</p>
           <h2 className="font-semibold mb-4" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK }}>
             Simple, honest pricing
@@ -314,17 +332,19 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          <Link href="/pricing"
-            className="inline-flex items-center justify-center text-white transition-opacity hover:opacity-90"
-            style={{ fontSize: '17px', background: TEAL, borderRadius: PILL, padding: '13px 28px' }}>
-            See plans & pricing
-          </Link>
-        </div>
+          <PressableLink className="inline-block">
+            <Link href="/pricing"
+              className="inline-flex items-center justify-center text-white"
+              style={{ fontSize: '17px', background: TEAL, borderRadius: PILL, padding: '13px 28px' }}>
+              See plans & pricing
+            </Link>
+          </PressableLink>
+        </Reveal>
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────────────── */}
       <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px', background: TEAL_WASH }}>
-        <div className="max-w-[640px] mx-auto">
+        <Reveal className="max-w-[640px] mx-auto">
           <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Now in early beta</p>
           <h2 className="font-semibold mb-5" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK }}>
             Ready for perfectly balanced water?
@@ -332,12 +352,14 @@ export default async function LandingPage() {
           <p className="mb-9" style={{ fontSize: '19px', lineHeight: 1.45, color: SLATE, fontWeight: 300 }}>
             Stop guessing. Start knowing exactly what your pool needs. Free during beta.
           </p>
-          <Link href="/signup"
-            className="inline-flex items-center justify-center text-white transition-opacity hover:opacity-90"
-            style={{ fontSize: '17px', background: TEAL, borderRadius: PILL, padding: '13px 28px' }}>
-            Get started free, no card needed
-          </Link>
-        </div>
+          <PressableLink className="inline-block">
+            <Link href="/signup"
+              className="inline-flex items-center justify-center text-white"
+              style={{ fontSize: '17px', background: TEAL, borderRadius: PILL, padding: '13px 28px' }}>
+              Get started free, no card needed
+            </Link>
+          </PressableLink>
+        </Reveal>
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}
