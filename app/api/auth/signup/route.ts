@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { verifyTurnstileToken } from '@/lib/turnstile'
+import { validatePasswordStrength } from '@/lib/passwordPolicy'
 
 export async function POST(req: NextRequest) {
   // Rate limit signups by IP: 5 per hour to slow account-creation abuse
@@ -28,8 +29,9 @@ export async function POST(req: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email format.' }, { status: 400 })
     }
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 })
+    const passwordError = validatePasswordStrength(password)
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 })
     }
     if (!['OWNER', 'PROFESSIONAL'].includes(role)) {
       return NextResponse.json({ error: 'Invalid role.' }, { status: 400 })
