@@ -21,7 +21,8 @@ export async function PATCH(
     .eq('id', params.id)
     .single()
 
-  if (!test) return NextResponse.json({ error: 'Test not found' }, { status: 404 })
+  const owner = (test as unknown as { pools: { user_id: string } } | null)?.pools?.user_id
+  if (!test || owner !== user.id) return NextResponse.json({ error: 'Test not found' }, { status: 404 })
 
   // feedback_rating is int: 1 = helpful, 0 = not_helpful
   type UpdateQuery = {

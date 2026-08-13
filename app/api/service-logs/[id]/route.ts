@@ -6,7 +6,18 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // RLS on service_logs checks pool ownership — delete will fail silently if not owner
+  // Verify ownership via pool join before deleting (RLS enforces this too, belt-and-suspenders)
+  const { data: log } = await supabase
+    .from('service_logs')
+    .select('id, pools!inner(user_id)')
+    .eq('id', params.id)
+    .single()
+
+  const owner = (log as unknown as { pools: { user_id: string } } | null)?.pools?.user_id
+  if (!log || owner !== user.id) {
+    return NextResponse.json({ error: 'Service log not found.' }, { status: 404 })
+  }
+
   const { error } = await supabase
     .from('service_logs')
     .delete()
