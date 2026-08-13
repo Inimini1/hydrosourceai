@@ -65,7 +65,7 @@ export default function LoginMfaPage() {
   if (checking) {
     return (
       <div className="w-full max-w-sm flex items-center justify-center py-16">
-        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -115,7 +115,7 @@ export default function LoginMfaPage() {
 
       <p className="text-center text-sm text-slate-400 mt-6">
         Lost access to your authenticator?{' '}
-        <button onClick={handleSignOutInstead} className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors cursor-pointer">
+        <button onClick={handleSignOutInstead} className="text-teal-600 font-semibold hover:text-teal-700 transition-colors cursor-pointer">
           Sign out
         </button>
       </p>

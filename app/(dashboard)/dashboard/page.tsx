@@ -74,7 +74,7 @@ function HealthRing({ score, size = 120 }: { score: number; size?: number }) {
   const [displayed, setDisplayed] = useState(0)
   const r = size * 0.42
   const c = 2 * Math.PI * r
-  const color = score >= 75 ? '#27a644' : score >= 50 ? '#d97706' : '#dc2626'
+  const color = score >= 75 ? '#0d9488' : score >= 50 ? '#d97706' : '#dc2626'
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 300)
@@ -368,7 +368,7 @@ export default function DashboardPage() {
   const poolStatus = lastTest?.status ?? 'safe'
   const statusDotColor = { safe: '#10B981', caution: '#F59E0B', critical: '#EF4444' }[poolStatus] ?? '#94A3B8'
 
-  const scoreTextColor = score >= 75 ? '#27a644' : score >= 50 ? '#d97706' : '#dc2626'
+  const scoreTextColor = score >= 75 ? '#0d9488' : score >= 50 ? '#d97706' : '#dc2626'
   const heroStatusLabel = score >= 75 ? 'Optimal Status' : score >= 50 ? 'Needs Attention' : 'Action Required'
 
   return (
@@ -392,8 +392,8 @@ export default function DashboardPage() {
           </Link>
           <Link href="/pools/new"
             className="w-10 h-10 rounded-md flex items-center justify-center transition-colors"
-            style={{ background: 'rgba(83,58,253,0.08)', border: '1px solid rgba(83,58,253,0.18)' }}>
-            <svg className="w-5 h-5" style={{ color: '#533afd' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            style={{ background: 'rgba(0,201,177,0.08)', border: '1px solid rgba(0,201,177,0.18)' }}>
+            <svg className="w-5 h-5" style={{ color: '#00C9B1' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </Link>
@@ -452,7 +452,7 @@ export default function DashboardPage() {
             const val = lastTest.pH
             const ok = val >= 7.2 && val <= 7.6
             const err = val < 7.0 || val > 8.0
-            const color = err ? '#dc2626' : ok ? '#27a644' : '#d97706'
+            const color = err ? '#dc2626' : ok ? '#0d9488' : '#d97706'
             const label = err ? 'Out of Range' : ok ? 'Optimal Range' : 'Monitor'
             return (
               <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
@@ -482,7 +482,7 @@ export default function DashboardPage() {
             const val = lastTest.chlorine
             const ok = val >= 1 && val <= 3
             const err = val < 0.5 || val > 5
-            const color = err ? '#dc2626' : ok ? '#27a644' : '#d97706'
+            const color = err ? '#dc2626' : ok ? '#0d9488' : '#d97706'
             const label = err ? 'Critical' : ok ? 'Optimal Range' : 'Adjust Soon'
             return (
               <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
@@ -514,7 +514,7 @@ export default function DashboardPage() {
           {(() => {
             const val = lastTest.alkalinity
             const ok = val >= 80 && val <= 120
-            const color = ok ? '#27a644' : '#d97706'
+            const color = ok ? '#0d9488' : '#d97706'
             return (
               <motion.div variants={fadeUp} whileTap={{ scale: 0.97 }}
                 className="bento-glass rounded-xl p-5 flex flex-col justify-between min-h-[120px] relative overflow-hidden"
@@ -576,7 +576,7 @@ export default function DashboardPage() {
           className="bento-glass flex items-center gap-3 px-4 py-4 rounded-xl transition-colors"
           style={{ border: '1px solid rgba(6,27,49,0.08)', textDecoration: 'none' }}>
           <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(83,58,253,0.06)' }}>
+            style={{ background: 'rgba(0,201,177,0.06)' }}>
             <svg className="w-4 h-4" style={{ color: '#50617a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
             </svg>
@@ -597,16 +597,16 @@ export default function DashboardPage() {
               <span className="font-semibold text-sm" style={{ color: '#061b31' }}>30-Day Trends</span>
               <Link href={`/pools/${primary.id}/history`}
                 className="text-xs"
-                style={{ color: '#533afd' }}>View all →</Link>
+                style={{ color: '#00C9B1' }}>View all →</Link>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <TrendCard
                 label="pH Level" unit="" value={pHValues[pHValues.length - 1]} ideal="7.2–7.6"
-                values={pHValues} color="#533afd" trend={pHTrend} trendLabel={pHLabel}
+                values={pHValues} color="#00C9B1" trend={pHTrend} trendLabel={pHLabel}
               />
               <TrendCard
                 label="Chlorine" unit="ppm" value={clValues[clValues.length - 1]} ideal="1–3"
-                values={clValues} color="#533afd" trend={clTrend} trendLabel={clLabel}
+                values={clValues} color="#00C9B1" trend={clTrend} trendLabel={clLabel}
               />
             </div>
           </div>
@@ -621,14 +621,14 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 mb-1">
               <span className="label-mono">Preventative Alerts</span>
               <span className="text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(83,58,253,0.10)', color: '#533afd' }}>
+                style={{ background: 'rgba(0,201,177,0.10)', color: '#00C9B1' }}>
                 {alerts.length}
               </span>
             </div>
             {alerts.map((alert, i) => {
               const level = alertLevel(alert)
               const isM = level === 'medium'
-              const color = isM ? '#d97706' : '#27a644'
+              const color = isM ? '#d97706' : '#0d9488'
               return (
                 <div key={i} className="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0">
                   <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -655,14 +655,14 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-4">
               <span className="font-semibold text-sm" style={{ color: '#061b31' }}>Fleet Overview</span>
               <Link href="/pools" className="text-xs"
-                style={{ color: '#533afd' }}>View all →</Link>
+                style={{ color: '#00C9B1' }}>View all →</Link>
             </div>
             <div className="space-y-3">
               {others.map((p) => {
                 const lt = p.waterTests[0]
                 const pStatus = lt?.status ?? 'none'
                 const isOnline = pStatus !== 'none'
-                const pillColor = pStatus === 'critical' ? '#dc2626' : pStatus === 'caution' ? '#d97706' : '#27a644'
+                const pillColor = pStatus === 'critical' ? '#dc2626' : pStatus === 'caution' ? '#d97706' : '#0d9488'
                 return (
                   <Link key={p.id} href={`/pools/${p.id}`}
                     className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors rounded"

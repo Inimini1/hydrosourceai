@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
           <div className="card-glass p-4 rounded-3xl mb-4 border border-caution/30 bg-caution/8">
             <p className="text-caution text-xs font-bold uppercase tracking-widest mb-2">Dev Mode — No email service configured</p>
             <p className="text-slate-900/50 text-xs mb-3">Click this link to reset your password:</p>
-            <a href={devUrl} className="text-indigo-600 text-sm font-semibold break-all hover:text-indigo-700 transition-colors">
+            <a href={devUrl} className="text-teal-600 text-sm font-semibold break-all hover:text-teal-700 transition-colors">
               {devUrl}
             </a>
           </div>
@@ -63,14 +63,14 @@ export default function ForgotPasswordPage() {
           <p className="text-slate-500 text-sm mb-4">Didn&apos;t receive it? Check your spam folder or try again.</p>
           <button
             onClick={() => { setSent(false); setDevUrl(null) }}
-            className="text-indigo-600 font-semibold text-sm hover:text-indigo-700 transition-colors"
+            className="text-teal-600 font-semibold text-sm hover:text-teal-700 transition-colors"
           >
             Try a different email
           </button>
         </div>
 
         <p className="text-center text-sm text-slate-900/30 mt-6">
-          <Link href="/login" className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
+          <Link href="/login" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
             ← Back to sign in
           </Link>
         </p>
@@ -117,7 +117,7 @@ export default function ForgotPasswordPage() {
       </div>
 
       <p className="text-center text-sm text-slate-900/30 mt-6">
-        <Link href="/login" className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
+        <Link href="/login" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
           ← Back to sign in
         </Link>
       </p>

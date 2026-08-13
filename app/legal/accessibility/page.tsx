@@ -12,7 +12,7 @@ export default function AccessibilityPage() {
       <div className="max-w-2xl mx-auto px-5 py-16">
 
         <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-indigo-600 text-sm font-semibold hover:text-indigo-700 transition-colors mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-teal-600 text-sm font-semibold hover:text-teal-700 transition-colors mb-8">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -47,7 +47,7 @@ export default function AccessibilityPage() {
                 'A responsive layout that supports browser zoom and text resizing without breaking',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#533afd' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#00C9B1' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                   {item}
@@ -83,8 +83,8 @@ export default function AccessibilityPage() {
             <h2 className="text-slate-900 font-bold text-lg mb-3">6. Feedback</h2>
             <p className="mb-2">If you encounter an accessibility barrier while using HydroSource AI, please tell us — we want to fix it. Reach us:</p>
             <ul className="space-y-1.5">
-              <li>Email: <a href="mailto:hydrosource.ai@appscloud365.com" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a></li>
-              <li>Phone: <a href="tel:+12144277224" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">+1 (214) 427-7224</a></li>
+              <li>Email: <a href="mailto:hydrosource.ai@appscloud365.com" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a></li>
+              <li>Phone: <a href="tel:+12144277224" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">+1 (214) 427-7224</a></li>
             </ul>
             <p className="mt-3 text-slate-400 text-xs">Please include the page you were on and, if possible, the assistive technology and browser you were using — it helps us reproduce and fix the issue faster.</p>
           </section>
@@ -98,7 +98,7 @@ export default function AccessibilityPage() {
 
         <div className="mt-12 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
           <span>HydroSource AI · Last updated August 10, 2026</span>
-          <Link href="/legal/privacy" className="text-indigo-600 hover:text-indigo-700 transition-colors">Privacy Policy →</Link>
+          <Link href="/legal/privacy" className="text-teal-600 hover:text-teal-700 transition-colors">Privacy Policy →</Link>
         </div>
 
       </div>

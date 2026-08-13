@@ -12,7 +12,7 @@ export default function TermsPage() {
       <div className="max-w-2xl mx-auto px-5 py-16">
 
         <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-indigo-600 text-sm font-semibold hover:text-indigo-700 transition-colors mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-teal-600 text-sm font-semibold hover:text-teal-700 transition-colors mb-8">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -76,7 +76,7 @@ export default function TermsPage() {
                 'You are responsible for all activity under your account',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style={{ background: '#533afd' }} />
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style={{ background: '#00C9B1' }} />
                   {item}
                 </li>
               ))}
@@ -116,7 +116,7 @@ export default function TermsPage() {
               <p><span className="text-slate-900 font-semibold">Free Plan:</span> Core features with usage limits.</p>
               <p><span className="text-slate-900 font-semibold">Pro Plan:</span> Billed monthly or annually via Stripe. Renews automatically until cancelled.</p>
               <p><span className="text-slate-900 font-semibold">Cancellation:</span> Cancel anytime from Account Settings. Takes effect at end of billing period. No partial refunds.</p>
-              <p><span className="text-slate-900 font-semibold">Refunds:</span> Within 7 days of initial purchase if unsatisfied. Email <a href="mailto:hydrosource.ai@appscloud365.com" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a>.</p>
+              <p><span className="text-slate-900 font-semibold">Refunds:</span> Within 7 days of initial purchase if unsatisfied. Email <a href="mailto:hydrosource.ai@appscloud365.com" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a>.</p>
             </div>
           </section>
 
@@ -151,15 +151,15 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-slate-900 font-bold text-lg mb-3">11. Privacy</h2>
-            <p>Your use of the service is subject to our <Link href="/legal/privacy" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">Privacy Policy</Link>, incorporated into these Terms by reference.</p>
+            <p>Your use of the service is subject to our <Link href="/legal/privacy" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">Privacy Policy</Link>, incorporated into these Terms by reference.</p>
           </section>
 
           <section>
             <h2 className="text-slate-900 font-bold text-lg mb-3">12. Contact</h2>
             <p className="mb-2">Questions about these Terms? Reach us:</p>
             <ul className="space-y-1.5">
-              <li>Email: <a href="mailto:hydrosource.ai@appscloud365.com" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a></li>
-              <li>Phone: <a href="tel:+12144277224" className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">+1 (214) 427-7224</a></li>
+              <li>Email: <a href="mailto:hydrosource.ai@appscloud365.com" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">hydrosource.ai@appscloud365.com</a></li>
+              <li>Phone: <a href="tel:+12144277224" className="text-teal-600 hover:text-teal-700 underline underline-offset-2">+1 (214) 427-7224</a></li>
             </ul>
           </section>
 
@@ -168,8 +168,8 @@ export default function TermsPage() {
         <div className="mt-12 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 flex-wrap gap-3">
           <span>HydroSource AI · Last updated April 25, 2026</span>
           <div className="flex items-center gap-4">
-            <Link href="/legal/accessibility" className="text-indigo-600 hover:text-indigo-700 transition-colors">Accessibility</Link>
-            <Link href="/legal/privacy" className="text-indigo-600 hover:text-indigo-700 transition-colors">Privacy Policy →</Link>
+            <Link href="/legal/accessibility" className="text-teal-600 hover:text-teal-700 transition-colors">Accessibility</Link>
+            <Link href="/legal/privacy" className="text-teal-600 hover:text-teal-700 transition-colors">Privacy Policy →</Link>
           </div>
         </div>
 

@@ -2,9 +2,9 @@ import React from 'react';
 
 // Geometric mark — a single-line droplet with an inset lens ring, standing in
 // for "read, verify, analyze." No mascot, no face: the brand carries through
-// the wordmark and the indigo accent, not an illustrated character.
-const INDIGO = '#533afd';
-const INDIGO_DEEP = '#182659';
+// the wordmark and the teal/blue brand gradient, not an illustrated character.
+const TEAL = '#00C9B1';
+const CYAN = '#00f2ff';
 
 export function PoolLensMark({ variant = 'dark' }) {
   const isLight = variant === 'light';
@@ -13,15 +13,16 @@ export function PoolLensMark({ variant = 'dark' }) {
     <g>
       {isLight ? null : <circle cx="50" cy="50" r="50" fill="#ffffff" />}
       <defs>
-        <linearGradient id="markGrad" x1="20%" y1="0%" x2="85%" y2="100%">
-          <stop offset="0%" stopColor="#7389ff" />
-          <stop offset="100%" stopColor={INDIGO_DEEP} />
+        <linearGradient id="markGrad" x1="15%" y1="0%" x2="90%" y2="100%">
+          <stop offset="0%" stopColor={CYAN} />
+          <stop offset="100%" stopColor={TEAL} />
         </linearGradient>
       </defs>
       <path
         d="M50 14 C50 14 26 46 26 66 C26 83.12 36.66 96 50 96 C63.34 96 74 83.12 74 66 C74 46 50 14 50 14 Z"
         fill="url(#markGrad)"
       />
+      <circle cx="63" cy="34" r="3.2" fill="#ffffff" opacity="0.5" />
       <circle cx="50" cy="68" r="11" fill="none" stroke="#ffffff" strokeWidth="3" />
     </g>
   );
@@ -46,4 +47,4 @@ export function PoolLensIcon({ size = 48, variant = 'dark', className = '', ...p
   );
 }
 
-export const BRAND_ACCENT = INDIGO;
+export const BRAND_ACCENT = TEAL;

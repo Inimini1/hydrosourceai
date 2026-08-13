@@ -163,7 +163,7 @@ function LoginContent() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-semibold text-slate-600">Password</label>
-              <Link href="/forgot-password" className="text-xs text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
+              <Link href="/forgot-password" className="text-xs text-teal-600 font-semibold hover:text-teal-700 transition-colors">
                 Forgot password?
               </Link>
             </div>
@@ -181,7 +181,7 @@ function LoginContent() {
 
       <p className="text-center text-sm text-slate-400 mt-6">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
+        <Link href="/signup" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
           Sign up free
         </Link>
       </p>
