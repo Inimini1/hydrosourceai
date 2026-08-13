@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from 'next'
-import { Hanken_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Inter_Tight, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import ConsentBanner from '@/components/ConsentBanner'
 import { PostHogProvider } from '@/components/PostHogProvider'
 import { ToastProvider } from '@/components/Toaster'
 import { BetaFeedback } from '@/components/BetaFeedback'
 
-const hankenGrotesk = Hanken_Grotesk({
+const interTight = Inter_Tight({
   subsets: ['latin'],
   variable: '--font-display',
-  weight: ['400', '600', '700'],
+  weight: ['300', '400', '600', '700'],
 })
 
 const jetbrainsMono = JetBrains_Mono({
@@ -60,7 +60,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${hankenGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${interTight.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased bg-white">
         <PostHogProvider>
           <ToastProvider>

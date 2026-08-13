@@ -66,9 +66,9 @@ export function BetaFeedback() {
         className="fixed right-4 z-30 flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
         style={{
           bottom: '80px',
-          background: 'linear-gradient(135deg, #0d9488, #0f766e)',
+          background: 'linear-gradient(135deg, #533afd, #182659)',
           color: 'white',
-          boxShadow: '0 4px 20px rgba(13,148,136,0.35)',
+          boxShadow: '0 4px 20px rgba(83,58,253,0.35)',
         }}
       >
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,9 +115,9 @@ export function BetaFeedback() {
                       onClick={() => setCategory(c.value)}
                       className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                       style={{
-                        background: category === c.value ? 'rgba(13,148,136,0.1)' : '#f1f5f9',
-                        border: `1.5px solid ${category === c.value ? '#0d9488' : 'transparent'}`,
-                        color: category === c.value ? '#0d9488' : '#64748b',
+                        background: category === c.value ? 'rgba(83,58,253,0.1)' : '#f1f5f9',
+                        border: `1.5px solid ${category === c.value ? '#533afd' : 'transparent'}`,
+                        color: category === c.value ? '#533afd' : '#64748b',
                       }}
                     >
                       {c.emoji} {c.label}
@@ -134,7 +134,7 @@ export function BetaFeedback() {
                   style={{
                     background: '#f8fafc',
                     border: '1.5px solid rgba(0,0,0,0.1)',
-                    caretColor: '#0d9488',
+                    caretColor: '#533afd',
                   }}
                   autoFocus
                 />
@@ -147,15 +147,15 @@ export function BetaFeedback() {
                   onClick={send}
                   disabled={!message.trim() || loading}
                   className="w-full py-3.5 rounded-2xl font-semibold text-sm text-white disabled:opacity-50 transition-opacity"
-                  style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)' }}
+                  style={{ background: 'linear-gradient(135deg, #533afd, #182659)' }}
                 >
                   {loading ? 'Sending…' : 'Send Feedback'}
                 </button>
               </>
             ) : (
               <div className="text-center py-4">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-teal-50">
-                  <svg className="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(83,58,253,0.08)' }}>
+                  <svg className="w-7 h-7" style={{ color: '#533afd' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
