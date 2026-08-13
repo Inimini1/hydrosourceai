@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { PLAN_DEFINITIONS, PLAN_ORDER, type PlanType, type BillingCycle } from '@/lib/plans'
 import { usePageTitle } from '@/lib/usePageTitle'
 
@@ -51,20 +52,31 @@ function PlanBadge({ type }: { type: PlanType }) {
   )
 }
 
-export default function BillingPage() {
+function BillingContent() {
   usePageTitle('Billing')
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [sub, setSub] = useState<SubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
+  const [justUpgraded, setJustUpgraded] = useState(false)
 
   useEffect(() => {
     fetch('/api/subscription')
       .then((r) => r.json())
       .then((d) => { setSub(d); setLoading(false) })
       .catch(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (searchParams.get('success') === '1') {
+      setJustUpgraded(true)
+      router.replace('/billing')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function handleCheckout(planType: PlanType, billingCycle: BillingCycle) {
@@ -127,6 +139,22 @@ export default function BillingPage() {
   return (
     <div className="space-y-5 animate-in">
       <h1 className="font-display text-2xl font-bold text-slate-900">Plan &amp; Billing</h1>
+
+      {justUpgraded && (
+        <div className="rounded-3xl p-5 flex items-start gap-3"
+          style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(16,185,129,0.15)' }}>
+            <svg className="w-5 h-5" style={{ color: '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-800">You&apos;re all set — welcome to {plan.name}!</p>
+            <p className="text-xs text-slate-500 mt-0.5">Your plan is active now. Explore your new limits and features below.</p>
+          </div>
+        </div>
+      )}
 
       {/* Current plan card */}
       <div
@@ -359,5 +387,19 @@ export default function BillingPage() {
         <Link href="/legal/privacy" className="hover:text-slate-500 transition-colors">Privacy Policy</Link>
       </p>
     </div>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-4 animate-in">
+        <div className="h-8 w-40 rounded-xl skeleton-dark" />
+        <div className="h-36 rounded-3xl skeleton-dark" />
+        <div className="h-48 rounded-3xl skeleton-dark" />
+      </div>
+    }>
+      <BillingContent />
+    </Suspense>
   )
 }
