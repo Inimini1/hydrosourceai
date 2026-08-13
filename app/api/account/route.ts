@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { validatePasswordStrength } from '@/lib/passwordPolicy'
 
 export async function DELETE(req: NextRequest) {
   const supabase = createClient()
@@ -74,8 +75,9 @@ export async function PATCH(req: NextRequest) {
   if (!currentPassword || !newPassword) {
     return NextResponse.json({ error: 'Both current and new passwords are required.' }, { status: 400 })
   }
-  if (newPassword.length < 8) {
-    return NextResponse.json({ error: 'New password must be at least 8 characters.' }, { status: 400 })
+  const passwordError = validatePasswordStrength(newPassword)
+  if (passwordError) {
+    return NextResponse.json({ error: passwordError }, { status: 400 })
   }
 
   const { error: verifyError } = await supabase.auth.signInWithPassword({
