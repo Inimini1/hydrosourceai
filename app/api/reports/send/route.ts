@@ -38,13 +38,14 @@ export async function POST(req: NextRequest) {
 
   const { data: testRow, error: testError } = await supabase
     .from('water_tests')
-    .select('id, chlorine, ph, alkalinity, calcium_hardness, cyanuric_acid, temperature, status, ai_analysis, created_at, pools(pool_name, gallons, chlorine_type)')
+    .select('id, chlorine, ph, alkalinity, calcium_hardness, cyanuric_acid, temperature, status, ai_analysis, created_at, pools!inner(user_id, pool_name, gallons, chlorine_type)')
     .eq('id', testId)
     .single()
 
   if (testError || !testRow) return NextResponse.json({ error: 'Test not found.' }, { status: 404 })
 
   const poolData = Array.isArray(testRow.pools) ? testRow.pools[0] : testRow.pools
+  if (poolData?.user_id !== user.id) return NextResponse.json({ error: 'Test not found.' }, { status: 404 })
   const test = {
     chlorine: testRow.chlorine,
     pH: testRow.ph,
