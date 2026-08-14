@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { HeroStagger, Reveal, FloatingPanel, PressableLink } from '@/components/marketing/Motion'
+import { PoolLensIcon } from '@/components/brand'
+import { HeroStagger, Reveal, FloatingPanel, PressableLink, ParallaxGlow, ScrollCue, StickyMiniNav } from '@/components/marketing/Motion'
 
 export default async function LandingPage() {
   const supabase = createClient()
@@ -85,7 +86,6 @@ export default async function LandingPage() {
   const CANVAS = '#f6f9fc'
   const TEAL_WASH = '#eefaf8'
   const TEAL = '#00C9B1'
-  const CYAN = '#00f2ff'
   const TEAL_BORDER = '#8be3d8'
   const PILL = '9999px'
 
@@ -100,16 +100,7 @@ export default async function LandingPage() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-white" style={{ borderBottom: `1px solid ${FROST}` }}>
         <div className="max-w-[1320px] mx-auto px-6 flex items-center justify-between" style={{ height: '72px' }}>
           <div className="flex items-center gap-2.5">
-            <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
-              <defs>
-                <linearGradient id="nav-drop-grad" x1="20%" y1="0%" x2="85%" y2="100%">
-                  <stop stopColor={CYAN} />
-                  <stop offset="1" stopColor={TEAL} />
-                </linearGradient>
-              </defs>
-              <path d="M50 14 C50 14 26 46 26 66 C26 83.12 36.66 96 50 96 C63.34 96 74 83.12 74 66 C74 46 50 14 50 14 Z" fill="url(#nav-drop-grad)" />
-              <circle cx="50" cy="68" r="11" fill="none" stroke="#ffffff" strokeWidth="3" />
-            </svg>
+            <PoolLensIcon size={24} variant="dark" />
             <span className="text-[15px] font-semibold tracking-tight" style={{ color: INK }}>HydroSource AI</span>
           </div>
           <div className="flex items-center gap-7">
@@ -131,6 +122,22 @@ export default async function LandingPage() {
           </div>
         </div>
       </nav>
+
+      {/* ── Sticky mini-nav — pins below the global nav once past the hero ── */}
+      <StickyMiniNav
+        logo={<PoolLensIcon size={20} variant="dark" />}
+        wordmark="HydroSource AI"
+        ink={INK}
+        teal={TEAL}
+        border={FROST}
+        links={[
+          { href: '#features', label: 'Features' },
+          { href: '#how-it-works', label: 'How it works' },
+          { href: '#pricing', label: 'Pricing' },
+        ]}
+        ctaHref="/signup"
+        ctaLabel="Get started"
+      />
 
       {/* ── Hero — centered stack, product visual floating below ───── */}
       <section className="px-6 text-center relative overflow-hidden" style={{ background: CANVAS, paddingTop: '176px', paddingBottom: '96px' }}>
@@ -178,13 +185,14 @@ export default async function LandingPage() {
               </span>
             ))}
           </div>
-          <p className="text-[13px]" style={{ color: SLATE }}>
+          <p className="text-[13px] mb-8" style={{ color: SLATE }}>
             Questions? <a href="mailto:hydrosource.ai@appscloud365.com" style={{ color: TEAL }}>hydrosource.ai@appscloud365.com</a>
           </p>
+          <ScrollCue className="flex justify-center" style={{ color: TEAL }} />
         </HeroStagger>
 
-        {/* Ambient glow behind the product shot — soft, low-opacity, on-brand */}
-        <div className="absolute pointer-events-none" aria-hidden="true"
+        {/* Ambient glow behind the product shot — soft, low-opacity, on-brand, drifts on scroll for depth */}
+        <ParallaxGlow className="absolute pointer-events-none"
           style={{ left: '50%', top: '58%', width: '900px', height: '520px', transform: 'translate(-50%, -50%)', background: `radial-gradient(ellipse at center, ${TEAL}26 0%, transparent 68%)`, filter: 'blur(60px)' }} />
 
         {/* Product visual — floating panel, the "device render" of the page */}
@@ -260,7 +268,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Features ─────────────────────────────────────────────── */}
-      <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px' }}>
+      <section id="features" className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px', scrollMarginTop: '132px' }}>
         <div className="max-w-[1320px] mx-auto">
           <Reveal>
             <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Everything you need</p>
@@ -290,7 +298,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── How it works ─────────────────────────────────────────── */}
-      <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px', background: CANVAS }}>
+      <section id="how-it-works" className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px', background: CANVAS, scrollMarginTop: '132px' }}>
         <div className="max-w-[1320px] mx-auto">
           <Reveal>
             <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Dead simple</p>
@@ -312,7 +320,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Pricing teaser ───────────────────────────────────────── */}
-      <section className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px' }}>
+      <section id="pricing" className="px-6 text-center" style={{ paddingTop: '112px', paddingBottom: '112px', scrollMarginTop: '132px' }}>
         <Reveal className="max-w-[640px] mx-auto">
           <p className="text-[13px] uppercase mb-3" style={{ color: SLATE, letterSpacing: '0.08em' }}>Pricing</p>
           <h2 className="font-semibold mb-4" style={{ fontSize: 'clamp(2.1rem, 5vw, 3rem)', lineHeight: 1.12, letterSpacing: '-1.1px', color: INK }}>
@@ -380,16 +388,7 @@ export default async function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <svg width="20" height="20" viewBox="0 0 100 100" aria-hidden="true">
-                <defs>
-                  <linearGradient id="footer-drop-grad" x1="20%" y1="0%" x2="85%" y2="100%">
-                    <stop stopColor={CYAN} />
-                    <stop offset="1" stopColor={TEAL} />
-                  </linearGradient>
-                </defs>
-                <path d="M50 14 C50 14 26 46 26 66 C26 83.12 36.66 96 50 96 C63.34 96 74 83.12 74 66 C74 46 50 14 50 14 Z" fill="url(#footer-drop-grad)" />
-                <circle cx="50" cy="68" r="11" fill="none" stroke="#ffffff" strokeWidth="3" />
-              </svg>
+              <PoolLensIcon size={20} variant="dark" />
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-xs" style={{ color: SLATE }}>
                 <span className="text-sm font-semibold" style={{ color: INK }}>HydroSource AI</span>
                 <span className="hidden sm:inline">·</span>
