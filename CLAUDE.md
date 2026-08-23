@@ -1,4 +1,4 @@
-# SmartPool AI — Claude Code Instructions
+# HydroSource AI — Claude Code Instructions
 
 ## Project Overview
 Full-stack SaaS pool chemistry management app. Web (Next.js 14 App Router) + Mobile (Expo SDK 52, Expo Router v4). Backend: Supabase (Auth, Postgres, RLS, Realtime). AI: Claude claude-sonnet-4-6 via Anthropic SDK. Payments: Stripe.
