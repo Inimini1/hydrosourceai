@@ -303,14 +303,9 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-/* Light shimmer — for shapes inside white cards */
-.skeleton {
-  background: linear-gradient(90deg, #f0f2f5 0%, #e4e8ed 50%, #f0f2f5 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-/* Skeleton shimmer — same as .skeleton, kept for backwards compat */
-.skeleton-dark {
+/* Light shimmer — for shapes inside white cards. .skeleton-dark is a same-rule
+   alias kept because it's already used across the app under that name. */
+.skeleton, .skeleton-dark {
   background: linear-gradient(90deg, #f0f2f5 0%, #e4e8ed 50%, #f0f2f5 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
