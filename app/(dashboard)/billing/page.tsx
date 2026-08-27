@@ -191,7 +191,7 @@ function BillingContent() {
           {/* Feature checklist */}
           <div className="space-y-2">
             {[
-              { label: `${sub?.poolLimit === -1 ? 'Unlimited' : sub?.poolLimit ?? 1} pool profile${(sub?.poolLimit ?? 1) !== 1 ? 's' : ''}`, included: true },
+              { label: sub?.poolLimit === -1 ? 'Custom pool capacity' : `${sub?.poolLimit ?? 1} pool profile${(sub?.poolLimit ?? 1) !== 1 ? 's' : ''}`, included: true },
               { label: sub?.analysisLimit === -1 ? 'Unlimited analyses' : `${sub?.analysisLimit ?? 5} analyses/month`, included: true },
               { label: 'Maintenance log & treatment checklists', included: sub?.features.maintenanceLog ?? false },
               { label: 'PDF report export', included: sub?.features.pdfReports ?? false },

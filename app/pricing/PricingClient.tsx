@@ -428,8 +428,8 @@ export default function PricingClient() {
         >
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#D97706' }}>Enterprise</div>
-            <h3 className="font-display font-bold text-slate-900 text-xl mb-1">Unlimited pools. Custom everything.</h3>
-            <p className="text-sm text-slate-500">For large pool management companies that need unlimited pools, custom onboarding, and dedicated support.</p>
+            <h3 className="font-display font-bold text-slate-900 text-xl mb-1">Built to scale. Custom everything.</h3>
+            <p className="text-sm text-slate-500">For large pool management companies that need high-volume pool capacity, custom onboarding, and dedicated support.</p>
           </div>
           <a
             href="mailto:hydrosource.ai@appscloud365.com?subject=Enterprise Inquiry"
