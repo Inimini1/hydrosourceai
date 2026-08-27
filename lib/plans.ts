@@ -199,7 +199,7 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
   POOL_TEAM: {
     type: 'POOL_TEAM',
     name: 'Pool Team',
-    tagline: 'For growing pool service companies managing technician teams',
+    tagline: 'Higher pool capacity for growing service companies',
     userType: 'professional',
     price: { monthly: 149, annual: 1490, annualMonthly: 124.17 },
     stripePriceId: {

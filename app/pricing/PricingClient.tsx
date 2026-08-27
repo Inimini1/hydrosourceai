@@ -154,7 +154,7 @@ function ComparisonTable({ cycle }: { cycle: BillingCycle }) {
             {plans.map((plan) => (
               <th key={plan.type} className="text-center py-3 px-3 min-w-[110px]">
                 <div className="text-xs font-bold uppercase tracking-wide" style={{ color: plan.accentColor }}>
-                  {plan.name.replace('Homeowner ', '')}
+                  {plan.name.replace('Pool Owner ', '')}
                 </div>
                 <div className="text-base font-black text-slate-900 mt-0.5">
                   {formatPrice(plan, cycle)}
@@ -215,7 +215,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Can I try the software before choosing a plan?',
-    a: 'Yes. The Homeowner Free plan lets you run 5 analyses per month at no cost. Pool professionals can start a 14-day free trial of Pool Pro with no credit card.',
+    a: 'Yes. The Pool Owner Free plan lets you run 5 analyses per month at no cost. Pool professionals can start a 14-day free trial of Pool Pro with no credit card.',
   },
   {
     q: 'Is my data safe?',
@@ -356,8 +356,8 @@ export default function PricingClient() {
             14-day free trial · No credit card required
           </div>
           <h1 className="font-display font-black text-4xl md:text-5xl text-slate-900 leading-tight mb-4">
-            Intelligent Pool Chemistry Analysis<br />
-            <span style={{ color: '#00C9B1' }}>&amp; Client Reporting for Pool Professionals</span>
+            Pool chemistry analysis and client reporting,<br />
+            <span style={{ color: '#00C9B1' }}>built for professionals.</span>
           </h1>
           <p className="text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto">
             Save time, improve treatment accuracy, and generate professional client reports in minutes.
@@ -429,7 +429,7 @@ export default function PricingClient() {
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#D97706' }}>Enterprise</div>
             <h3 className="font-display font-bold text-slate-900 text-xl mb-1">Unlimited pools. Custom everything.</h3>
-            <p className="text-sm text-slate-500">For large pool management companies that need API access, custom onboarding, and dedicated support.</p>
+            <p className="text-sm text-slate-500">For large pool management companies that need unlimited pools, custom onboarding, and dedicated support.</p>
           </div>
           <a
             href="mailto:hydrosource.ai@appscloud365.com?subject=Enterprise Inquiry"
@@ -451,16 +451,16 @@ export default function PricingClient() {
           </div>
         </div>
 
-        {/* Testimonial */}
+        {/* Why it works */}
         <div
           className="rounded-3xl p-8 text-center mb-16 bg-white"
           style={{ border: '1px solid rgba(0,201,177,0.20)', background: 'linear-gradient(135deg, rgba(0,111,255,0.04), rgba(0,201,177,0.04))' }}
         >
           <div className="text-4xl mb-3">💧</div>
           <p className="text-lg font-bold text-slate-900 mb-2">
-            &ldquo;Saves me 45 minutes per route day. The treatment checklists mean my techs never miss a chemical step.&rdquo;
+            Built to cut route time and treatment guesswork.
           </p>
-          <p className="text-sm text-slate-400">Pool Pro subscriber · 32 pools managed</p>
+          <p className="text-sm text-slate-400">Maintenance checklists mean nothing gets skipped — exact dosing means nothing gets wasted.</p>
         </div>
 
         {/* FAQ */}
