@@ -261,7 +261,7 @@ export const PLAN_DEFINITIONS: Record<PlanType, PlanDefinition> = {
     // dedicated contact, negotiated reporting), not a self-serve feature set.
     // Do not re-add "API access" here until it's a real, working API.
     highlights: [
-      'Unlimited pool profiles',
+      'Custom pool capacity',
       'Custom onboarding & training',
       'Dedicated account manager',
       'Custom reporting & branding',
