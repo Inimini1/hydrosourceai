@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
 import { usePageTitle } from '@/lib/usePageTitle'
+import { highlightKeywords } from '@/lib/highlightKeywords'
 
 const listVariants = {
   hidden: {},
@@ -78,6 +79,7 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
+  const [selected, setSelected] = useState<Notification | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -98,6 +100,12 @@ export default function NotificationsPage() {
     } catch {
       setNotifications(prev)
     }
+  }
+
+  // Opening the popup is what marks it read — not the tap that opens it.
+  function openNotification(n: Notification) {
+    setSelected(n)
+    if (!n.read) markRead(n.id)
   }
 
   async function markAllRead() {
@@ -186,7 +194,7 @@ export default function NotificationsPage() {
                   key={n.id}
                   variants={itemVariants}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => !n.read && markRead(n.id)}
+                  onClick={() => openNotification(n)}
                   className="card-light rounded-3xl p-4 flex items-start gap-3.5 cursor-pointer transition-shadow duration-200 hover:shadow-md"
                   style={{ opacity: n.read ? 0.55 : 1 }}
                 >
@@ -202,7 +210,7 @@ export default function NotificationsPage() {
                           style={{ background: '#00C9B1' }} />
                       )}
                     </div>
-                    <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">{n.message}</p>
+                    <p className="text-sm text-slate-500 mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>
                     <p className="text-xs text-slate-300 mt-1.5">{formatDate(n.createdAt)}</p>
                   </div>
                 </motion.div>
@@ -211,6 +219,31 @@ export default function NotificationsPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Alert detail popup */}
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelected(null)} />
+          <div className="relative w-full sm:max-w-sm mx-4 mb-4 sm:mb-0 bg-white rounded-3xl p-5 animate-in">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: (typeConfig[selected.type] ?? defaultConfig).iconBg, color: (typeConfig[selected.type] ?? defaultConfig).iconColor }}>
+                {(typeConfig[selected.type] ?? defaultConfig).icon}
+              </div>
+              <div className="flex-1 min-w-0 pt-1.5">
+                <p className="font-display font-bold text-slate-900">{selected.title}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{formatDate(selected.createdAt)}</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed mb-5">{highlightKeywords(selected.message)}</p>
+            <button onClick={() => setSelected(null)}
+              className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-transform active:scale-[0.98]"
+              style={{ background: '#061b31' }}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

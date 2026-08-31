@@ -19,7 +19,10 @@
     /* ── Design system tokens (light theme) ──
        Original teal/blue brand accent + status colors, with
        Linear-derived density/precision structure (hairline borders,
-       tight radii, no glow/heavy shadow). */
+       tight radii, no glow/heavy shadow).
+       --teal/--teal-dark are the user's chosen accent color (Settings ->
+       Accent color) — set inline on :root by ThemeProvider, independent of
+       light/dark mode. Everything else here flips under :root.dark below. */
     --pool-primary: #00C9B1;
     --teal:         #00C9B1;
     --teal-dark:    #00A99A;
@@ -35,6 +38,20 @@
     --text-primary: #061b31;
     --text-secondary: #64748d;
     --text-muted:   #8a94a6;
+    --card-bg-overlay: rgba(255,255,255,0.96);
+  }
+
+  /* ── Dark mode — toggled via the .dark class on <html> (ThemeProvider) ── */
+  :root.dark {
+    --page-bg:      #0a0f14;
+    --card-bg:      #171c21;
+    --card-border:  rgba(255,255,255,0.08);
+    --input-bg:     #1b2025;
+    --input-border: rgba(255,255,255,0.12);
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted:   #64748b;
+    --card-bg-overlay: rgba(23,28,33,0.96);
   }
 
   html {
@@ -49,6 +66,8 @@
     font-feature-settings: 'cv11', 'ss01';
     overflow-x: hidden;
     max-width: 100%;
+    background-color: var(--page-bg);
+    transition: background-color 0.2s ease;
   }
 
   * {
@@ -64,30 +83,30 @@
 
   /* Background — flat canvas, no decorative wash (Stripe: tint shifts, not gradients) */
   .mesh-bg {
-    background-color: #f8fafd;
+    background-color: var(--page-bg);
   }
 
   /* Auth page background — flat canvas */
   .auth-mesh {
-    background-color: #ffffff;
+    background-color: var(--card-bg);
   }
 
-  /* Glass panel — flat white surface, hairline border does the separating */
+  /* Glass panel — flat surface, hairline border does the separating */
   .glass-panel {
-    background-color: #ffffff;
-    border: 1px solid rgba(6,27,49,0.08);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
   }
 
-  /* Bento glass — light panel for bento grid */
+  /* Bento glass — panel for bento grid */
   .bento-glass {
-    background-color: #ffffff;
-    border: 1px solid rgba(6,27,49,0.08);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
   }
 
-  /* Bento glass overlay — light overlay surfaces */
+  /* Bento glass overlay — overlay surfaces */
   .bento-glass-overlay {
-    background-color: rgba(255,255,255,0.96);
-    border: 1px solid rgba(6,27,49,0.08);
+    background-color: var(--card-bg-overlay);
+    border: 1px solid var(--card-border);
   }
 
   /* Glow ring indicator */
@@ -164,88 +183,96 @@
 
   /* ── Light input (replaces glass input) ────────────────────── */
   .input-glass {
-    @apply w-full px-4 py-3 rounded-md text-sm font-normal text-slate-800
-           focus:outline-none transition-all duration-150 bg-white;
-    border: 1px solid rgba(6,27,49,0.10);
-    caret-color: #00C9B1;
+    @apply w-full px-4 py-3 rounded-md text-sm font-normal
+           focus:outline-none transition-all duration-150;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--input-border);
+    caret-color: var(--teal);
   }
-  .input-glass::placeholder { @apply text-slate-400; }
+  .input-glass::placeholder { color: var(--text-muted); }
   .input-glass:focus {
-    border-color: #00C9B1;
-    box-shadow: 0 0 0 3px rgba(0,201,177,0.12);
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 12%, transparent);
   }
 
   /* ── CTA button ───────────────────────────────────────────── */
   .btn-glass {
     @apply w-full py-3 px-4 rounded-md font-normal text-sm
            border transition-all duration-150 active:scale-[0.98];
-    background: #00C9B1;
+    background: var(--teal);
     color: #ffffff;
     border-color: transparent;
   }
   .btn-glass:hover {
-    background: #00A99A;
+    background: var(--teal-dark);
   }
 
   .dark-page { @apply bg-[#0a0f14] text-[#dee3ea]; }
 
-  /* White card — used in auth forms */
+  /* Card — used in auth forms */
   .card-glass {
-    @apply rounded-xl bg-white;
-    border: 1px solid rgba(6,27,49,0.08);
+    @apply rounded-xl;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
   }
 
   .btn-primary {
     @apply relative overflow-hidden text-white font-normal rounded-md
            transition-all duration-150 active:scale-[0.98];
-    background: #00C9B1;
+    background: var(--teal);
   }
-  .btn-primary:hover { background: #00A99A; }
+  .btn-primary:hover { background: var(--teal-dark); }
 
-  /* Light input — matches card-light forms */
+  /* Input — matches card-light forms */
   .input-dark {
-    @apply w-full px-4 py-3 rounded-md text-sm font-normal text-slate-800
-           focus:outline-none transition-all duration-150 bg-white;
-    border: 1px solid rgba(6,27,49,0.10);
-    caret-color: #00C9B1;
+    @apply w-full px-4 py-3 rounded-md text-sm font-normal
+           focus:outline-none transition-all duration-150;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--input-border);
+    caret-color: var(--teal);
   }
-  .input-dark::placeholder { @apply text-slate-400; }
+  .input-dark::placeholder { color: var(--text-muted); }
   .input-dark:focus {
-    border-color: #00C9B1;
-    box-shadow: 0 0 0 3px rgba(0,201,177,0.12);
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 12%, transparent);
   }
 
   /* ── Light theme (dashboard) — Linear-derived precision: hairline
      border does the separating, not a heavy shadow ── */
   .card-light {
-    @apply bg-white rounded-xl;
-    border: 1px solid rgba(6,27,49,0.08);
+    @apply rounded-xl;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
   }
 
   .btn-teal {
     @apply relative text-white font-normal rounded-md
            transition-all duration-150 active:scale-[0.98];
-    background: #00C9B1;
+    background: var(--teal);
   }
-  .btn-teal:hover { background: #00A99A; }
+  .btn-teal:hover { background: var(--teal-dark); }
 
   .input-light {
-    @apply w-full px-4 py-3 rounded-md text-sm font-normal text-slate-800
-           focus:outline-none transition-all duration-150 bg-white;
-    border: 1px solid rgba(6,27,49,0.10);
-    caret-color: #00C9B1;
+    @apply w-full px-4 py-3 rounded-md text-sm font-normal
+           focus:outline-none transition-all duration-150;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--input-border);
+    caret-color: var(--teal);
   }
-  .input-light::placeholder { @apply text-slate-400; }
+  .input-light::placeholder { color: var(--text-muted); }
   .input-light:focus {
-    border-color: #00C9B1;
-    box-shadow: 0 0 0 3px rgba(0,201,177,0.12);
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 12%, transparent);
   }
 
   .gradient-text {
     @apply text-transparent;
     background: none;
-    -webkit-text-fill-color: #00C9B1;
-    color: #00C9B1;
+    -webkit-text-fill-color: var(--teal);
+    color: var(--teal);
   }
 
   .safe-card {
@@ -306,9 +333,13 @@
 /* Light shimmer — for shapes inside white cards. .skeleton-dark is a same-rule
    alias kept because it's already used across the app under that name. */
 .skeleton, .skeleton-dark {
-  background: linear-gradient(90deg, #f0f2f5 0%, #e4e8ed 50%, #f0f2f5 100%);
+  background: linear-gradient(90deg, var(--skeleton-1, #f0f2f5) 0%, var(--skeleton-2, #e4e8ed) 50%, var(--skeleton-1, #f0f2f5) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+}
+:root.dark {
+  --skeleton-1: #1b2025;
+  --skeleton-2: #252a30;
 }
 
 /* ── Keyframes ─────────────────────────────────────────────────────── */

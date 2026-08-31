@@ -7,6 +7,8 @@ import StatusBadge from '@/components/StatusBadge'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import TestReminderBanner, { getReminderState, PoolDropIcon } from '@/components/TestReminderBanner'
 import { PageError } from '@/components/PageError'
+import { parseAnalysis } from '@/lib/waterAnalysis'
+import { highlightKeywords } from '@/lib/highlightKeywords'
 
 interface Pool {
   id: string
@@ -45,6 +47,8 @@ export default function PoolDetailPage() {
   const [loadError, setLoadError] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
   const [deleting, setDeleting] = useState(false)
+  const [showActionMenu, setShowActionMenu] = useState(false)
+  const [showAlertPopup, setShowAlertPopup] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -151,6 +155,8 @@ export default function PoolDetailPage() {
   const lastTest = pool.waterTests[0]
   const nextTestDays = lastTest ? parseNextTestDays(lastTest.aiAnalysis) : null
   const reminderState = getReminderState(lastTest?.createdAt, nextTestDays)
+  const analysis = lastTest ? parseAnalysis(lastTest.aiAnalysis) : {}
+  const isCritical = lastTest?.status === 'critical'
 
   return (
     <div className="pb-6 animate-in">
@@ -163,21 +169,118 @@ export default function PoolDetailPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex items-center gap-1.5">
           <h1 className="font-display font-bold text-slate-900 text-xl truncate">{pool.poolName}</h1>
-          <p className="text-xs text-slate-400 mt-0.5">{pool.gallons.toLocaleString()} gal · {pool.chlorineType}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {lastTest && <StatusBadge status={lastTest.status as 'safe' | 'caution' | 'critical'} size="lg" />}
           <Link href={`/pools/${id}/edit`}
-            className="w-9 h-9 rounded-2xl flex items-center justify-center bg-white border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors">
-            <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            aria-label="Edit pool"
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-300 hover:text-slate-500 hover:bg-slate-100 transition-colors flex-shrink-0">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           </Link>
         </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {lastTest && (
+            isCritical ? (
+              <button onClick={() => setShowAlertPopup(true)} aria-label="View critical alert">
+                <StatusBadge status="critical" size="lg" />
+              </button>
+            ) : (
+              <StatusBadge status={lastTest.status as 'safe' | 'caution' | 'critical'} size="lg" />
+            )
+          )}
+          <button
+            onClick={() => setShowActionMenu(true)}
+            aria-label="New test or service log"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center text-white transition-transform active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)', boxShadow: '0 3px 10px rgba(0,201,177,0.35)' }}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {/* New-test / log-service popup */}
+      {showActionMenu && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowActionMenu(false)} />
+          <div className="relative w-full sm:max-w-sm mx-4 mb-4 sm:mb-0 bg-white rounded-3xl p-3 space-y-1 animate-in">
+            <Link href={`/pools/${id}/test`}
+              className="flex items-center gap-3 p-3.5 rounded-2xl hover:bg-slate-50 transition-colors">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #00C9B1, #00A99A)' }}>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">Test Water</p>
+                <p className="text-slate-400 text-xs mt-0.5">Get instant analysis</p>
+              </div>
+            </Link>
+            <Link href={`/pools/${id}/service`}
+              className="flex items-center gap-3 p-3.5 rounded-2xl hover:bg-slate-50 transition-colors">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <svg className="w-5 h-5" style={{ color: '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">Log Service</p>
+                <p className="text-slate-400 text-xs mt-0.5">Record maintenance</p>
+              </div>
+            </Link>
+            <button onClick={() => setShowActionMenu(false)}
+              className="w-full text-center text-sm text-slate-400 py-3 hover:text-slate-600 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Critical alert popup — the alert plus a checklist of what to do about it */}
+      {showAlertPopup && lastTest && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowAlertPopup(false)} />
+          <div className="relative w-full sm:max-w-sm mx-4 mb-4 sm:mb-0 bg-white rounded-3xl p-5 animate-in">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #ff5470, #dc2626)' }}>
+                <svg className="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <p className="font-display font-bold text-slate-900">Needs immediate attention</p>
+            </div>
+            {analysis.diagnosis && (
+              <p className="text-sm text-slate-600 leading-relaxed mb-4">{highlightKeywords(analysis.diagnosis)}</p>
+            )}
+            {(analysis.preventative_alerts?.length ?? 0) > 0 && (
+              <div className="space-y-2 mb-4">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">What to do</p>
+                {analysis.preventative_alerts!.map((step, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p className="text-sm text-slate-600 leading-relaxed">{highlightKeywords(step)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setShowAlertPopup(false)}
+              className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-transform active:scale-[0.98]"
+              style={{ background: '#061b31' }}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="px-4 space-y-4">
 

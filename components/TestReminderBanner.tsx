@@ -10,7 +10,7 @@ export interface ReminderState {
   daysSince: number
   label: string
   sublabel: string
-  urgency: 'fresh' | 'due-soon' | 'overdue' | 'urgent'
+  urgency: 'new' | 'fresh' | 'due-soon' | 'overdue' | 'urgent'
   color: string
   bg: string
   border: string
@@ -21,14 +21,17 @@ export function getReminderState(
   nextTestDays?: number | null,
 ): ReminderState {
   if (!lastTestedAt) {
+    // A pool that's never been tested isn't "overdue" — it just hasn't
+    // started yet. That's an invitation, not an alarm, so this gets its own
+    // calm blue state rather than reusing the red "urgent" treatment.
     return {
       daysSince: -1,
       label: 'No tests yet',
       sublabel: 'Run your first water test to get an instant analysis.',
-      urgency: 'urgent',
-      color: '#EF4444',
-      bg: 'rgba(239,68,68,0.07)',
-      border: 'rgba(239,68,68,0.18)',
+      urgency: 'new',
+      color: '#006FFF',
+      bg: 'rgba(0,111,255,0.07)',
+      border: 'rgba(0,111,255,0.18)',
     }
   }
 
@@ -88,6 +91,7 @@ export function getReminderState(
 
 // Constant fill — color carries all urgency information
 const FILL_LEVEL: Record<ReminderState['urgency'], number> = {
+  new:        0.75,
   fresh:      0.75,
   'due-soon': 0.75,
   overdue:    0.75,
@@ -95,6 +99,7 @@ const FILL_LEVEL: Record<ReminderState['urgency'], number> = {
 }
 
 const WAVE_SPEED_MS: Record<ReminderState['urgency'], number> = {
+  new:        3200,   // calm, inviting — matches "fresh"
   fresh:      3200,   // slow gentle waves
   'due-soon': 2200,   // moderate
   overdue:    1400,   // faster, choppier
@@ -103,6 +108,7 @@ const WAVE_SPEED_MS: Record<ReminderState['urgency'], number> = {
 
 // Unique-enough key per urgency so keyframes don't collide across instances
 const KEY: Record<ReminderState['urgency'], string> = {
+  new:        'nw',
   fresh:      'fr',
   'due-soon': 'ds',
   overdue:    'ov',
