@@ -27,13 +27,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: gate.reason, upgradeRequired: gate.upgradeRequired }, { status: 403 })
   }
 
-  const { testId, recipientEmail } = await req.json().catch(() => ({}))
+  const { testId, recipientEmail, timezone } = await req.json().catch(() => ({}))
 
   if (!testId || !recipientEmail) {
     return NextResponse.json({ error: 'Test ID and recipient email are required.' }, { status: 400 })
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
+  }
+
+  // Validate the client-supplied IANA zone before trusting it in
+  // toLocaleString below — an invalid string there throws a RangeError.
+  let reportTimeZone = 'UTC'
+  if (typeof timezone === 'string' && timezone.length < 100) {
+    try {
+      new Intl.DateTimeFormat('en-US', { timeZone: timezone })
+      reportTimeZone = timezone
+    } catch {
+      // fall back to UTC
+    }
   }
 
   const { data: testRow, error: testError } = await supabase
@@ -72,7 +84,7 @@ export async function POST(req: NextRequest) {
 
   let pdfBuffer: Buffer
   try {
-    pdfBuffer = await generateReportPdf(test, analysis)
+    pdfBuffer = await generateReportPdf(test, analysis, reportTimeZone)
   } catch (err) {
     console.error('Report PDF generation error:', err)
     return NextResponse.json({ error: 'Failed to generate the PDF report. Please try again.' }, { status: 500 })
@@ -99,7 +111,7 @@ interface TestData {
   pool: { poolName: string; gallons: number; chlorineType: string }
 }
 
-async function generateReportPdf(test: TestData, a: Record<string, unknown>): Promise<Buffer> {
+async function generateReportPdf(test: TestData, a: Record<string, unknown>, reportTimeZone: string): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4', bufferPages: true })
     const chunks: Buffer[] = []
@@ -130,6 +142,7 @@ async function generateReportPdf(test: TestData, a: Record<string, unknown>): Pr
     const poolTypeLabel = test.pool.chlorineType === 'SALT' ? 'Salt Water Pool' : isBromine ? 'Bromine Pool/Spa' : 'Chlorine Pool'
     const testDateStr = new Date(test.createdAt).toLocaleString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      timeZone: reportTimeZone, timeZoneName: 'short',
     })
 
     // ── HEADER ──────────────────────────────────────────────────────────────

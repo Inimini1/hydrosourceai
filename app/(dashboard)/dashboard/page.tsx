@@ -8,6 +8,8 @@ import { useAuth } from '@/components/AuthProvider'
 import { EmptyStateView } from '@/components/EmptyStateView'
 import { PageError } from '@/components/PageError'
 import { usePageTitle } from '@/lib/usePageTitle'
+import { parseAnalysis } from '@/lib/waterAnalysis'
+import { highlightKeywords } from '@/lib/highlightKeywords'
 
 const staggerContainer = {
   hidden: {},
@@ -37,17 +39,6 @@ interface Pool {
   waterTests: WaterTest[]
 }
 
-interface ParsedAnalysis {
-  health_score?: number
-  diagnosis?: string
-  preventative_alerts?: string[]
-  key_causes?: string[]
-  status?: 'safe' | 'caution' | 'critical'
-}
-
-function parseAnalysis(raw: string): ParsedAnalysis {
-  try { return JSON.parse(raw) } catch { return {} }
-}
 
 function getGreeting(): string {
   const h = new Date().getHours()
@@ -305,6 +296,7 @@ export default function DashboardPage() {
   usePageTitle('Dashboard')
   const { user } = useAuth()
   const [pools, setPools] = useState<Pool[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
@@ -323,6 +315,9 @@ export default function DashboardPage() {
           return (statusOrder[as] ?? 3) - (statusOrder[bs] ?? 3)
         })
         setPools(list)
+        // Keep the current selection if it still exists; otherwise default to
+        // the worst-status pool, same as the previous hardcoded pools[0].
+        setSelectedId((cur) => (cur && list.some((p) => p.id === cur)) ? cur : (list[0]?.id ?? null))
       })
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false))
@@ -340,8 +335,7 @@ export default function DashboardPage() {
 
   if (pools.length === 0) return <EmptyState />
 
-  const primary = pools[0]
-  const others = pools.slice(1)
+  const primary = pools.find((p) => p.id === selectedId) ?? pools[0]
   const lastTest = primary.waterTests[0]
   const analysis = lastTest ? parseAnalysis(lastTest.aiAnalysis) : {}
   const score = Math.round(Math.max(0, Math.min(100, analysis.health_score ?? 0)))
@@ -379,7 +373,7 @@ export default function DashboardPage() {
         <div>
           <p className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] mb-0.5"
             style={{ color: '#94a3b8' }}>{greeting}</p>
-          <h1 className="font-display font-bold text-slate-900 text-2xl leading-tight">{primary.poolName}</h1>
+          <h1 className="font-display font-bold text-slate-900 text-2xl leading-tight">{user?.displayName || 'Welcome back'}</h1>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/notifications"
@@ -394,6 +388,46 @@ export default function DashboardPage() {
             className="w-10 h-10 rounded-md flex items-center justify-center transition-colors"
             style={{ background: 'rgba(0,201,177,0.08)', border: '1px solid rgba(0,201,177,0.18)' }}>
             <svg className="w-5 h-5" style={{ color: '#00C9B1' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── My Pools switcher — lets you pick which pool the rest of the
+           page is showing, instead of being locked to one ────────────── */}
+      <div className="px-5 pb-1">
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] mb-2" style={{ color: '#94a3b8' }}>
+          My Pools · {pools.length} managed
+        </p>
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+          {pools.map((p) => {
+            const isSelected = p.id === primary.id
+            const lt = p.waterTests[0]
+            const dotColor = { safe: '#10B981', caution: '#F59E0B', critical: '#EF4444' }[lt?.status ?? ''] ?? '#94A3B8'
+            return (
+              <button
+                key={p.id}
+                onClick={() => setSelectedId(p.id)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full flex-shrink-0 transition-colors duration-200"
+                style={{
+                  background: isSelected ? '#061b31' : '#ffffff',
+                  border: `1px solid ${isSelected ? '#061b31' : 'rgba(6,27,49,0.10)'}`,
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: dotColor }} />
+                <span className="text-sm font-medium whitespace-nowrap" style={{ color: isSelected ? '#ffffff' : '#061b31' }}>
+                  {p.poolName}
+                </span>
+              </button>
+            )
+          })}
+          <Link
+            href="/pools/new"
+            className="flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0 transition-colors"
+            style={{ border: '1px dashed rgba(6,27,49,0.22)', color: '#94a3b8' }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </Link>
@@ -420,7 +454,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
             >
-              <span className="text-xs uppercase mb-1.5" style={{ color: '#64748d', letterSpacing: '0.06em' }}>System Health</span>
+              <span className="text-xs uppercase mb-1.5" style={{ color: '#64748d', letterSpacing: '0.06em' }}>{primary.poolName}</span>
               <h2 className="font-light text-[26px] leading-tight text-center" style={{ color: '#061b31', letterSpacing: '-0.02em' }}>{heroStatusLabel}</h2>
               {analysis.diagnosis && (
                 <p className="text-sm text-center mt-2 max-w-[280px] leading-relaxed"
@@ -639,73 +673,13 @@ export default function DashboardPage() {
                              : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"} />
                     </svg>
                   </div>
-                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#50617a' }}>{alert}</p>
+                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#50617a' }}>{highlightKeywords(alert)}</p>
                 </div>
               )
             })}
           </div>
         </div>
       )}
-
-      {/* ── Fleet: Other pools ─────────────────────────────────────── */}
-      {others.length > 0 && (
-        <div className="px-4 mt-bento_gap animate-in-delay-4">
-          <div className="glass-panel rounded-xl p-5"
-            style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-semibold text-sm" style={{ color: '#061b31' }}>Fleet Overview</span>
-              <Link href="/pools" className="text-xs"
-                style={{ color: '#00C9B1' }}>View all →</Link>
-            </div>
-            <div className="space-y-3">
-              {others.map((p) => {
-                const lt = p.waterTests[0]
-                const pStatus = lt?.status ?? 'none'
-                const isOnline = pStatus !== 'none'
-                const pillColor = pStatus === 'critical' ? '#dc2626' : pStatus === 'caution' ? '#d97706' : '#0d9488'
-                return (
-                  <Link key={p.id} href={`/pools/${p.id}`}
-                    className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors rounded"
-                    style={{ textDecoration: 'none' }}>
-                    <div className="w-2 rounded-full flex-shrink-0"
-                      style={{ height: 36, background: isOnline ? pillColor : '#d0d6e0' }} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate" style={{ color: '#061b31' }}>{p.poolName}</p>
-                      <p className="text-[10px] tracking-wider mt-0.5" style={{ color: '#8a94a6' }}>
-                        {p.gallons.toLocaleString()} gal
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      {lt ? (
-                        <span className="text-[10px] tracking-wider font-medium" style={{ color: pillColor }}>
-                          {pStatus === 'safe' ? 'BALANCED' : pStatus === 'caution' ? 'MONITOR' : 'ACTION'}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] tracking-wider" style={{ color: '#8a94a6' }}>NO DATA</span>
-                      )}
-                    </div>
-                    <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#c3c9d4' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Add another pool ───────────────────────────────────────── */}
-      <div className="px-4 mt-bento_gap animate-in-delay-4">
-        <Link href="/pools/new"
-          className="flex items-center justify-center gap-2.5 py-4 rounded-xl text-[11px] tracking-wider uppercase transition-all duration-200 hover:bg-slate-50"
-          style={{ border: '1px dashed rgba(6,27,49,0.18)', color: '#8a94a6', textDecoration: 'none' }}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          {pools.length === 1 ? 'Add another pool' : 'Add pool'}
-        </Link>
-      </div>
 
     </div>
   )

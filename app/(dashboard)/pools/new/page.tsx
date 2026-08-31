@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { useToast } from '@/components/Toaster'
+import { SanitizerIcon } from '@/components/SanitizerIcon'
 
 const GALLON_PRESETS = [
   { label: '5,000', value: 5000 },
@@ -140,11 +141,11 @@ export default function NewPoolPage() {
           <div className="card-light p-5 rounded-3xl">
             <label className="block text-sm font-semibold text-slate-600 mb-3">Sanitizer type</label>
             <div className="grid grid-cols-3 gap-2">
-              {[
-                { val: 'CHLORINE', label: 'Chlorine', emoji: '🧪' },
-                { val: 'SALT',     label: 'Salt',     emoji: '🌊' },
-                { val: 'BROMINE',  label: 'Bromine',  emoji: '⚗️' },
-              ].map((opt) => {
+              {([
+                { val: 'CHLORINE', label: 'Chlorine' },
+                { val: 'SALT',     label: 'Salt' },
+                { val: 'BROMINE',  label: 'Bromine' },
+              ] as const).map((opt) => {
                 const active = chlorineType === opt.val
                 return (
                   <button
@@ -155,7 +156,7 @@ export default function NewPoolPage() {
                     style={active
                       ? { background: '#00C9B1', color: 'white', borderColor: '#00C9B1', boxShadow: '0 2px 8px rgba(0,201,177,0.25)' }
                       : { background: '#F8FAFC', color: '#64748B', borderColor: '#E2E8F0' }}>
-                    <span className="block text-lg mb-0.5">{opt.emoji}</span>
+                    <SanitizerIcon type={opt.val} className="w-5 h-5 mx-auto mb-0.5" style={{ color: active ? 'white' : '#94A3B8' }} />
                     {opt.label}
                   </button>
                 )

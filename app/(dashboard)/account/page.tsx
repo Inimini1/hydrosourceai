@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from 'react'
 import { useAuth } from '@/components/AuthProvider'
+import { useTheme, type ThemeMode } from '@/components/ThemeProvider'
 import Link from 'next/link'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { createClient } from '@/lib/supabase/client'
@@ -26,8 +27,9 @@ const AVATAR_COLORS = [
 ]
 
 export default function AccountPage() {
-  usePageTitle('Account')
+  usePageTitle('Settings')
   const { user, refresh } = useAuth()
+  const { theme, setTheme, setAccent } = useTheme()
   const [usage, setUsage] = useState<Usage | null>(null)
 
   const [displayName, setDisplayName] = useState('')
@@ -212,7 +214,7 @@ export default function AccountPage() {
     <div className="pb-6 animate-in">
       {/* Header */}
       <div className="px-4 pt-12 pb-5">
-        <h1 className="font-display font-bold text-slate-900 text-xl">Profile</h1>
+        <h1 className="font-display font-bold text-slate-900 text-xl">Settings</h1>
         <p className="text-xs text-slate-400 mt-0.5">Manage your account and preferences</p>
       </div>
 
@@ -258,14 +260,16 @@ export default function AccountPage() {
             <p className="text-xs text-slate-400 mt-1.5">Shown in your dashboard greeting.</p>
           </div>
 
-          {/* Avatar color picker */}
+          {/* Accent color picker — drives the app's actual accent color
+              (buttons, links, highlights) app-wide, not just this avatar */}
           <div className="mb-5">
-            <label className="block text-sm font-semibold text-slate-600 mb-3">Avatar color</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-1">Accent color</label>
+            <p className="text-xs text-slate-400 mb-3">Changes the app&apos;s accent color everywhere, not just here.</p>
             <div className="flex gap-2 flex-wrap">
               {AVATAR_COLORS.map((c) => (
                 <button
                   key={c.hex}
-                  onClick={() => setAvatarColor(c.hex)}
+                  onClick={() => { setAvatarColor(c.hex); setAccent(c.hex) }}
                   title={c.label}
                   className="w-9 h-9 rounded-xl transition-all duration-200 hover:scale-110"
                   style={{
@@ -306,6 +310,29 @@ export default function AccountPage() {
               Beta — All Pro features active
             </div>
           )}
+        </div>
+
+        {/* Appearance */}
+        <div className="card-light p-5 rounded-3xl">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Appearance</p>
+          <div className="flex gap-2">
+            {([
+              { mode: 'light', label: 'Light' },
+              { mode: 'dark', label: 'Dark' },
+              { mode: 'system', label: 'System' },
+            ] as { mode: ThemeMode; label: string }[]).map((opt) => (
+              <button
+                key={opt.mode}
+                onClick={() => setTheme(opt.mode)}
+                className="flex-1 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200"
+                style={theme === opt.mode
+                  ? { background: '#00C9B1', color: 'white', boxShadow: '0 2px 8px rgba(0,201,177,0.28)' }
+                  : { background: 'rgba(0,0,0,0.04)', color: '#64748b' }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Usage */}

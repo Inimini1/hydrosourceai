@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { highlightKeywords } from '@/lib/highlightKeywords'
 
 export interface TreatmentStep {
   chemical: string
@@ -109,7 +110,7 @@ function StepItem({ step, index, total, done, onToggle }: {
               </p>
             </div>
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed">{step.how_to_apply}</p>
+          <p className="text-xs text-slate-500 leading-relaxed">{highlightKeywords(step.how_to_apply)}</p>
         </div>
       </div>
 
@@ -229,7 +230,7 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
           {notes && (
             <div className="rounded-2xl px-4 py-3 mb-4" style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.06)' }}>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Service Notes</p>
-              <p className="text-sm text-slate-600 leading-relaxed">{notes}</p>
+              <p className="text-sm text-slate-600 leading-relaxed">{highlightKeywords(notes ?? '')}</p>
             </div>
           )}
 
@@ -256,8 +257,15 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
             </div>
           )}
 
-          <div className="space-y-2">
-            {steps.map((step, i) => {
+          {/* Suggested actions and actions already taken are grouped separately
+              rather than interleaved, so it's clear at a glance what's left. */}
+          {(() => {
+            const indices = steps.map((_, i) => i)
+            const pendingIdx = indices.filter((i) => !(done[i] ?? false))
+            const doneIdx = indices.filter((i) => done[i] ?? false)
+
+            const renderStep = (i: number) => {
+              const step = steps[i]
               const wait = i < steps.length - 1 ? parseWaitTime(step.how_to_apply) : null
               return (
                 <div key={i}>
@@ -275,8 +283,27 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
                   )}
                 </div>
               )
-            })}
-          </div>
+            }
+
+            return (
+              <>
+                {pendingIdx.length > 0 && (
+                  <div className="space-y-2">
+                    {doneIdx.length > 0 && (
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">To Do</p>
+                    )}
+                    {pendingIdx.map(renderStep)}
+                  </div>
+                )}
+                {doneIdx.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Completed</p>
+                    {doneIdx.map(renderStep)}
+                  </div>
+                )}
+              </>
+            )
+          })()}
 
           {allDone && (
             <div className="rounded-2xl p-4 text-center mt-4"

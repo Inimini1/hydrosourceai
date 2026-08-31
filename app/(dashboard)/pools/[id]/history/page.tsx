@@ -43,11 +43,24 @@ function parseScore(raw: string): number {
 }
 
 const TIME_FILTERS = [
-  { label: '7d',  days: 7 },
-  { label: '30d', days: 30 },
-  { label: '90d', days: 90 },
-  { label: '1yr', days: 365 },
+  { label: 'Day',   days: 1 },
+  { label: 'Week',  days: 7 },
+  { label: 'Month', days: 30 },
+  { label: '3M',    days: 90 },
+  { label: '6M',    days: 180 },
+  { label: 'Year',  days: 365 },
 ]
+
+function formatRangeLabel(startMs: number, endMs: number, days: number): string {
+  const start = new Date(startMs)
+  const end = new Date(endMs)
+  if (days === 1) {
+    return end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return `${startStr} – ${endStr}`
+}
 
 // ── Interactive SVG chart ─────────────────────────────────────────────────────
 interface ChartPoint { value: number; date: string }
@@ -146,7 +159,7 @@ function Chart({
             width={W - padX * 2}
             height={Math.max(0, toY(idealMin) - toY(idealMax))}
             fill={color}
-            fillOpacity="0.08"
+            fillOpacity="0.14"
             rx="3"
           />
         )}
@@ -337,7 +350,10 @@ function TreatmentPlanCard({ test }: { test: WaterTest }) {
           {/* Safety notes */}
           {analysis.safety_notes && analysis.safety_notes !== 'None — water is safe to swim' && (
             <div className="rounded-xl p-3 flex gap-2.5" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.14)' }}>
-              <span className="text-base flex-shrink-0">⚠️</span>
+              <svg className="w-4 h-4 flex-shrink-0 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
               <p className="text-xs text-red-600 leading-relaxed">{analysis.safety_notes}</p>
             </div>
           )}
@@ -421,6 +437,14 @@ export default function HistoryPage() {
   const [loadError, setLoadError] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
   const [activeDays, setActiveDays] = useState(30)
+  // How many whole periods back from "now" the visible window is — lets you
+  // page through past weeks/months instead of always ending at today.
+  const [periodOffset, setPeriodOffset] = useState(0)
+
+  function selectFilter(days: number) {
+    setActiveDays(days)
+    setPeriodOffset(0)
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -437,8 +461,13 @@ export default function HistoryPage() {
     }).catch(() => setLoadError(true)).finally(() => setLoading(false))
   }, [id, retryKey])
 
-  const cutoff  = new Date(Date.now() - activeDays * 86400000)
-  const filtered = tests.filter((t) => new Date(t.createdAt) >= cutoff)
+  const periodMs = activeDays * 86400000
+  const windowEnd = Date.now() - periodOffset * periodMs
+  const windowStart = windowEnd - periodMs
+  const filtered = tests.filter((t) => {
+    const time = new Date(t.createdAt).getTime()
+    return time >= windowStart && time < windowEnd
+  })
 
   const toPoints = (getter: (t: WaterTest) => number | null) =>
     filtered
@@ -480,8 +509,8 @@ export default function HistoryPage() {
         </div>
         <div className="px-4 mb-5">
           <div className="card-light p-1 flex gap-1">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className={`flex-1 h-9 rounded-2xl skeleton ${i === 1 ? 'opacity-100' : 'opacity-60'}`} />
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className={`flex-1 h-9 rounded-2xl skeleton ${i === 2 ? 'opacity-100' : 'opacity-60'}`} />
             ))}
           </div>
         </div>
@@ -555,13 +584,13 @@ export default function HistoryPage() {
       )}
 
       {/* Time filter */}
-      <div className="px-4 mb-5">
+      <div className="px-4 mb-3">
         <div className="card-light p-1 flex gap-1">
           {TIME_FILTERS.map((f) => (
             <button
               key={f.days}
-              onClick={() => setActiveDays(f.days)}
-              className="flex-1 py-2 rounded-2xl text-xs font-semibold transition-all duration-200"
+              onClick={() => selectFilter(f.days)}
+              className="flex-1 py-2 rounded-2xl text-[11px] font-semibold transition-all duration-200"
               style={activeDays === f.days
                 ? { background: '#00C9B1', color: 'white', boxShadow: '0 2px 8px rgba(0,201,177,0.28)' }
                 : { color: '#94A3B8' }}
@@ -570,6 +599,33 @@ export default function HistoryPage() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Period navigation — page backward/forward through past weeks/months
+          instead of always ending at today */}
+      <div className="px-4 mb-5 flex items-center justify-between">
+        <button
+          onClick={() => setPeriodOffset((o) => o + 1)}
+          aria-label="Previous period"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors flex-shrink-0"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <span className="text-xs font-semibold text-slate-500">
+          {formatRangeLabel(windowStart, windowEnd, activeDays)}
+        </span>
+        <button
+          onClick={() => setPeriodOffset((o) => Math.max(0, o - 1))}
+          disabled={periodOffset === 0}
+          aria-label="Next period"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent flex-shrink-0"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
       {tests.length === 0 ? (
