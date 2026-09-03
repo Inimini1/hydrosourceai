@@ -103,8 +103,8 @@ function HealthRing({ score, size = 120 }: { score: number; size?: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center select-none" style={{ fontFeatureSettings: '"tnum" on' }}>
-        <span className="font-light leading-none" style={{ fontSize: size * 0.27, color: '#061b31', letterSpacing: '-0.02em' }}>{displayed}</span>
-        <span className="mt-0.5" style={{ fontSize: size * 0.10, color: '#64748d' }}>/ 100</span>
+        <span className="font-light leading-none" style={{ fontSize: size * 0.27, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{displayed}</span>
+        <span className="mt-0.5" style={{ fontSize: size * 0.10, color: 'var(--text-secondary)' }}>/ 100</span>
       </div>
     </div>
   )
@@ -232,7 +232,7 @@ function Skeleton() {
       <div className="px-4 grid grid-cols-2 gap-3">
         {[0, 1].map((i) => (
           <div key={i} className="rounded-xl p-5 min-h-[148px] flex flex-col justify-between"
-            style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.07)' }}>
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
             <div className="flex items-center justify-between">
               <div className="h-2.5 w-16 rounded-full skeleton-dark" />
               <div className="w-8 h-8 rounded-full skeleton-dark" />
@@ -245,7 +245,7 @@ function Skeleton() {
         ))}
         {[0, 1].map((i) => (
           <div key={i} className="rounded-xl p-5 min-h-[120px] flex flex-col justify-between"
-            style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.07)' }}>
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
             <div className="h-2.5 w-20 rounded-full skeleton-dark" />
             <div>
               <div className="h-8 w-14 rounded-lg skeleton-dark" />
@@ -378,8 +378,8 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <Link href="/notifications"
             className="w-10 h-10 rounded-md flex items-center justify-center transition-colors"
-            style={{ background: '#ffffff', border: '1px solid rgba(6,27,49,0.08)' }}>
-            <svg className="w-5 h-5" style={{ color: '#475569' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+            <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
             </svg>
@@ -411,12 +411,12 @@ export default function DashboardPage() {
                 onClick={() => setSelectedId(p.id)}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-full flex-shrink-0 transition-colors duration-200"
                 style={{
-                  background: isSelected ? '#061b31' : '#ffffff',
-                  border: `1px solid ${isSelected ? '#061b31' : 'rgba(6,27,49,0.10)'}`,
+                  background: isSelected ? 'var(--teal-dark)' : 'var(--card-bg)',
+                  border: `1px solid ${isSelected ? 'var(--teal-dark)' : 'var(--card-border)'}`,
                 }}
               >
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                <span className="text-sm font-medium whitespace-nowrap" style={{ color: isSelected ? '#ffffff' : '#061b31' }}>
+                <span className="text-sm font-medium whitespace-nowrap" style={{ color: isSelected ? '#ffffff' : 'var(--text-primary)' }}>
                   {p.poolName}
                 </span>
               </button>
@@ -454,13 +454,13 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
             >
-              <span className="text-xs uppercase mb-1.5" style={{ color: '#64748d', letterSpacing: '0.06em' }}>{primary.poolName}</span>
-              <h2 className="font-light text-[26px] leading-tight text-center" style={{ color: '#061b31', letterSpacing: '-0.02em' }}>{heroStatusLabel}</h2>
+              <span className="text-xs uppercase mb-1.5" style={{ color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>{primary.poolName}</span>
+              <h2 className="font-light text-[26px] leading-tight text-center" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{heroStatusLabel}</h2>
               {analysis.diagnosis && (
                 <p className="text-sm text-center mt-2 max-w-[280px] leading-relaxed"
                   style={{ color: '#50617a' }}>{analysis.diagnosis}</p>
               )}
-              <p className="text-xs mt-2" style={{ color: '#8a94a6' }}>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
                 Last tested {timeAgo(lastTest.createdAt)}
               </p>
             </motion.div>
@@ -468,7 +468,7 @@ export default function DashboardPage() {
         ) : (
           <div className="flex flex-col items-center z-10 py-6">
             <HealthRing score={0} size={140} />
-            <p className="text-xs uppercase mt-6" style={{ color: '#8a94a6', letterSpacing: '0.06em' }}>No test data yet</p>
+            <p className="text-xs uppercase mt-6" style={{ color: 'var(--text-muted)', letterSpacing: '0.06em' }}>No test data yet</p>
           </div>
         )}
       </div>
@@ -502,7 +502,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="font-bold leading-none" style={{ fontSize: 40, color: '#061b31', fontFeatureSettings: '"tnum" on' }}>
+                  <div className="font-bold leading-none" style={{ fontSize: 40, color: 'var(--text-primary)', fontFeatureSettings: '"tnum" on' }}>
                     {val.toFixed(1)}
                   </div>
                   <p className="font-mono text-[10px] tracking-wider mt-1" style={{ color }}>{label}</p>
@@ -533,10 +533,10 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="flex items-baseline gap-1">
-                    <span className="font-bold leading-none" style={{ fontSize: 40, color: '#061b31', fontFeatureSettings: '"tnum" on' }}>
+                    <span className="font-bold leading-none" style={{ fontSize: 40, color: 'var(--text-primary)', fontFeatureSettings: '"tnum" on' }}>
                       {val % 1 === 0 ? val : val.toFixed(1)}
                     </span>
-                    <span className="font-mono text-[11px]" style={{ color: '#8a94a6' }}>ppm</span>
+                    <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>ppm</span>
                   </div>
                   <p className="font-mono text-[10px] tracking-wider mt-1" style={{ color }}>{label}</p>
                 </div>
@@ -555,8 +555,8 @@ export default function DashboardPage() {
                 style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
                 <span className="label-mono">Total Alkalinity</span>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="font-bold text-3xl leading-none" style={{ color: '#061b31', fontFeatureSettings: '"tnum" on' }}>{val}</span>
-                  <span className="font-mono text-[11px]" style={{ color: '#8a94a6' }}>ppm</span>
+                  <span className="font-bold text-3xl leading-none" style={{ color: 'var(--text-primary)', fontFeatureSettings: '"tnum" on' }}>{val}</span>
+                  <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>ppm</span>
                 </div>
                 <p className="font-mono text-[10px] tracking-wider mt-1" style={{ color }}>{ok ? 'Balanced' : 'Check Level'}</p>
               </motion.div>
@@ -580,7 +580,7 @@ export default function DashboardPage() {
                   }
                 </svg>
               </div>
-              <p className="font-bold text-xl leading-tight" style={{ color: '#061b31' }}>
+              <p className="font-bold text-xl leading-tight" style={{ color: 'var(--text-primary)' }}>
                 {score >= 75 ? 'Safe to Swim' : score >= 50 ? 'Monitor Closely' : 'Take Action'}
               </p>
             </div>
@@ -616,8 +616,8 @@ export default function DashboardPage() {
             </svg>
           </div>
           <div>
-            <p className="font-semibold text-sm" style={{ color: '#061b31' }}>History</p>
-            <p className="text-[10px] tracking-wider mt-0.5" style={{ color: '#8a94a6' }}>VIEW TRENDS</p>
+            <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>History</p>
+            <p className="text-[10px] tracking-wider mt-0.5" style={{ color: 'var(--text-muted)' }}>VIEW TRENDS</p>
           </div>
         </Link>
       </div>
@@ -628,7 +628,7 @@ export default function DashboardPage() {
           <div className="glass-panel rounded-xl p-5"
             style={{ border: '1px solid rgba(6,27,49,0.08)' }}>
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold text-sm" style={{ color: '#061b31' }}>30-Day Trends</span>
+              <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>30-Day Trends</span>
               <Link href={`/pools/${primary.id}/history`}
                 className="text-xs"
                 style={{ color: '#00C9B1' }}>View all →</Link>

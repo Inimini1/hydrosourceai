@@ -57,7 +57,11 @@ function formatRangeLabel(startMs: number, endMs: number, days: number): string 
   if (days === 1) {
     return end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
-  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  // Show the start year too whenever the range crosses a year boundary —
+  // otherwise a Year/6M/3M range can render as e.g. "Sep 3 – Sep 3, 2026",
+  // which looks like a zero-length range instead of a full year.
+  const sameYear = start.getFullYear() === end.getFullYear()
+  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: sameYear ? undefined : 'numeric' })
   const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   return `${startStr} – ${endStr}`
 }

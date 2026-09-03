@@ -128,7 +128,7 @@ function SimpleLogCard({ log, onDelete }: { log: ServiceLog; onDelete: () => voi
   return (
     <div
       className="rounded-3xl p-5"
-      style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.07)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -265,7 +265,7 @@ export default function MaintenancePage() {
         <Link
           href={`/pools/${id}`}
           className="w-9 h-9 rounded-2xl flex items-center justify-center transition-all"
-          style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.08)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
         >
           <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -300,7 +300,7 @@ export default function MaintenancePage() {
           {/* Stats bar */}
           <div
             className="rounded-2xl p-4 grid grid-cols-3 divide-x divide-slate-100"
-            style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.07)' }}
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
           >
             {[
               { label: 'Total visits', value: totalLogs },

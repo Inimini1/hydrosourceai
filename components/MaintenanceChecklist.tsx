@@ -95,7 +95,7 @@ function StepItem({ step, index, total, done, onToggle }: {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm">{s.icon}</span>
               <span className="text-sm font-bold"
-                style={{ color: done ? '#0D9488' : '#0f172a', textDecoration: done ? 'line-through' : 'none' }}>
+                style={{ color: done ? '#0D9488' : 'var(--text-primary)', textDecoration: done ? 'line-through' : 'none' }}>
                 {step.chemical}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
@@ -164,8 +164,8 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
   return (
     <div className="rounded-3xl overflow-hidden"
       style={{
-        background: allDone ? 'rgba(13,148,136,0.04)' : '#ffffff',
-        border: allDone ? '1px solid rgba(13,148,136,0.18)' : '1px solid rgba(0,0,0,0.07)',
+        background: allDone ? 'rgba(13,148,136,0.04)' : 'var(--card-bg)',
+        border: allDone ? '1px solid rgba(13,148,136,0.18)' : '1px solid var(--card-border)',
         boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
       }}>
 
@@ -228,7 +228,7 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
       {expanded && (
         <div className="p-5 pt-4 space-y-2">
           {notes && (
-            <div className="rounded-2xl px-4 py-3 mb-4" style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.06)' }}>
+            <div className="rounded-2xl px-4 py-3 mb-4" style={{ background: 'var(--input-bg)', border: '1px solid var(--card-border)' }}>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Service Notes</p>
               <p className="text-sm text-slate-600 leading-relaxed">{highlightKeywords(notes ?? '')}</p>
             </div>
@@ -271,7 +271,7 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
                 <div key={i}>
                   <StepItem step={step} index={i} total={steps.length} done={done[i] ?? false} onToggle={() => toggle(i)} />
                   {wait && (
-                    <div className="flex items-center gap-2.5 mt-2 mb-1 ml-11 px-3 py-2 rounded-xl" style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.06)' }}>
+                    <div className="flex items-center gap-2.5 mt-2 mb-1 ml-11 px-3 py-2 rounded-xl" style={{ background: 'var(--input-bg)', border: '1px solid var(--card-border)' }}>
                       <svg className="w-3.5 h-3.5 flex-shrink-0 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>

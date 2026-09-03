@@ -136,7 +136,15 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { test: { ...waterTest, pH: waterTest.ph, aiAnalysis: analysis } },
+      {
+        test: {
+          ...waterTest,
+          pH: waterTest.ph,
+          calciumHardness: waterTest.calcium_hardness,
+          cyanuricAcid: waterTest.cyanuric_acid,
+          aiAnalysis: analysis,
+        },
+      },
       { status: 201 }
     )
   } catch (err) {

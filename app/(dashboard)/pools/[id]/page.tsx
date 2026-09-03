@@ -275,7 +275,7 @@ export default function PoolDetailPage() {
             )}
             <button onClick={() => setShowAlertPopup(false)}
               className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-transform active:scale-[0.98]"
-              style={{ background: '#061b31' }}>
+              style={{ background: 'var(--teal-dark)' }}>
               Got it
             </button>
           </div>

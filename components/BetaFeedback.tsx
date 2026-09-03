@@ -86,7 +86,7 @@ export function BetaFeedback() {
         >
           <div
             className="w-full max-w-sm rounded-3xl p-6"
-            style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
           >
             {!sent ? (
               <>

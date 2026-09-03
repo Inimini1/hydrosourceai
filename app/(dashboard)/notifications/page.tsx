@@ -238,7 +238,7 @@ export default function NotificationsPage() {
             <p className="text-sm text-slate-600 leading-relaxed mb-5">{highlightKeywords(selected.message)}</p>
             <button onClick={() => setSelected(null)}
               className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-transform active:scale-[0.98]"
-              style={{ background: '#061b31' }}>
+              style={{ background: 'var(--teal-dark)' }}>
               Close
             </button>
           </div>

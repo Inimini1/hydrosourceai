@@ -60,7 +60,7 @@ const tabs = [
         // showing through the icon's transparent interior when they overlap.
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
           <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-            fill="white" stroke="none" />
+            style={{ fill: 'var(--card-bg-overlay)' }} stroke="none" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
         </svg>
       ),
@@ -98,8 +98,13 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-slate-200/70"
-      style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+      className="fixed bottom-0 inset-x-0 z-40"
+      style={{
+        background: 'var(--card-bg-overlay)',
+        borderTop: '1px solid var(--card-border)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      }}
     >
       {/* Beta ribbon */}
       <div className="flex justify-center pt-1.5">
@@ -121,31 +126,28 @@ export default function BottomNav() {
               href={tab.href}
               onClick={() => { if (!active) haptics.tab() }}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-full"
-              style={{ color: active ? '#00A99A' : '#94a3b8' }}
+              style={{ color: active ? 'var(--teal-dark)' : 'var(--text-muted)' }}
             >
               <div className="relative">
                 {active && (
                   <motion.div
                     layoutId="tab-active-bg"
                     className="absolute -inset-2 rounded-xl"
-                    style={{ background: 'rgba(0,201,177,0.10)' }}
+                    style={{ background: 'color-mix(in srgb, var(--teal) 10%, transparent)' }}
                     transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                   />
                 )}
 
-                <motion.div
-                  className="relative z-10"
-                  animate={{ color: active ? '#00A99A' : '#94A3B8' }}
-                  whileTap={{ scale: 0.82 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                >
-                  {tab.icon(active)}
-                </motion.div>
+                <div className="relative z-10" style={{ color: active ? 'var(--teal-dark)' : 'var(--text-muted)' }}>
+                  <motion.div whileTap={{ scale: 0.82 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }}>
+                    {tab.icon(active)}
+                  </motion.div>
+                </div>
 
                 {tab.badge && unread > 0 && (
                   <span
                     className="absolute -top-1 -right-1.5 z-20 w-4 h-4 text-white text-[9px] font-bold rounded-full flex items-center justify-center"
-                    style={{ background: '#dc2626', boxShadow: '0 0 0 2px #ffffff' }}
+                    style={{ background: '#dc2626', boxShadow: '0 0 0 2px var(--card-bg-overlay)' }}
                   >
                     {unread > 9 ? '9+' : unread}
                   </span>

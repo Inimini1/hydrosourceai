@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 // catch. Token-based (no dangerouslySetInnerHTML) so it's safe on AI-generated
 // text.
 const KEYWORD_PATTERN =
-  /\d+(?:\.\d+)?\s?(?:ppm|hours?|hrs?|minutes?|mins?|days?|gallons?|gal\.?|oz\.?|lbs?|%|°[FC]?)|do not|never|immediately|caution|warning|critical|before (?:swimming|retest(?:ing)?|next)/gi
+  /\d+(?:\.\d+)?\s?(?:ppm|hours?|hrs?|minutes?|mins?|days?|gallons?|gal\.?|oz\.?|lbs?|%|°[FC]?)|\bdo not\b|\bnever\b|\bimmediately\b|\bcaution\b|\bwarning\b|\bcritical\b|\bbefore (?:swimming|retest(?:ing)?|next)\b/gi
 
 export function highlightKeywords(text: string): ReactNode[] {
   const nodes: ReactNode[] = []
