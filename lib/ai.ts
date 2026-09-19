@@ -116,6 +116,27 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   ])
 }
 
+// Gemini returns 503 ("model overloaded") and 429 (rate limit) fairly often
+// under normal load — these are transient and succeed on retry, unlike a bad
+// API key or malformed request. Without this, a momentary overload looked
+// identical to a hard failure and forced the user to manually resubmit their
+// test. Retries only these two status codes; anything else fails immediately.
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3, baseDelayMs = 1000): Promise<T> {
+  let lastErr: unknown
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      const status = (err as { status?: number } | undefined)?.status
+      const retryable = status === 503 || status === 429
+      if (!retryable || i === attempts - 1) throw err
+      await new Promise((r) => setTimeout(r, baseDelayMs * (i + 1)))
+    }
+  }
+  throw lastErr
+}
+
 const SYSTEM_PROMPT = `You are HydroSource, an AI pool water chemistry assistant. Your role is to analyze pool water test data and provide general scientific recommendations to help pool owners and service professionals maintain balanced, safe water. You are not a licensed pool inspector, a regulatory authority, or a legal advisor.
 
 LEGAL FRAMING RULES — FOLLOW WITHOUT EXCEPTION:
@@ -428,7 +449,7 @@ Synthesize all the reference data above into the best possible diagnosis and act
         mimeType: resolvedMime,
       },
     }
-    result = await withTimeout(
+    result = await withRetry(() => withTimeout(
       model.generateContent([
         SYSTEM_PROMPT,
         '\n\nThe user has uploaded a photo of their test strip. Read the color values from the test strip image to determine chemical levels, then combine with any manually entered data below to produce your analysis.',
@@ -437,13 +458,13 @@ Synthesize all the reference data above into the best possible diagnosis and act
       ]),
       25_000,
       'Water analysis'
-    )
+    ))
   } else {
-    result = await withTimeout(
+    result = await withRetry(() => withTimeout(
       model.generateContent([SYSTEM_PROMPT, poolData]),
       25_000,
       'Water analysis'
-    )
+    ))
   }
 
   const text = result.response.text()
@@ -579,11 +600,11 @@ Return ONLY valid JSON, no markdown, no other text:
   "low_confidence_params": ["list any parameter names where you were uncertain"]
 }`
 
-  const result = await withTimeout(
+  const result = await withRetry(() => withTimeout(
     model.generateContent([prompt, imagePart]),
     25_000,
     'Strip scan'
-  )
+  ))
 
   const text = result.response.text()
   const jsonMatch = text.match(/\{[\s\S]*\}/)
