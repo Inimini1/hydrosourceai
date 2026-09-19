@@ -363,7 +363,7 @@ function getExperienceInstruction(level?: string | null): string {
 }
 
 export async function analyzeWater(input: AnalyzeInput): Promise<WaterAnalysis> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
 
   const databaseContext = buildPoolContext(input)
   const experienceInstruction = getExperienceInstruction(input.experienceLevel)
@@ -521,7 +521,7 @@ export async function analyzeTestStripImage(
   brand?: string | null,
   rawMimeType?: string | null,
 ): Promise<StripScanResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
 
   const mimeType: SupportedMime = SUPPORTED_MIME_TYPES.includes(rawMimeType as SupportedMime)
     ? (rawMimeType as SupportedMime)

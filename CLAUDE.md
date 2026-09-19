@@ -1,7 +1,7 @@
 # HydroSource AI — Claude Code Instructions
 
 ## Project Overview
-Full-stack SaaS pool chemistry management app. Web (Next.js 14 App Router) + Mobile (Expo SDK 52, Expo Router v4). Backend: Supabase (Auth, Postgres, RLS, Realtime). AI: Claude claude-sonnet-4-6 via Anthropic SDK. Payments: Stripe.
+Full-stack SaaS pool chemistry management app. Web (Next.js 14 App Router) + Mobile (Expo SDK 52, Expo Router v4). Backend: Supabase (Auth, Postgres, RLS, Realtime). AI: Google Gemini via `@google/generative-ai` (see Tech Stack table below — this file previously said Claude/Anthropic SDK here, which was never accurate for this codebase). Payments: Stripe.
 
 ## Tech Stack
 | Layer | Tech |
@@ -9,7 +9,7 @@ Full-stack SaaS pool chemistry management app. Web (Next.js 14 App Router) + Mob
 | Web frontend | Next.js 14, TypeScript, Tailwind CSS v3, Framer Motion |
 | Mobile | Expo SDK 52, Expo Router v4, NativeWind v4 |
 | Backend | Supabase (Postgres + Auth + RLS + Realtime) |
-| AI | Google Gemini — `gemini-2.5-flash` (analysis) + `gemini-2.0-flash` (image scan) |
+| AI | Google Gemini — `gemini-3.6-flash` (both text analysis and image/test-strip scan use the same model — see `lib/ai.ts`) |
 | Payments | Stripe |
 | Auth | Supabase Auth (email/password + magic link) |
 | Storage | Supabase Storage |
