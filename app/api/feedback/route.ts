@@ -48,7 +48,13 @@ export async function POST(req: NextRequest) {
       category ?? 'general',
       message.trim(),
       pageUrl ?? null,
-    ).catch(() => {/* non-critical */})
+    ).catch((err) => {
+      // Feedback itself is already saved to the DB above — losing only the
+      // notification email is non-critical, but swallowing it silently means
+      // a misconfigured RESEND_API_KEY/EMAIL_FROM/SUPPORT_EMAIL would never
+      // surface anywhere. Log it so it shows up in server/Vercel logs.
+      console.error('[POST /api/feedback] notification email failed:', err instanceof Error ? err.message : err)
+    })
 
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (err) {

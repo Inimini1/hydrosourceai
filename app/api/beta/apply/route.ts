@@ -74,10 +74,19 @@ export async function POST(req: NextRequest) {
     const baseUrl   = process.env.NEXT_PUBLIC_APP_URL ?? 'https://hydrosource.appscloud365.com'
     const signupUrl = `${baseUrl}/signup?beta=${token}`
 
-    await Promise.allSettled([
+    const emailResults = await Promise.allSettled([
       sendBetaWelcomeEmail(email, name, signupUrl, expiresAt),
       sendBetaNotificationToOwner(name, company, email, expiresAt),
     ])
+    // The invite itself is already saved above — a failed send here is
+    // non-fatal to the request, but silently dropping the reason would hide
+    // a misconfigured RESEND_API_KEY/EMAIL_FROM/SUPPORT_EMAIL from server logs.
+    emailResults.forEach((r, i) => {
+      if (r.status === 'rejected') {
+        const label = i === 0 ? 'welcome email to applicant' : 'notification email to owner'
+        console.error(`[beta/apply] ${label} failed:`, r.reason instanceof Error ? r.reason.message : r.reason)
+      }
+    })
 
     return NextResponse.json({ success: true })
   } catch (err) {
