@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { highlightKeywords } from '@/lib/highlightKeywords'
 
 export interface TreatmentStep {
   chemical: string
@@ -94,7 +95,7 @@ function StepItem({ step, index, total, done, onToggle }: {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm">{s.icon}</span>
               <span className="text-sm font-bold"
-                style={{ color: done ? '#0D9488' : '#0f172a', textDecoration: done ? 'line-through' : 'none' }}>
+                style={{ color: done ? '#0D9488' : 'var(--text-primary)', textDecoration: done ? 'line-through' : 'none' }}>
                 {step.chemical}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
@@ -109,7 +110,7 @@ function StepItem({ step, index, total, done, onToggle }: {
               </p>
             </div>
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed">{step.how_to_apply}</p>
+          <p className="text-xs text-slate-500 leading-relaxed">{highlightKeywords(step.how_to_apply)}</p>
         </div>
       </div>
 
@@ -163,8 +164,8 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
   return (
     <div className="rounded-3xl overflow-hidden"
       style={{
-        background: allDone ? 'rgba(13,148,136,0.04)' : '#ffffff',
-        border: allDone ? '1px solid rgba(13,148,136,0.18)' : '1px solid rgba(0,0,0,0.07)',
+        background: allDone ? 'rgba(13,148,136,0.04)' : 'var(--card-bg)',
+        border: allDone ? '1px solid rgba(13,148,136,0.18)' : '1px solid var(--card-border)',
         boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
       }}>
 
@@ -227,9 +228,9 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
       {expanded && (
         <div className="p-5 pt-4 space-y-2">
           {notes && (
-            <div className="rounded-2xl px-4 py-3 mb-4" style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.06)' }}>
+            <div className="rounded-2xl px-4 py-3 mb-4" style={{ background: 'var(--input-bg)', border: '1px solid var(--card-border)' }}>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Service Notes</p>
-              <p className="text-sm text-slate-600 leading-relaxed">{notes}</p>
+              <p className="text-sm text-slate-600 leading-relaxed">{highlightKeywords(notes ?? '')}</p>
             </div>
           )}
 
@@ -256,14 +257,21 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
             </div>
           )}
 
-          <div className="space-y-2">
-            {steps.map((step, i) => {
+          {/* Suggested actions and actions already taken are grouped separately
+              rather than interleaved, so it's clear at a glance what's left. */}
+          {(() => {
+            const indices = steps.map((_, i) => i)
+            const pendingIdx = indices.filter((i) => !(done[i] ?? false))
+            const doneIdx = indices.filter((i) => done[i] ?? false)
+
+            const renderStep = (i: number) => {
+              const step = steps[i]
               const wait = i < steps.length - 1 ? parseWaitTime(step.how_to_apply) : null
               return (
                 <div key={i}>
                   <StepItem step={step} index={i} total={steps.length} done={done[i] ?? false} onToggle={() => toggle(i)} />
                   {wait && (
-                    <div className="flex items-center gap-2.5 mt-2 mb-1 ml-11 px-3 py-2 rounded-xl" style={{ background: '#f8fafc', border: '1px solid rgba(0,0,0,0.06)' }}>
+                    <div className="flex items-center gap-2.5 mt-2 mb-1 ml-11 px-3 py-2 rounded-xl" style={{ background: 'var(--input-bg)', border: '1px solid var(--card-border)' }}>
                       <svg className="w-3.5 h-3.5 flex-shrink-0 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -275,8 +283,27 @@ export default function MaintenanceChecklist({ logId, steps, createdAt, notes, p
                   )}
                 </div>
               )
-            })}
-          </div>
+            }
+
+            return (
+              <>
+                {pendingIdx.length > 0 && (
+                  <div className="space-y-2">
+                    {doneIdx.length > 0 && (
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">To Do</p>
+                    )}
+                    {pendingIdx.map(renderStep)}
+                  </div>
+                )}
+                {doneIdx.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Completed</p>
+                    {doneIdx.map(renderStep)}
+                  </div>
+                )}
+              </>
+            )
+          })()}
 
           {allDone && (
             <div className="rounded-2xl p-4 text-center mt-4"

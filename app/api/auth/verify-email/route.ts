@@ -41,8 +41,11 @@ export async function POST(req: NextRequest) {
     if (error || !data?.properties?.action_link) return ok
 
     await sendVerificationEmail(email, data.properties.action_link)
-  } catch {
-    // Silent fail — always return ok
+  } catch (err) {
+    // The response stays generic (never reveals whether the email exists),
+    // but silently dropping the reason entirely would hide a broken
+    // RESEND_API_KEY/EMAIL_FROM from server logs — log it server-side only.
+    console.error('[verify-email resend] failed:', err instanceof Error ? err.message : err)
   }
 
   return ok

@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { SanitizerIcon } from '@/components/SanitizerIcon'
 
 // Kept in sync with app/api/pools/[id]/route.ts's validTypes and the
 // creation page (app/(dashboard)/pools/new/page.tsx) — the AI chemistry
@@ -12,10 +13,10 @@ import Link from 'next/link'
 // not offered here rather than silently giving chlorine-based advice to
 // a biguanide pool.
 const CHLORINE_TYPES = [
-  { value: 'CHLORINE', label: 'Chlorine',   desc: 'Traditional tablets or liquid', emoji: '🧪' },
-  { value: 'SALT',     label: 'Salt Water',  desc: 'Electrolytic chlorine generator', emoji: '🌊' },
-  { value: 'BROMINE',  label: 'Bromine',     desc: 'Common in spas and hot tubs', emoji: '⚗️' },
-]
+  { value: 'CHLORINE', label: 'Chlorine',   desc: 'Traditional tablets or liquid' },
+  { value: 'SALT',     label: 'Salt Water',  desc: 'Electrolytic chlorine generator' },
+  { value: 'BROMINE',  label: 'Bromine',     desc: 'Common in spas and hot tubs' },
+] as const
 
 const GALLON_PRESETS = [
   { label: '5,000', value: 5000 },
@@ -182,7 +183,7 @@ export default function EditPoolPage() {
                     style={active
                       ? { background: 'rgba(0,201,177,0.08)', borderColor: '#00C9B1' }
                       : { background: '#F8FAFC', borderColor: '#E2E8F0' }}>
-                    <span className="text-xl">{t.emoji}</span>
+                    <SanitizerIcon type={t.value} className="w-5 h-5 flex-shrink-0" style={{ color: active ? '#00C9B1' : '#94A3B8' }} />
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-slate-800">{t.label}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{t.desc}</p>

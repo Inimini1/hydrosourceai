@@ -21,7 +21,7 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;')
 }
 
-async function send(to: string, subject: string, html: string, attachments?: EmailAttachment[]) {
+async function send(to: string, subject: string, html: string, attachments?: EmailAttachment[], replyTo?: string) {
   if (!process.env.RESEND_API_KEY) {
     console.log(`\n[HydroSource Email — dev mode]\nTo: ${to}\nSubject: ${subject}\n`)
     return
@@ -37,6 +37,7 @@ async function send(to: string, subject: string, html: string, attachments?: Ema
       to: [to],
       subject,
       html,
+      ...(replyTo && { reply_to: replyTo }),
       ...(attachments && attachments.length > 0 && { attachments }),
     }),
   })
@@ -107,7 +108,7 @@ export async function sendVerificationEmail(email: string, verifyUrl: string) {
       Link expires in 24 hours. If you didn't create an account, you can safely ignore this.
     </p>
   `)
-  await send(email, 'Verify your HydroSource AI email', html)
+  await send(email, 'Verify your HydroSource AI email', html, undefined, SUPPORT)
 }
 
 export async function sendWaterReportEmail(
@@ -142,7 +143,8 @@ export async function sendWaterReportEmail(
     to,
     `HydroSource AI — ${poolName} Water Report (${dateStr})`,
     html,
-    [{ filename, content: pdfBuffer.toString('base64') }]
+    [{ filename, content: pdfBuffer.toString('base64') }],
+    SUPPORT
   )
 }
 
@@ -176,7 +178,7 @@ export async function sendBetaWelcomeEmail(to: string, name: string, signupUrl: 
       Questions? Contact us at <a href="mailto:${SUPPORT}" style="color:#006FFF">${SUPPORT}</a>
     </p>
   `)
-  await send(to, 'HydroSource AI Beta Access — Create Your Account', html)
+  await send(to, 'HydroSource AI Beta Access — Create Your Account', html, undefined, SUPPORT)
 }
 
 export async function sendBetaNotificationToOwner(
@@ -206,7 +208,7 @@ export async function sendBetaNotificationToOwner(
       They have been sent their unique signup link automatically.
     </p>
   `)
-  await send(SUPPORT, `[HydroSource Beta] New Tester: ${name} — Expires ${expiresAt.toLocaleDateString()}`, html)
+  await send(SUPPORT, `[HydroSource Beta] New Tester: ${name} — Expires ${expiresAt.toLocaleDateString()}`, html, undefined, email)
 }
 
 export async function sendFeedbackNotificationEmail(
@@ -233,10 +235,10 @@ export async function sendFeedbackNotificationEmail(
       <p style="color:#166534;margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap">${escapeHtml(message)}</p>
     </div>
     <p style="color:#94A3B8;font-size:12px;margin:0;text-align:center">
-      Reply to this email to respond directly to the user.
+      ${fromEmail ? 'Reply to this email to respond directly to the user.' : 'Submitted anonymously — no reply address available.'}
     </p>
   `)
-  await send(SUPPORT, `[HydroSource Feedback] ${category} from ${fromEmail ?? 'anonymous'}`, html)
+  await send(SUPPORT, `[HydroSource Feedback] ${category} from ${fromEmail ?? 'anonymous'}`, html, undefined, fromEmail ?? undefined)
 }
 
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
@@ -252,5 +254,5 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
       If you didn't request this, you can safely ignore this email.
     </p>
   `)
-  await send(email, 'Reset your HydroSource AI password', html)
+  await send(email, 'Reset your HydroSource AI password', html, undefined, SUPPORT)
 }

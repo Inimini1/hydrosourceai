@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, FormEvent } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { haptics } from '@/lib/haptics'
@@ -131,12 +131,59 @@ const STATUS_COLORS = {
 const SCORE_COLOR = (s: number) => s >= 75 ? '#0d9488' : s >= 50 ? '#d97706' : '#dc2626'
 
 const SYMPTOM_CHIPS = [
-  { label: 'Clear', emoji: '💎' },
-  { label: 'Cloudy', emoji: '☁️' },
-  { label: 'Green tint', emoji: '🌿' },
-  { label: 'Strong smell', emoji: '💨' },
-  { label: 'Eye irritation', emoji: '👁' },
-  { label: 'Foaming', emoji: '🫧' },
+  {
+    label: 'Clear',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Cloudy',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 001.7-9.7 6 6 0 00-11.4-1.7A4 4 0 003 15z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Green tint',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2c0 0-7 8-7 13a7 7 0 0014 0c0-5-7-13-7-13z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Strong smell',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Eye irritation',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Foaming',
+    icon: (
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="8" cy="9" r="2.5" strokeWidth={2} />
+        <circle cx="15" cy="8" r="1.8" strokeWidth={2} />
+        <circle cx="12" cy="15" r="3" strokeWidth={2} />
+      </svg>
+    ),
+  },
 ]
 
 // ── Parameter number input card ──────────────────────────────────────────────
@@ -204,6 +251,78 @@ function ParameterInput({
         {unit && <span className="text-sm text-slate-500 font-medium flex-shrink-0 w-8">{unit}</span>}
       </div>
       <p className="text-[10px] text-slate-400 mt-1.5 text-center">Ideal: {ideal}{unit ? ` ${unit}` : ''}</p>
+    </div>
+  )
+}
+
+// ── Water temperature input — stores the value in °F internally (matching
+// RANGES.temperature and the backend contract) but lets the user enter and
+// read it in either °F or °C ──────────────────────────────────────────────
+function fToC(f: number) { return (f - 32) * 5 / 9 }
+function cToF(c: number) { return c * 9 / 5 + 32 }
+
+function TemperatureInput({
+  idealMinF, idealMaxF, value, onChange,
+}: {
+  idealMinF: number; idealMaxF: number
+  value: string; onChange: (v: string) => void
+}) {
+  const [unit, setUnit] = useState<'F' | 'C'>('F')
+
+  const hasValue = value !== '' && !isNaN(parseFloat(value))
+  const displayValue = !hasValue ? value
+    : unit === 'F' ? value
+    : String(Math.round(fToC(parseFloat(value)) * 10) / 10)
+
+  function handleChange(raw: string) {
+    if (raw === '') { onChange(''); return }
+    const num = parseFloat(raw)
+    if (isNaN(num)) return
+    onChange(unit === 'F' ? raw : String(Math.round(cToF(num) * 10) / 10))
+  }
+
+  const idealMin = unit === 'F' ? idealMinF : Math.round(fToC(idealMinF))
+  const idealMax = unit === 'F' ? idealMaxF : Math.round(fToC(idealMaxF))
+  const min = unit === 'F' ? 32 : 0
+  const max = unit === 'F' ? 212 : 100
+  const numVal = hasValue ? parseFloat(displayValue) : null
+  const inRange = numVal !== null && numVal >= idealMin && numVal <= idealMax
+  const color = !hasValue ? '#94a3b8' : inRange ? '#0d9488' : '#d97706'
+
+  return (
+    <div className="card-light p-4 rounded-2xl">
+      <div className="flex items-center justify-between mb-2.5">
+        <p className="text-sm font-semibold text-slate-700">Water Temperature</p>
+        <div className="flex items-center rounded-full overflow-hidden border border-slate-200 flex-shrink-0">
+          {(['F', 'C'] as const).map((u) => (
+            <button
+              key={u}
+              type="button"
+              onClick={() => setUnit(u)}
+              className="px-2.5 py-1 text-[11px] font-bold transition-colors"
+              style={{ background: unit === u ? '#00C9B1' : 'transparent', color: unit === u ? '#ffffff' : '#94a3b8' }}
+            >
+              °{u}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          inputMode="decimal"
+          min={min}
+          max={max}
+          step={1}
+          value={displayValue}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder={`e.g. ${idealMin}`}
+          className="input-light flex-1 text-center font-semibold text-base"
+          style={{ borderColor: hasValue ? color : undefined }}
+        />
+        <span className="text-sm text-slate-500 font-medium flex-shrink-0 w-8">°{unit}</span>
+      </div>
+      <p className="text-[10px] text-slate-400 mt-1.5 text-center">Ideal: {idealMin}–{idealMax}°{unit}</p>
     </div>
   )
 }
@@ -321,6 +440,7 @@ function FeedbackCard({ testId }: { testId: string }) {
 // ── Main component ───────────────────────────────────────────────────────────
 export default function AddTestPage() {
   const { id } = useParams<{ id: string }>()
+  const router = useRouter()
 
   const [chlorineType, setChlorineType] = useState('CHLORINE')
 
@@ -515,6 +635,9 @@ export default function AddTestPage() {
       if (!res.ok) { setPlanSaveError('Could not save. Please try again.'); return }
       haptics.success()
       setPlanSaved(true)
+      // Brief pause so the "Saved as Checklist" state is visible before the
+      // hand-off — "Turn into a checklist" should actually land you on one.
+      setTimeout(() => router.push(`/pools/${id}/maintenance`), 700)
     } catch {
       setPlanSaveError('Connection error. Please try again.')
     } finally {
@@ -530,7 +653,11 @@ export default function AddTestPage() {
       const res = await fetch('/api/reports/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ testId: result.id, recipientEmail: reportEmail }),
+        body: JSON.stringify({
+          testId: result.id,
+          recipientEmail: reportEmail,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
       })
       const data = await res.json()
       if (!res.ok) { setReportSendError(data.error ?? 'Failed to send. Please try again.'); return }
@@ -663,9 +790,9 @@ export default function AddTestPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="relative h-1.5 rounded-full" style={{ background: '#e2e8f0' }}>
+                  <div className="relative h-1.5 rounded-full" style={{ background: '#d3dae3' }}>
                     <div className="absolute h-full rounded-full"
-                      style={{ left: `${idealL}%`, width: `${idealW}%`, background: 'rgba(13,148,136,0.22)' }} />
+                      style={{ left: `${idealL}%`, width: `${idealW}%`, background: 'rgba(13,148,136,0.45)' }} />
                     <div className="absolute w-3 h-3 rounded-full border-2 border-white -top-[3px] -translate-x-1/2 transition-all duration-300"
                       style={{ left: `${pct}%`, background: c.text, boxShadow: `0 0 6px ${c.text}50` }} />
                   </div>
@@ -1030,15 +1157,29 @@ export default function AddTestPage() {
         {/* Tab selector */}
         <div className="card-light p-1 flex gap-1">
           {[
-            { key: 'manual', label: 'Enter Readings', icon: '📝' },
-            { key: 'photo',  label: 'Scan Test Strip', icon: '📸' },
+            {
+              key: 'manual', label: 'Enter Readings', icon: (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              ),
+            },
+            {
+              key: 'photo', label: 'Scan Test Strip', icon: (
+                <>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <circle cx="12" cy="13" r="3.5" strokeWidth={2} />
+                </>
+              ),
+            },
           ].map((t) => (
             <button key={t.key} onClick={() => setTab(t.key as 'manual' | 'photo')}
-              className="flex-1 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-200"
+              className="flex-1 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-1.5"
               style={tab === t.key
                 ? { background: '#00C9B1', color: 'white', boxShadow: '0 2px 8px rgba(0,201,177,0.28)' }
                 : { color: '#94A3B8' }}>
-              {t.icon} {t.label}
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">{t.icon}</svg>
+              {t.label}
             </button>
           ))}
         </div>
@@ -1105,7 +1246,10 @@ export default function AddTestPage() {
               className="flex items-start gap-2.5 px-4 py-3 rounded-2xl"
               style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}
             >
-              <span className="text-base leading-none">☀️</span>
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
               <p className="text-xs text-amber-700 leading-relaxed">
                 <span className="font-semibold">Take the photo in good, even natural lighting</span> — avoid shade,
                 yellow indoor bulbs, or direct glare. Poor lighting shifts the strip colors and is the most common
@@ -1181,12 +1325,12 @@ export default function AddTestPage() {
               <div className="space-y-3">
                 <ParameterInput
                   label={isBromine ? 'Bromine' : 'Free Chlorine'} unit="ppm" ideal={isBromine ? '3–5' : '1–3'}
-                  idealMin={isBromine ? 3 : 1} idealMax={isBromine ? 5 : 3} min={0} max={10} step={0.1}
+                  idealMin={isBromine ? 3 : 1} idealMax={isBromine ? 5 : 3} min={0} max={100} step={0.1}
                   value={chlorine} onChange={setChlorine} required
                 />
                 <ParameterInput
                   label="pH Level" unit="" ideal="7.2–7.6"
-                  idealMin={7.2} idealMax={7.6} min={6} max={9} step={0.1}
+                  idealMin={7.2} idealMax={7.6} min={0} max={14} step={0.1}
                   value={pH} onChange={setPH} required
                 />
                 <ParameterInput
@@ -1206,17 +1350,16 @@ export default function AddTestPage() {
               <div className="space-y-3">
                 <ParameterInput
                   label="Calcium Hardness" unit="ppm" ideal="200–400"
-                  idealMin={200} idealMax={400} min={0} max={800} step={5}
+                  idealMin={200} idealMax={400} min={0} max={1000} step={5}
                   value={calciumHardness} onChange={setCalciumHardness}
                 />
                 <ParameterInput
                   label="Cyanuric Acid" unit="ppm" ideal="30–50"
-                  idealMin={30} idealMax={50} min={0} max={200} step={1}
+                  idealMin={30} idealMax={50} min={0} max={300} step={1}
                   value={cyanuricAcid} onChange={setCyanuricAcid}
                 />
-                <ParameterInput
-                  label="Water Temperature" unit="°F" ideal="70–85"
-                  idealMin={70} idealMax={85} min={40} max={104} step={1}
+                <TemperatureInput
+                  idealMinF={70} idealMaxF={85}
                   value={temperature} onChange={setTemperature}
                 />
               </div>
@@ -1240,7 +1383,7 @@ export default function AddTestPage() {
                       style={active
                         ? { background: '#00C9B1', color: 'white', boxShadow: '0 2px 8px rgba(0,201,177,0.25)' }
                         : { background: '#F1F5F9', color: '#64748B' }}>
-                      <span>{chip.emoji}</span>
+                      {chip.icon}
                       {chip.label}
                     </button>
                   )

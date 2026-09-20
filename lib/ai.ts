@@ -116,11 +116,32 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   ])
 }
 
+// Gemini returns 503 ("model overloaded") and 429 (rate limit) fairly often
+// under normal load — these are transient and succeed on retry, unlike a bad
+// API key or malformed request. Without this, a momentary overload looked
+// identical to a hard failure and forced the user to manually resubmit their
+// test. Retries only these two status codes; anything else fails immediately.
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3, baseDelayMs = 1000): Promise<T> {
+  let lastErr: unknown
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      const status = (err as { status?: number } | undefined)?.status
+      const retryable = status === 503 || status === 429
+      if (!retryable || i === attempts - 1) throw err
+      await new Promise((r) => setTimeout(r, baseDelayMs * (i + 1)))
+    }
+  }
+  throw lastErr
+}
+
 const SYSTEM_PROMPT = `You are HydroSource, an AI pool water chemistry assistant. Your role is to analyze pool water test data and provide general scientific recommendations to help pool owners and service professionals maintain balanced, safe water. You are not a licensed pool inspector, a regulatory authority, or a legal advisor.
 
 LEGAL FRAMING RULES — FOLLOW WITHOUT EXCEPTION:
 1. Frame every recommendation as a suggestion based on general water chemistry science, not a definitive or legally compliant instruction. Use language like "based on your readings, we suggest…" or "a common approach is…" — never "you must" or "you are required to."
-2. Never cite, interpret, or apply specific local, state, or federal regulations (including but not limited to TDLR rules, state health codes, OSHA standards, or HOA/commercial facility codes). If the pool context appears commercial (hotel, apartment, school, gym, HOA), always include in safety_notes: "Commercial and public pools are subject to jurisdiction-specific health and safety regulations. Always verify recommendations with your local authority or a licensed commercial pool operator before applying them."
+2. Never cite, interpret, or apply specific local, state, or federal regulations (including but not limited to TDLR rules, state health codes, OSHA standards, or HOA/commercial facility codes). If the pool context appears commercial (hotel, apartment, school, gym, HOA), always include in safety_notes: "Commercial and public pools are subject to jurisdiction-specific health and safety regulations. Always verify recommendations with your local authority or a licensed commercial pool operator before applying them." — and ALSO apply the CDC MAHC PUBLIC-FACILITY FLOOR below instead of (in addition to) the standard CYA-adjusted minimum, since it can be the stricter number at low CYA.
 3. Never guarantee health safety outcomes. Do not state a pool "is safe to swim in" based solely on chemistry readings. Use language like "the readings are within a commonly accepted range for residential pools" or "these levels suggest the water is approaching a balanced state."
 4. If a reading indicates a serious health or equipment risk (extremely high chlorine, very low pH combined with high bather load, phosphates above threshold, etc.), include in safety_notes: "This reading may warrant immediate attention. Consult a certified pool professional or your local health authority before allowing pool use."
 5. Present dosing as ranges based on standard water chemistry formulas (e.g., LSI). Note that actual dosing should be confirmed against the product label and pool-specific variables.
@@ -183,6 +204,18 @@ CYA-adjusted minimum for THIS pool's CYA:
 Always name this explicitly in key_causes and diagnosis (e.g. "Free chlorine of 2.5 ppm looks normal but your CYA of 50 ppm
 requires at least 4 ppm to sanitize effectively — this is chlorine lock, not a healthy reading") so the user understands
 why a reading that looks "in range" is still driving the health score down.
+
+CDC MAHC PUBLIC-FACILITY FLOOR (apply ONLY when the pool context appears commercial/public — hotel, apartment,
+school, gym, HOA, or any other regulated aquatic facility; do NOT apply to ordinary residential backyard pools):
+The CDC Model Aquatic Health Code sets a flat regulatory minimum free chlorine that is independent of the
+interpolated CYA curve above: 1.0 ppm minimum with NO cyanuric acid present, or 2.0 ppm minimum as soon as ANY
+cyanuric acid is present at all (regardless of how much). At low CYA (roughly 0–25 ppm) this flat floor is HIGHER
+than the interpolated table above — in that range, use whichever number is larger as the minimum, and say so
+explicitly (e.g. "your CYA-adjusted chemistry minimum is 1.3 ppm, but CDC's public-facility floor requires 2.0 ppm
+whenever any stabilizer is present, so 1.3 ppm chlorine does not meet the regulatory floor for a commercial pool").
+For spas/hot tubs specifically: CDC recommends AGAINST using cyanuric acid or stabilized chlorine (dichlor/trichlor)
+at all — if CYA is present on a spa/hot tub, flag this as a deviation from CDC guidance in mistakes_to_avoid, and
+apply the unstabilized spa minimum of 3.0 ppm free chlorine with pH 7.0–7.8.
 
 TEMPERATURE ADJUSTMENTS:
 - Water temp > 85°F: chlorine depletes 30–50% faster; recommend daily testing and note increased demand
@@ -351,7 +384,7 @@ function getExperienceInstruction(level?: string | null): string {
 }
 
 export async function analyzeWater(input: AnalyzeInput): Promise<WaterAnalysis> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
 
   const databaseContext = buildPoolContext(input)
   const experienceInstruction = getExperienceInstruction(input.experienceLevel)
@@ -416,7 +449,7 @@ Synthesize all the reference data above into the best possible diagnosis and act
         mimeType: resolvedMime,
       },
     }
-    result = await withTimeout(
+    result = await withRetry(() => withTimeout(
       model.generateContent([
         SYSTEM_PROMPT,
         '\n\nThe user has uploaded a photo of their test strip. Read the color values from the test strip image to determine chemical levels, then combine with any manually entered data below to produce your analysis.',
@@ -425,13 +458,13 @@ Synthesize all the reference data above into the best possible diagnosis and act
       ]),
       25_000,
       'Water analysis'
-    )
+    ))
   } else {
-    result = await withTimeout(
+    result = await withRetry(() => withTimeout(
       model.generateContent([SYSTEM_PROMPT, poolData]),
       25_000,
       'Water analysis'
-    )
+    ))
   }
 
   const text = result.response.text()
@@ -509,7 +542,7 @@ export async function analyzeTestStripImage(
   brand?: string | null,
   rawMimeType?: string | null,
 ): Promise<StripScanResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
 
   const mimeType: SupportedMime = SUPPORTED_MIME_TYPES.includes(rawMimeType as SupportedMime)
     ? (rawMimeType as SupportedMime)
@@ -567,11 +600,11 @@ Return ONLY valid JSON, no markdown, no other text:
   "low_confidence_params": ["list any parameter names where you were uncertain"]
 }`
 
-  const result = await withTimeout(
+  const result = await withRetry(() => withTimeout(
     model.generateContent([prompt, imagePart]),
     25_000,
     'Strip scan'
-  )
+  ))
 
   const text = result.response.text()
   const jsonMatch = text.match(/\{[\s\S]*\}/)

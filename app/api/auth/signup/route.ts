@@ -97,8 +97,18 @@ export async function POST(req: NextRequest) {
       try { await admin.from('beta_invites').update({ used_at: new Date().toISOString() }).eq('token', betaToken) } catch { /* non-critical */ }
     }
 
-    // Send branded verification email via Resend instead of Supabase's generic one
-    await sendVerificationEmail(email, data.properties.action_link)
+    // Send branded verification email via Resend instead of Supabase's generic one.
+    // The Supabase account above is already created at this point — if the send
+    // fails (bad RESEND_API_KEY, unverified domain), do NOT fall through to the
+    // generic 500 below. That would tell the user signup failed while leaving an
+    // unconfirmed account behind, so a retry immediately hits "already registered"
+    // with no way to get a fresh link. Report success either way; the account page's
+    // "resend verification email" flow lets them retry once the config is fixed.
+    try {
+      await sendVerificationEmail(email, data.properties.action_link)
+    } catch (err) {
+      console.error('[signup] verification email failed (account was still created):', err instanceof Error ? err.message : err)
+    }
 
     return NextResponse.json({
       user: { id: data.user.id, email: data.user.email },

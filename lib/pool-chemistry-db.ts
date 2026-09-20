@@ -212,6 +212,27 @@ export const CYA_CHLORINE_TABLE = [
 ]
 
 /**
+ * CDC Model Aquatic Health Code (MAHC) regulatory minimums for PUBLIC pools,
+ * spas, and splash pads — distinct from CYA_CHLORINE_TABLE above, which is
+ * the scientific/efficacy-based curve most residential guidance (and this
+ * app's own "ideal range" gauge) uses. The two are not in conflict: MAHC's
+ * numbers are a flat, simple compliance floor set by regulators for
+ * inspected public facilities, while the interpolated curve reflects the
+ * actual chemistry of how much less effective a given ppm of chlorine is
+ * as CYA rises. At low CYA (roughly 0–25 ppm) the flat regulatory floor is
+ * HIGHER than the interpolated curve, so a commercial/public facility must
+ * satisfy whichever number is larger.
+ * Source: CDC Model Aquatic Health Code, cdc.gov/healthy-swimming.
+ */
+export const CDC_MAHC_PUBLIC_MINIMUMS = {
+  free_chlorine_no_cya_ppm: 1.0,
+  free_chlorine_with_any_cya_ppm: 2.0, // applies as soon as CYA > 0, regardless of amount
+  spa_hot_tub_no_cya_min_free_chlorine_ppm: 3.0,
+  spa_hot_tub_ph_range: { min: 7.0, max: 7.8 },
+  note: 'CDC recommends AGAINST using cyanuric acid or stabilized chlorine (dichlor/trichlor) in spas and hot tubs at all for new construction or disinfection equipment replacement — unlike pools, spas should generally run unstabilized.',
+}
+
+/**
  * The CYA-adjusted minimum effective free chlorine level, interpolated from
  * CYA_CHLORINE_TABLE above. This is the single source of truth for "is this
  * free chlorine reading actually adequate" — a flat 1–3 ppm range ignores

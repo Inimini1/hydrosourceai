@@ -41,8 +41,11 @@ export const BENCHMARK_SCENARIOS: BenchmarkScenario[] = [
   {
     id: 'sc-01',
     name: 'Perfect balanced water',
-    rationale: 'All parameters in ideal range → model must return safe + high health score',
-    input: { ...BASE, chlorine: 2.5, pH: 7.4, alkalinity: 100, calciumHardness: 300, cyanuricAcid: 40 },
+    rationale: 'All parameters in ideal range → model must return safe + high health score. ' +
+      'CYA must be low enough that FC=2.5 clears the CYA-adjusted minimum (cyaAdjustedMinChlorine(30)=2.25, ' +
+      'so 2.5 clears it at 111%) — an earlier version of this scenario used CYA=40 (min 3.0 ppm), which made ' +
+      'FC=2.5 only 83% of the CYA-adjusted minimum and correctly caution, not safe. Live-verified against gemini-3.6-flash.',
+    input: { ...BASE, chlorine: 2.5, pH: 7.4, alkalinity: 100, calciumHardness: 300, cyanuricAcid: 30 },
     assertions: [
       { field: 'status',       expect: 'safe',   description: 'Status must be safe' },
       { field: 'health_score', expect: 90,        tolerance: 10, description: 'Score ≥ 90 for perfect water' },
@@ -116,12 +119,18 @@ export const BENCHMARK_SCENARIOS: BenchmarkScenario[] = [
   {
     id: 'sc-06',
     name: 'Active algae bloom — green water',
-    rationale: 'Green clarity + FC < 1 ppm = algae bloom, requires SLAM protocol at CYA × 0.40',
+    rationale: 'Green clarity + FC < 1 ppm = algae bloom, requires a shock/SLAM-style protocol at CYA × 0.40. ' +
+      '"SLAM" is a Trouble-Free-Pool community acronym, not one every model response will use verbatim even when ' +
+      'it correctly describes the same shock-brush-filter procedure — check for "shock" (the actual required ' +
+      'action) instead of the literal acronym. This is also the scenario where Cal-Hypo shock is genuinely the ' +
+      'right chemical choice (a real shock-level raise, unlike the smaller top-up in sc-12), so the Cal-Hypo/' +
+      'trichlor mixing warning is checked here instead.',
     input: { ...BASE, chlorine: 0.5, pH: 7.6, alkalinity: 90, cyanuricAcid: 40, waterClarity: 'green' },
     assertions: [
       { field: 'status',    expect: 'critical', description: 'Algae bloom = critical' },
       { field: 'diagnosis', expect: 'algae',     description: 'Diagnosis must identify algae' },
-      { field: 'immediate_action_plan', expect: 'SLAM', description: 'Action plan must reference SLAM protocol' },
+      { field: 'immediate_action_plan', expect: 'shock', description: 'Action plan must include shock treatment' },
+      { field: 'mistakes_to_avoid', expect: 'trichlor', description: 'Must warn against mixing Cal-Hypo with trichlor when Cal-Hypo shock is used' },
     ],
   },
 
@@ -195,7 +204,7 @@ export const BENCHMARK_SCENARIOS: BenchmarkScenario[] = [
     assertions: [
       { field: 'status',         expect: 'safe',       description: 'Good chemistry still = safe despite high temp' },
       { field: 'next_test_days', expect: 5,             tolerance: 2, description: 'Next test must be sooner due to high temp (≤7 days)' },
-      { field: 'preventative_alerts', expect: 'temperature', description: 'Alert must mention temperature effect on chlorine' },
+      { field: 'preventative_alerts', expect: '92', description: 'Alert must reference the actual tested temperature (92°F) — checking for the literal word "temperature" is too strict, since a correct alert like "at 92°F, chlorine depletes rapidly" makes the same point without that exact word' },
     ],
   },
 
@@ -204,13 +213,19 @@ export const BENCHMARK_SCENARIOS: BenchmarkScenario[] = [
   // ──────────────────────────────────────────────────────────────
   {
     id: 'sc-12',
-    name: 'Chemical conflict detection — Cal-Hypo mixing warning',
-    rationale: 'When Cal-Hypo is appropriate (low FC, no CYA issue), model must warn never to mix with trichlor pucks',
-    input: { ...BASE, chlorine: 0.8, pH: 7.4, alkalinity: 100, cyanuricAcid: 30 },
+    name: 'Chemical conflict detection — recent Cal-Hypo + trichlor use',
+    rationale: 'The original version of this scenario (FC=0.8, CYA=30, no symptoms) asserted status=caution and ' +
+      'chemical_dosing_guide must suggest Cal-Hypo, but cyaAdjustedMinChlorine(30)=2.25 makes 0.8 ppm only 35% of ' +
+      'the CYA-adjusted minimum — genuinely critical, not caution, per this app\'s own deterministic rule — and a ' +
+      'top-up of that size correctly calls for liquid chlorine, not Cal-Hypo, which is for larger shock-level ' +
+      'raises (see sc-06). Redesigned to test conflict detection directly: the user reports having actually mixed ' +
+      'the two products, which conflicts_detected exists specifically to catch, rather than asserting which ' +
+      'product the model "should" prescribe for an unrelated reading.',
+    input: { ...BASE, chlorine: 1.5, pH: 7.4, alkalinity: 100, cyanuricAcid: 30, symptoms: 'Shocked the pool with cal-hypo yesterday, then added trichlor tablets to the skimmer today' },
     assertions: [
-      { field: 'status',    expect: 'caution',     description: 'FC below ideal but not critical' },
-      { field: 'chemical_dosing_guide', expect: 'Cal-Hypo', description: 'Must suggest Cal-Hypo or liquid chlorine for shock' },
-      { field: 'mistakes_to_avoid', expect: 'trichlor',    description: 'Must warn against mixing Cal-Hypo with trichlor' },
+      { field: 'status',    expect: 'caution',     description: 'FC=1.5 is 67% of the CYA=30 minimum (2.25) — caution, not critical' },
+      { field: 'conflicts_detected', expect: 'trichlor', description: 'Must flag the cal-hypo + trichlor mixing hazard the user just described' },
+      { field: 'mistakes_to_avoid', expect: 'mix',    description: 'Must also warn against mixing these going forward' },
     ],
   },
 ]

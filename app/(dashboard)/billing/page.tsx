@@ -207,7 +207,7 @@ function BillingContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 )}
-                <span style={{ color: item.included ? '#334155' : '#94a3b8' }}>{item.label}</span>
+                <span style={{ color: item.included ? 'var(--text-primary)' : 'var(--text-muted)' }}>{item.label}</span>
               </div>
             ))}
           </div>

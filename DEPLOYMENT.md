@@ -1,98 +1,141 @@
-# HydroSource — Deployment Guide
+# HydroSource AI — Deployment Guide
 
-## Switching from SQLite (dev) to PostgreSQL (production)
+This app runs on Supabase (Postgres + Auth + RLS), not Prisma/SQLite. There
+is no `DATABASE_URL`, `JWT_SECRET`, or `prisma db push` step — those were
+from an earlier version of this codebase and no longer apply.
 
-SQLite (`file:./dev.db`) is used locally. For any cloud deployment (Vercel, Railway, Render, etc.) you must switch to PostgreSQL.
+## 1. Provision Supabase
 
-### 1. Provision a PostgreSQL database
+1. Create a project at [supabase.com](https://supabase.com).
+2. In the SQL editor, run every file in `supabase/migrations/` **in order**
+   (`001_schema.sql` through the highest-numbered file) — this creates all
+   tables and RLS policies.
+3. From Project Settings → API, copy the project URL, anon key, and
+   service role key into `NEXT_PUBLIC_SUPABASE_URL`,
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
 
-| Platform | Free tier | Notes |
-|----------|-----------|-------|
-| [Supabase](https://supabase.com) | 500 MB | Managed Postgres, recommended |
-| [Neon](https://neon.tech) | 0.5 GB | Serverless Postgres, great for Vercel |
-| [Railway](https://railway.app) | $5 credit/mo | Easiest self-contained deploy |
-| [PlanetScale](https://planetscale.com) | Hobby free | MySQL, NOT Postgres — skip |
+## 2. Set environment variables
 
-Copy the connection string. It looks like:
+Copy `.env.example` to `.env.local` and fill in every value — that file
+has an up-to-date comment above each variable explaining exactly where to
+get it and what breaks if it's missing. The **required** set (app fails to
+start meaningfully without these — see `lib/startupCheck.ts`):
+
 ```
-postgresql://user:password@host:5432/dbname?sslmode=require
-```
-
-### 2. Update `prisma/schema.prisma`
-
-Change the datasource provider from `sqlite` to `postgresql`:
-
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-### 3. Set the environment variable
-
-In your deployment platform's dashboard, set:
-```
-DATABASE_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+GEMINI_API_KEY
 ```
 
-Do **not** commit this value. Keep `DATABASE_URL="file:./dev.db"` in your local `.env` for local development.
+Everything else (Stripe, Resend/email, PostHog, Sentry, Turnstile) is
+recommended but degrades gracefully when unset — see `.env.example` for
+exactly what each one disables.
 
-### 4. Push the schema
+## 3. Set up the support email — step by step
 
-Run this once to create all tables in the new database:
-```bash
-npx prisma db push
+The app has three separate, independently-configured email surfaces. Get
+all three right or "support" silently half-works:
+
+### a. Outbound transactional email (Resend)
+
+This is what actually *sends* verification, password-reset, water-report,
+and beta emails.
+
+1. Create a free account at [resend.com](https://resend.com) (100
+   emails/day, 3,000/month free).
+2. Add and verify your sending domain: Resend Dashboard → Domains → Add
+   Domain. Resend gives you SPF, DKIM, and DMARC DNS records — add all of
+   them at your DNS provider and wait for the Domains tab to show
+   **Verified** (not "Pending"). Sending will fail with a
+   "domain not verified" error until this shows Verified.
+3. Create an API key: Dashboard → API Keys → Create API Key. Set it as
+   `RESEND_API_KEY`.
+4. Set `EMAIL_FROM` to an address **on the verified domain**, e.g.
+   `"HydroSource AI <noreply@yourdomain.com>"`. The domain here must
+   exactly match what you verified in step 2 — a mismatch also fails with
+   "domain not verified."
+5. If your Resend account is still in sandbox/testing mode (no domain
+   verified yet), it can only send to the email address you signed up to
+   Resend with. Verifying the domain (step 2) is what unlocks sending to
+   real users.
+
+### b. The inbox that receives feedback + beta notifications (`SUPPORT_EMAIL`)
+
+Every "Submit Feedback" and beta-access application in the app emails a
+notification to `SUPPORT_EMAIL`. Set it to a real inbox someone actually
+reads — it defaults to `hydrosource.ai@appscloud365.com` in code if unset,
+which only works if that inbox exists and is monitored. This does **not**
+need to be on the same domain as `EMAIL_FROM`.
+
+Every notification sent to this address now sets `reply_to` to the
+original submitter's email, so replying to the notification goes straight
+back to the user — no need to copy their address out manually.
+
+### c. Who can access the in-app feedback dashboard (`FOUNDER_EMAIL`)
+
+`/admin/feedback` and the underlying `GET`/`PATCH /api/feedback` routes
+are gated by `FOUNDER_EMAIL` — a user is let in only if their **logged-in
+account email** exactly matches this value. There is deliberately no
+fallback: leave it unset and *nobody* can view feedback, including you.
+Set it to the email of the actual Supabase Auth account you'll sign in
+with to review feedback (this can be the same address as `SUPPORT_EMAIL`,
+but it's the login identity that's checked, not just a mailbox).
+
+### d. Verifying it actually works end to end
+
+1. With `RESEND_API_KEY` unset, emails just log to the server console
+   (`[HydroSource Email — dev mode]`) instead of sending — useful for
+   local dev, but confirm the key **is** set in production or nothing
+   sends silently.
+2. Submit the in-app feedback form (bottom-right "Feedback" button on any
+   dashboard page) and confirm the notification arrives at `SUPPORT_EMAIL`
+   within a minute.
+3. Sign up for a new account and confirm the verification email arrives.
+4. Sign in with the account matching `FOUNDER_EMAIL` and confirm
+   `/admin/feedback` loads instead of showing the "access denied" state.
+5. Check Resend's Dashboard → Logs for delivery status/bounces on any
+   email that doesn't arrive — it will show the exact rejection reason.
+
+## 4. Stripe
+
+```
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+STRIPE_HOMEOWNER_PLUS_MONTHLY_PRICE_ID / _ANNUAL_
+STRIPE_POOL_PRO_MONTHLY_PRICE_ID / _ANNUAL_
+STRIPE_POOL_TEAM_MONTHLY_PRICE_ID / _ANNUAL_
 ```
 
-Or if using CI/CD, add a build step:
-```bash
-npx prisma generate && npx prisma db push
-```
+Create one monthly + one annual Price per paid plan in Stripe Dashboard →
+Product catalog — `lib/plans.ts` reads these six IDs by exact name, and
+checkout returns a 500 for any plan whose pair is missing. Register the
+webhook endpoint at `https://yourdomain.com/api/stripe/webhook` and copy
+its signing secret into `STRIPE_WEBHOOK_SECRET`.
 
-> No migration files are needed — `db push` handles the schema directly. If you later want version-controlled migrations, switch to `prisma migrate deploy`.
+If `BETA_MODE=true` (see `.env.example`), every user gets full Pool Pro
+access for free and Stripe checkout is skipped entirely — set it to
+`false` to turn on real billing.
 
-### 5. Deploy
+## 5. Deploy
 
 ```bash
 # Vercel
 vercel --prod
 
-# Railway / Render
+# Any other platform (Railway, Render, etc.)
 # Push to your connected git branch — auto-deploys on push
 ```
 
----
+## Deployment checklist
 
-## Required environment variables for production
-
-See `.env.example` for all variables. The minimum set to go live:
-
-| Variable | Where to get it |
-|----------|----------------|
-| `DATABASE_URL` | Your Postgres provider dashboard |
-| `JWT_SECRET` | `openssl rand -base64 32` — must be 32+ chars |
-| `GEMINI_API_KEY` | [ai.google.dev](https://ai.google.dev) |
-| `NEXT_PUBLIC_APP_URL` | Your production URL, e.g. `https://HydroSource.app` |
-| `RESEND_API_KEY` | [resend.com](https://resend.com) — for password reset emails |
-| `EMAIL_FROM` | A verified sender domain in Resend |
-| `STRIPE_SECRET_KEY` | [dashboard.stripe.com](https://dashboard.stripe.com/apikeys) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe dashboard → Webhooks → your endpoint secret |
-| `STRIPE_HOMEOWNER_PLUS_MONTHLY_PRICE_ID` / `_ANNUAL_` | Stripe dashboard → Products (one pair per plan: Homeowner Plus, Pool Pro, Pool Team) |
-| `STRIPE_POOL_PRO_MONTHLY_PRICE_ID` / `_ANNUAL_` | Stripe dashboard → Products |
-| `STRIPE_POOL_TEAM_MONTHLY_PRICE_ID` / `_ANNUAL_` | Stripe dashboard → Products |
-
-OAuth (Google, Microsoft) are optional — the app works without them.
-
----
-
-## Vercel deployment checklist
-
-- [ ] PostgreSQL database provisioned and `DATABASE_URL` set
-- [ ] All required env vars added in Vercel project settings
-- [ ] `npx prisma db push` run against the production DB
-- [ ] Stripe webhook endpoint registered: `https://yourdomain.com/api/stripe/webhook`
-- [ ] Google OAuth redirect URI updated: `https://yourdomain.com/api/auth/callback/google`
-- [ ] Microsoft OAuth redirect URI updated: `https://yourdomain.com/api/auth/callback/microsoft`
-- [ ] `NEXT_PUBLIC_APP_URL` set to production URL (no trailing slash)
-- [ ] Test signup → login → add pool → run water test end-to-end
+- [ ] All migrations in `supabase/migrations/` run against the production project
+- [ ] Required env vars set (see §2)
+- [ ] Resend domain shows **Verified**, `EMAIL_FROM` matches that domain
+- [ ] `SUPPORT_EMAIL` points to a real, monitored inbox
+- [ ] `FOUNDER_EMAIL` matches the Supabase Auth account you'll use to review feedback
+- [ ] Feedback form → email arrives → reply-to goes to the actual submitter (§3d)
+- [ ] Stripe webhook endpoint registered and price IDs set (or `BETA_MODE=true` intentionally)
+- [ ] `NEXT_PUBLIC_APP_URL` set to the production URL (no trailing slash)
+- [ ] Google OAuth: Client ID/Secret set in Supabase Dashboard → Authentication → Providers → Google (not in `.env`) — see `.env.example` for the exact redirect URI Google needs
+- [ ] Test signup → verify email → login → add pool → run a water test end-to-end
